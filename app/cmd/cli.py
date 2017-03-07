@@ -40,9 +40,10 @@ class DropDB(Command):
             db.drop_all()
 
 def init_command(manager):
-    manager.add_option("-c", "--config",
-                   dest="config",
-                   help="config file",
+    manager.add_option("-e", "--env",
+                   dest="env",
+                   help="set current environment, choice=[default, test, development, production]",
+                   default="default",
                    required=False)
     manager.add_command("runserver", Server(host="0.0.0.0", port=8080))
     manager.add_command("urls", ShowUrls())
