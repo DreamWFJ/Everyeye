@@ -5,8 +5,9 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-07 14:56
 # ===================================
-from flask import Flask
+from flask import Flask, Blueprint
 from config import config
+from v1.routes import load_api_routes
 def load_config(env):
     """加载配置类"""
     if env.startswith('p') or env.startswith('pr') or env.startswith('pro') or env == "production":
@@ -21,9 +22,13 @@ def load_config(env):
 
 def create_app(env=None):
     app = Flask(__name__)
+    # 对REST API的支持
+    load_api_routes(app)
     config = load_config(env)
     app.config.from_object(config)
-    # configure your app...
+    # 这下边要修改为视图的API蓝图
+    # from .v1 import api as api_1_0_blueprint
+    # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
     return app
 
 
