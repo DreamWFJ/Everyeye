@@ -10,8 +10,8 @@ from flask_script import Manager
 from app import create_app
 from app.cmd.cli import init_command
 
-manager = Manager(create_app())
-init_command(manager)
+manager = Manager(create_app)
+manager = init_command(manager)
 
 if __name__ == '__main__':
     manager.run()

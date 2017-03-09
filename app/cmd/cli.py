@@ -50,3 +50,4 @@ def init_command(manager):
     manager.add_command("clean", Clean())
     manager.add_command("init", InitDB())
     manager.add_command("drop", DropDB())
+    return manager

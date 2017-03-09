@@ -7,9 +7,10 @@
 # ===================================
 
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
+    DB_BACKEND = "sqlalchemy"
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
@@ -35,8 +36,9 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
 
 class TestingConfig(Config):
+    DB_BACKEND = "sqlalchemy"
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = 'sqlite://' + BASE_DIR + '//test.db'
     WTF_CSRF_ENABLED = False
 
 class ProductionConfig(Config):
@@ -49,9 +51,8 @@ class ProductionConfig(Config):
 
 config = {
     'development': DevelopmentConfig,
-    'testing': TestingConfig,
+    'test': TestingConfig,
     'production': ProductionConfig,
-
     'default': DevelopmentConfig
 }
     

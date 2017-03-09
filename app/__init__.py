@@ -23,15 +23,13 @@ def load_config(env):
 def create_app(env=None):
     app = Flask(__name__)
     # 对REST API的支持
-    load_api_routes(app)
+    app = load_api_routes(app)
     config = load_config(env)
     app.config.from_object(config)
+
     # 这下边要修改为视图的API蓝图
     # from .v1 import api as api_1_0_blueprint
     # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
     return app
 
-
-if __name__ == '__main__':
-    pass
     

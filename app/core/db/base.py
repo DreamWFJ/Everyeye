@@ -10,22 +10,18 @@ import six
 import logging
 from abc import ABCMeta, abstractmethod
 
-class DB(six.with_metaclass(ABCMeta)):
+class BaseDatabase(six.with_metaclass(ABCMeta)):
     _logger = logging.getLogger('apscheduler.jobstores')
 
-    def start(self, scheduler, alias):
+    def init_db(self):
         """
-        Called by the scheduler when the scheduler is being started or when the job store is being
-        added to an already running scheduler.
-
-        :param apscheduler.schedulers.base.BaseScheduler scheduler: the scheduler that is starting
-            this job store
-        :param str|unicode alias: alias of this job store as it was assigned to the scheduler
+        init databases
         """
 
-        self._scheduler = scheduler
-        self._alias = alias
+        alias = ''
         self._logger = logging.getLogger('apscheduler.jobstores.%s' % alias)
+
+
 
     def __init__(self):
         pass
@@ -40,6 +36,30 @@ class DB(six.with_metaclass(ABCMeta)):
 
         :param str|unicode job_id: identifier of the job
         :rtype: Job
+        """
+
+    @abstractmethod
+    def close(self):
+        """
+        Close current connect
+        """
+
+    @abstractmethod
+    def create_tables(self):
+        """
+        create some tables, nosql don't need
+        """
+
+    @abstractmethod
+    def insert_test_datas(self):
+        """
+        insert some test datas
+        """
+
+    @abstractmethod
+    def remove_all_datas(self):
+        """
+        remove all tables
         """
 
     def __repr__(self):
