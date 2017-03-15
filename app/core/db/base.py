@@ -66,4 +66,35 @@ class BaseDatabase(six.with_metaclass(ABCMeta)):
         return '<%s>' % self.__class__.__name__
 
 
-    
+class Datastore(object):
+    def __init__(self, db):
+        self.db = db
+
+    def commit(self):
+        pass
+
+    def put(self, model):
+        raise NotImplementedError
+
+    def delete(self, model):
+        raise NotImplementedError    
+
+class SQLAlchemyDatastore(Datastore):
+    def commit(self):
+        self.db.session.commit()
+
+    def put(self, model):
+        self.db.session.add(model)
+        return model
+
+    def delete(self, model):
+        self.db.session.delete(model)
+
+
+class MongoEngineDatastore(Datastore):
+    def put(self, model):
+        model.save()
+        return model
+
+    def delete(self, model):
+        model.delete()

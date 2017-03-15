@@ -20,6 +20,18 @@ def load_config(env):
         e = "default"
     return config[e]
 
+def load_database_backend(app):
+    DB_BACKEND = app.config["DB_BACKEND"]
+    if DB_BACKEND == "sqlalchemy":
+        from flask_sqlalchemy import SQLAlchemy
+        app.config["DB_CONNECT_HANDLER"] = SQLAlchemy(app)
+    elif DB_BACKEND == "pymongo":
+        from flask_pymongo import MongoClient
+    else:
+        # 这里使用sqlite3处理
+        pass
+
+
 def create_app(env=None):
     app = Flask(__name__)
     # 对REST API的支持

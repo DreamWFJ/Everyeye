@@ -7,8 +7,10 @@
 # ===================================
 from flask_script.commands import ShowUrls, Clean
 from flask_script import Command, Server, Option, prompt_bool
+from flask import current_app
+from werkzeug.local import LocalProxy
 
-db = "从数据对象过来，需要统一一个方法"
+_db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
 
 
 class InitDB(Command):
@@ -37,7 +39,7 @@ class DropDB(Command):
     def run(self, name):
         if prompt_bool(
             "Are you sure you want to lose all your data"):
-            db.drop_all()
+            _db.drop_all()
 
 def init_command(manager):
     manager.add_option("-e", "--env",

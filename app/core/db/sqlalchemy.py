@@ -5,10 +5,12 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-08 19:56
 # ===================================
-from .base import BaseDatabase
-from flask_sqlalchemy import SQLAlchemy
+from .base import BaseDatabase, SQLAlchemyDatastore
+from flask import current_app
+from werkzeug.local import LocalProxy
 
-db = SQLAlchemy()
+db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
+
 class SQLAlchemyDB(BaseDatabase):
     def __init__(self):
         pass
@@ -128,3 +130,14 @@ class IDMap(db.Model):
 
     def __repr__(self):
         return '<IDMap user_id:%r, role_id:%r, right_id:%r, resource_id:%r>' % (self.user_id, self.role_id, self.right_id, self.resource_id)
+
+class SQLAlchemyUserDatastore(SQLAlchemyDatastore):
+    def __init__(self):
+        pass
+
+user_datastore = SQLAlchemyUserDatastore()
+role_datastore = SQLAlchemyUserDatastore()
+right_datastore = SQLAlchemyUserDatastore()
+user_role_datastore = SQLAlchemyUserDatastore()
+role_right_datastore = SQLAlchemyUserDatastore()
+password_datastore = SQLAlchemyUserDatastore()

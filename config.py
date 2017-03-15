@@ -42,6 +42,7 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
 
 class ProductionConfig(Config):
+    DB_BACKEND = "pymongo"
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 25
     MAIL_USE_TLS = True
