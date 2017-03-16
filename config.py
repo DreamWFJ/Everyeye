@@ -38,8 +38,11 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     DB_BACKEND = "sqlalchemy"
     TESTING = True
+    # mysql://username:password@server/db
     SQLALCHEMY_DATABASE_URI = 'sqlite://' + BASE_DIR + '//test.db'
     WTF_CSRF_ENABLED = False
+    SQLALCHEMY_ECHO = True
+
 
 class ProductionConfig(Config):
     DB_BACKEND = "pymongo"

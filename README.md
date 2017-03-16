@@ -28,6 +28,7 @@ Used to manage users, roles, permissions, resource information, etc
     3、具备命令行初始化数据库，创建超级用户默认配置，以及备份，删除数据库，表等
     4、实现统一的CRUD基础对象，其它如用户，角色，权限等具体实现自己的功能
     5、基于celery异步任务队列的邮件消息通知
+    6、参数配置最终加载为一个对象，或者将所有的配置变成实例的属性
 
 ### 数据结构：
     用户（user）

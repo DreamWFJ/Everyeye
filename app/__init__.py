@@ -8,6 +8,7 @@
 from flask import Flask, Blueprint
 from config import config
 from v1.routes import load_api_routes
+
 def load_config(env):
     """加载配置类"""
     if env.startswith('p') or env.startswith('pr') or env.startswith('pro') or env == "production":
@@ -24,12 +25,16 @@ def load_database_backend(app):
     DB_BACKEND = app.config["DB_BACKEND"]
     if DB_BACKEND == "sqlalchemy":
         from flask_sqlalchemy import SQLAlchemy
-        app.config["DB_CONNECT_HANDLER"] = SQLAlchemy(app)
+        from core.db.sqlalchemy import SQLAlchemyUserDatastore, User, Role
+        DB_CONNECT_HANDLER = SQLAlchemy(app)
+        app.config["DB_CONNECT_HANDLER"] = DB_CONNECT_HANDLER
+        app.config["USER_STORAGE"] = SQLAlchemyUserDatastore(DB_CONNECT_HANDLER, User, Role)
     elif DB_BACKEND == "pymongo":
         from flask_pymongo import MongoClient
     else:
         # 这里使用sqlite3处理
         pass
+    return app
 
 
 def create_app(env=None):
@@ -38,7 +43,8 @@ def create_app(env=None):
     app = load_api_routes(app)
     config = load_config(env)
     app.config.from_object(config)
-
+    # 加载数据库
+    app = load_database_backend(app)
     # 这下边要修改为视图的API蓝图
     # from .v1 import api as api_1_0_blueprint
     # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')

@@ -5,50 +5,48 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-08 19:56
 # ===================================
-from .base import BaseDatabase, SQLAlchemyDatastore
+from .base import UserDatastore, SQLAlchemyDatastore
 from flask import current_app
 from werkzeug.local import LocalProxy
 
 db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
 
-class SQLAlchemyDB(BaseDatabase):
-    def __init__(self):
-        pass
-
-    def create_tables(self):
-        pass
+# roles = db.Table('roles',
+#     db.Column('role_id', db.Integer, db.ForeignKey('role.id')),
+#     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
+# )
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120), unique=True)
-    telephone = db.Column(db.Integer, unique=True)
-    enabled = db.Column(db.Boolean)
+    telephone = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(256), )
+    active = db.Column(db.Boolean)
     create_at = db.Column(db.DateTime)
     last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-    description = db.Column(db.String(120), unique=True)
+    extra = db.Column(db.PickleType)
+    description = db.Column(db.String(256))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
-    def __init__(self, user_name):
-        self.user_name = user_name
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
 
     def __repr__(self):
-        return '<User %r>' % self.user_name
+        return '<User Email Account: %r>' % self.email
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    role_name = db.Column(db.String(80), unique=True)
-    enabled = db.Column(db.Boolean)
+    name = db.Column(db.String(120), unique=True)
     create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-    description = db.Column(db.String(120), unique=True)
+    extra = db.Column(db.PickleType)
+    description = db.Column(db.String(256))
 
-    def __init__(self, role_name):
-        self.role_name = role_name
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
-        return '<Role %r>' % self.role_name
+        return '<Role: %r>' % self.name
 
 
 class Right(db.Model):
@@ -96,20 +94,6 @@ class Resource(db.Model):
     def __repr__(self):
         return '<Resource %r>' % self.resource_name
 
-class Passward(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    password = db.Column(db.String(256))
-    user_id = db.Column(db.Integer, unique=True)
-    create_at = db.Column(db.DateTime)
-    expires_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-
-    def __init__(self, user_id, password):
-        self.user_id = user_id
-        self.password = password
-
-    def __repr__(self):
-        return '<Passward for user_id: %r>' % self.user_id
 
 class IDMap(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -131,13 +115,31 @@ class IDMap(db.Model):
     def __repr__(self):
         return '<IDMap user_id:%r, role_id:%r, right_id:%r, resource_id:%r>' % (self.user_id, self.role_id, self.right_id, self.resource_id)
 
-class SQLAlchemyUserDatastore(SQLAlchemyDatastore):
-    def __init__(self):
-        pass
+class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
+    """A SQLAlchemy datastore implementation for Flask-Security that assumes the
+    use of the Flask-SQLAlchemy extension.
+    """
+    def __init__(self, db, user_model, role_model):
+        SQLAlchemyDatastore.__init__(self, db)
+        UserDatastore.__init__(self, user_model, role_model)
 
-user_datastore = SQLAlchemyUserDatastore()
-role_datastore = SQLAlchemyUserDatastore()
-right_datastore = SQLAlchemyUserDatastore()
-user_role_datastore = SQLAlchemyUserDatastore()
-role_right_datastore = SQLAlchemyUserDatastore()
-password_datastore = SQLAlchemyUserDatastore()
+    def get_user(self, identifier):
+        if self._is_numeric(identifier):
+            return self.user_model.query.get(identifier)
+        query = getattr(self.user_model, 'email').ilike(identifier)
+        rv = self.user_model.query.filter(query).first()
+        if rv is not None:
+            return rv
+
+    def _is_numeric(self, value):
+        try:
+            int(value)
+        except (TypeError, ValueError):
+            return False
+        return True
+
+    def find_user(self, **kwargs):
+        return self.user_model.query.filter_by(**kwargs).first()
+
+    def find_role(self, role):
+        return self.role_model.query.filter_by(name=role).first()

@@ -18,5 +18,5 @@ def load_api_routes(app):
 
 
 def load_user_routes(api):
-    api.add_resource(User, '/user', '/user/<int:user_id>')
+    api.add_resource(User, '/user', '/user/<int:user_id>', endpoint='user')
 
