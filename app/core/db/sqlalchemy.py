@@ -6,10 +6,10 @@
 # CreateTime : 2017-03-08 19:56
 # ===================================
 from .base import UserDatastore, SQLAlchemyDatastore
-from flask import current_app
+from flask import current_app, g
 from werkzeug.local import LocalProxy
-
-db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
+print g['DB_CONNECT_HANDLER']
+db = LocalProxy(lambda: g['DB_CONNECT_HANDLER'])
 
 # roles = db.Table('roles',
 #     db.Column('role_id', db.Integer, db.ForeignKey('role.id')),

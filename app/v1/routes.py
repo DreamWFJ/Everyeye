@@ -10,7 +10,7 @@ from flask_restful import Api
 from app.core.resources.user import User
 
 def load_api_routes(app):
-    api_bp = Blueprint('api', __name__, url_prefix='/api/v1.0')
+    api_bp = Blueprint('api', url_prefix='/api/v1.0')
     api = Api(api_bp)
     load_user_routes(api)
     app.register_blueprint(api_bp)
@@ -20,3 +20,10 @@ def load_api_routes(app):
 def load_user_routes(api):
     api.add_resource(User, '/user', '/user/<int:user_id>', endpoint='user')
 
+class EveryEyeApi(Api):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def init_route(cls):
+        pass

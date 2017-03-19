@@ -31,6 +31,7 @@ def commit(fn):
 
 
 class InitDB(Command):
+    '''init databases data'''
     option_list = (
         Option('-d', '--database', dest='database', default=None),
     )
