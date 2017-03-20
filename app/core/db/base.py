@@ -16,17 +16,39 @@ class Datastore(object):
         init databases
         :param database <str>
         """
-        raise NotImplementedError
+        database_name = kwargs.pop('database')
+        if database_name:
+            self.drop_one(database_name)
+            self.create_one(database_name)
+        else:
+            self.drop_all()
+            self.create_all()
 
     def drop_database(self, **kwargs):
         """
         drop databases
         :param database <str>
         """
-        raise NotImplementedError
+        database_name = kwargs.pop('database')
+        if database_name:
+            self.drop_one(database_name)
+        else:
+            self.drop_all()
 
     def commit(self):
         pass
+
+    def create_one(self, database_name):
+        raise NotImplementedError
+
+    def create_all(self):
+        raise NotImplementedError
+
+    def drop_one(self, database_name):
+        raise NotImplementedError
+
+    def drop_all(self):
+        raise NotImplementedError
 
     def put(self, model):
         raise NotImplementedError
@@ -35,6 +57,22 @@ class Datastore(object):
         raise NotImplementedError    
 
 class SQLAlchemyDatastore(Datastore):
+    def create_all(self):
+        self.db.create_all()
+        self.init_database_data()
+
+    def init_database_data(self):
+        pass
+
+    def create_one(self, database_name):
+        pass
+
+    def drop_all(self):
+        self.db.drop_all()
+
+    def drop_one(self, database_name):
+        pass
+
     def commit(self):
         self.db.session.commit()
 
@@ -64,6 +102,7 @@ class UserDatastore(object):
     def __init__(self, user_model, role_model):
         self.user_model = user_model
         self.role_model = role_model
+
 
     def _prepare_role_modify_args(self, user, role):
         if isinstance(user, string_types):

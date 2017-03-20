@@ -5,11 +5,11 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-08 19:56
 # ===================================
-from .base import UserDatastore, SQLAlchemyDatastore
-from flask import current_app, g
+from .base import UserDatastore, SQLAlchemyDatastore, Datastore
+from flask import current_app
 from werkzeug.local import LocalProxy
-print g['DB_CONNECT_HANDLER']
-db = LocalProxy(lambda: g['DB_CONNECT_HANDLER'])
+db = LocalProxy(lambda: current_app.extensions['every_eye_api'].db_handler)
+print db
 
 # roles = db.Table('roles',
 #     db.Column('role_id', db.Integer, db.ForeignKey('role.id')),
@@ -123,6 +123,15 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
         SQLAlchemyDatastore.__init__(self, db)
         UserDatastore.__init__(self, user_model, role_model)
 
+    def init_database_data(self):
+        print "init_database_data"
+
+    def create_one(self):
+        print "create_one: ", self.user_model.__name__
+
+    def drop_one(self):
+        print "drop_one: ", self.user_model.__name__
+
     def get_user(self, identifier):
         if self._is_numeric(identifier):
             return self.user_model.query.get(identifier)
@@ -143,3 +152,23 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
 
     def find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()
+
+class SQLAlchemyCommand(Datastore):
+    def __init__(self):
+        self.user = SQLAlchemyUserDatastore(db,
+                                            User(1, 'admin@test.com', '18612082212', 'abc123', True, '2017-03-20 16:00:00', '2017-03-20 16:00:00', {}, '', 1),
+                                            Role(1, 'admin', '2017-03-20 16:00:00', {}, ''))
+        super(SQLAlchemyCommand, self).__init__(db)
+
+    def create_one(self, database):
+        if database == "user":
+            self.user.create_one()
+
+    def drop_one(self, database):
+        pass
+
+    def create_all(self):
+        self.user.create_one()
+
+    def drop_all(self):
+        pass

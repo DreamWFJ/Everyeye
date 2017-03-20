@@ -8,7 +8,9 @@
 from flask import Flask, g
 from config import config
 from v1.routes import load_api_routes
-from v1.routes import EveryEyeApi
+from flask_restful import Api
+from app.core.resources.user import User
+
 
 def load_config(env):
     """加载配置类"""
@@ -21,48 +23,82 @@ def load_config(env):
     else:
         e = "default"
     return config[e]
-
-def load_database_backend(app):
-    DB_BACKEND = app.config["DB_BACKEND"]
-    print "DB_BACKEND: ",DB_BACKEND
-    if DB_BACKEND == "sqlalchemy":
-        from flask_sqlalchemy import SQLAlchemy
-        from flask_migrate import Migrate, MigrateCommand
-        from core.db.sqlalchemy import SQLAlchemyUserDatastore, User, Role
-        DB_CONNECT_HANDLER = SQLAlchemy(app)
-        # 只针对sqlalchemy 使用的数据转移，类似django中一样
-        migrate = Migrate(app, DB_CONNECT_HANDLER)
-        # manager = Manager(app)
-        # manager.add_command('db', MigrateCommand)
-        app.config["DB_CONNECT_HANDLER"] = DB_CONNECT_HANDLER
-        app.config["USER_STORAGE"] = SQLAlchemyUserDatastore(DB_CONNECT_HANDLER, User, Role)
-    elif DB_BACKEND == "pymongo":
-        from flask_pymongo import MongoClient
-    else:
-        # 这里使用sqlite3处理
-        pass
-    return app
+#
+# def load_database_backend(app):
+#     DB_BACKEND = app.config["DB_BACKEND"]
+#     print "DB_BACKEND: ",DB_BACKEND
+#     if DB_BACKEND == "sqlalchemy":
+#         from flask_sqlalchemy import SQLAlchemy
+#         from core.db.sqlalchemy import SQLAlchemyCommand
+#         # from flask_migrate import Migrate, MigrateCommand
+#         # from core.db.sqlalchemy import SQLAlchemyUserDatastore, User, Role
+#         DB_CONNECT_HANDLER = SQLAlchemy(app)
+#         # 只针对sqlalchemy 使用的数据转移，类似django中一样
+#         # migrate = Migrate(app, DB_CONNECT_HANDLER)
+#         # manager = Manager(app)
+#         # manager.add_command('db', MigrateCommand)
+#         app.config["DB_CONNECT_HANDLER"] = DB_CONNECT_HANDLER
+#         app.config["DB_COMMAND"] = SQLAlchemyCommand()
+#         # app.config["USER_STORAGE"] = SQLAlchemyUserDatastore(DB_CONNECT_HANDLER, User, Role)
+#     elif DB_BACKEND == "pymongo":
+#         from flask_pymongo import MongoClient
+#     else:
+#         # 这里使用sqlite3处理
+#         pass
+#     return app
 
 
 def create_app(env=None):
     app = Flask(__name__)
-    # 对REST API的支持, 希望将EveryEyeApi做成一个flask扩展，直接通过init_app就能加载相关资源，初始化配置
-    EveryEyeApi.init_route()
-    # app.register_blueprint(api_v1_bp,
-    #     url_prefix='{prefix}/v{version}'.format(
-    #     prefix=app.config['URL_PREFIX'],
-    #     version=API_VERSION_V1))
-    app = load_api_routes(app)
-    print "current env: ", env
-    config = load_config(env)
-    print config
-    app.config.from_object(config)
-    # 加载数据库
-    app = load_database_backend(app)
-    print g["DB_CONNECT_HANDLER"]
-    # 这下边要修改为视图的API蓝图
-    # from .v1 import api as api_1_0_blueprint
-    # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
+    app.config.from_object(load_config(env))
+    config_backend_database(app)
+    EveryEyeApi(app)
     return app
 
-    
+def config_backend_database(app):
+    pass
+
+class EveryEyeApi(object):
+    def __init__(self, app=None, prefix=None):
+        self.app = app
+        self.prefix = self._init_url_prefix(prefix)
+        self.api = Api(self.app, self.prefix)
+        if app is not None:
+            self.init_api(app)
+
+
+    def _init_url_prefix(self, prefix):
+        if not prefix:
+            prefix = '{prefix}/v{version}'.format(prefix=self.app.config['URL_PREFIX'],
+                                                  version=self.app.config['URL_PREFIX'])
+        return prefix
+
+
+    def _get_state(self):
+        for k, v in self.app.config.items():
+            setattr(self, k.lower(), v)
+        self.load_database_backend()
+
+    def init_api(self, app):
+        self.api.init_app(app)
+        app.extensions['every_eye_api'] = self._get_state()
+
+    def load_api_routes(self):
+        self.api.add_resource(User, '/user', '/user/<int:user_id>', endpoint='user')
+
+    def load_database_backend(self):
+        DB_BACKEND = self.app.config["DB_BACKEND"]
+        if DB_BACKEND == "sqlalchemy":
+            from flask_sqlalchemy import SQLAlchemy
+            db_handler = SQLAlchemy()
+            self.app.config["DB_HANDLER"] = db_handler
+            from app.core.db.sqlalchemy import SQLAlchemyUserDatastore
+            from app.core.db.sqlalchemy import User as db_user
+            from app.core.db.sqlalchemy import Role as db_role
+            self.app.config["DB_USER_HANDLER"] = SQLAlchemyUserDatastore(db_handler, db_user, db_role)
+            db_handler.init_app(self.app)
+        elif DB_BACKEND == "pymongo":
+            from flask_pymongo import MongoClient
+        else:
+            # 这里使用sqlite3处理
+            pass

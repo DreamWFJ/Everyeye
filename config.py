@@ -21,7 +21,8 @@ class Config:
     FLASKY_COMMENTS_PER_PAGE = 50
     SQLACHEMY_RECORD_QUERIES = True
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
-
+    URL_PREFIX = 'api'
+    API_VERSION = '1.0'
     @staticmethod
     def init_app(app):
         pass
@@ -42,6 +43,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite://' + BASE_DIR + '//test.db'
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_ECHO = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 class ProductionConfig(Config):

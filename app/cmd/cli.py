@@ -16,7 +16,7 @@ try:
 except ImportError:
     import json
 
-_db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
+_db = LocalProxy(lambda: current_app.config['DB_COMMAND'])
 
 encrypt_password = ""
 def pprint(obj):
