@@ -8,8 +8,7 @@
 from .base import UserDatastore, SQLAlchemyDatastore, Datastore
 from flask import current_app
 from werkzeug.local import LocalProxy
-db = LocalProxy(lambda: current_app.extensions['every_eye_api'].db_handler)
-print db
+from app import db
 
 # roles = db.Table('roles',
 #     db.Column('role_id', db.Integer, db.ForeignKey('role.id')),

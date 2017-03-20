@@ -13,7 +13,7 @@ from app.core.exceptions import ValidationError
 
 
 
-_db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
+# _db = LocalProxy(lambda: current_app.config['DB_CONNECT_HANDLER'])
 
 def email(email_str):
     """ return True if email_str is a valid email """
@@ -48,14 +48,19 @@ user_fields = {
 
 
 class User(Resource):
-    @marshal_with(user_fields)
+    # @marshal_with(user_fields)
     def get(self, user_id=None):
         print user_id
-        user_storage = current_app.config["user_storage"]
-        users = user_storage.get_user(user_id)
+        users = {"haha":"lala"}
         return jsonify({"users":users})
 
     def post(self):
         pass
 
-    
+class Test(Resource):
+    def get(self):
+        users = {"haha":"lala"}
+        return jsonify({"users":users})
+
+    def post(self):
+        pass
