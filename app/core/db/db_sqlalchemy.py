@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Author:         WFJ
+Version:        0.1.0
+FileName:       db_sqlalchemy.py
+CreateTime:     2017-03-22 21:52
+"""
+
 # -*- coding: utf-8 -*-
 # ===================================
 # ScriptName : sqlalchemy.py
@@ -10,14 +20,17 @@ from flask import current_app
 from werkzeug.local import LocalProxy
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, PickleType, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, scoped_session
 
 Base = declarative_base()
 
+
 class SqlalchemyBackend(Datastore):
     def __init__(self, app):
-        self.engine = create_engine(app.config["DB_URL"])
-        self.db = sessionmaker(bind=self.engine)
+        self.engine = create_engine(app.config["DATABASE_URL"], convert_unicode=True)
+        self.db = scoped_session(sessionmaker(autocommit=False,
+                                              autoflush=False,
+                                              bind=self.engine))
         super(SqlalchemyBackend, self).__init__(self.db)
 
         self.user = SQLAlchemyUserDatastore(self.db, User, Role)
