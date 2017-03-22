@@ -10,16 +10,11 @@ from config import Config
 from v1.routes import load_api_routes
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
-from app.core.resources.user import User
-from app.core.resources.user import Test
-
-db = SQLAlchemy()
-
+from app.core.resources import urls
 
 def create_app(env=None):
     app = Flask(__name__)
     app.config.from_object(Config)
-    db.init_app(app)
     EveryEyeApi(app)
     return app
 
@@ -52,13 +47,13 @@ class EveryEyeApi(object):
         # app.extensions['every_eye_api'] = self._get_state()
 
     def load_api_routes(self):
-        self.api.add_resource(User, '/user', '/user/<int:user_id>', endpoint='user')
-        self.api.add_resource(Test, '/test', endpoint='test')
+        for url in urls:
+            self.api.add_resource(url[0], url[1], endpoint=url[2])
 
     def load_database_backend(self):
         DB_BACKEND = self.app.config["DB_BACKEND"]
         if DB_BACKEND == "sqlalchemy":
-            pass
+            self.app.config["DB"] = SQLAlchemy(self.app)
         elif DB_BACKEND == "pymongo":
             from flask_pymongo import MongoClient
         else:

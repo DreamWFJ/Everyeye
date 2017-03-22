@@ -8,111 +8,53 @@
 from .base import UserDatastore, SQLAlchemyDatastore, Datastore
 from flask import current_app
 from werkzeug.local import LocalProxy
-from app import db
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, PickleType, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker
 
-# roles = db.Table('roles',
-#     db.Column('role_id', db.Integer, db.ForeignKey('role.id')),
-#     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
-# )
+Base = declarative_base()
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True)
-    telephone = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(256), )
-    active = db.Column(db.Boolean)
-    create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.PickleType)
-    description = db.Column(db.String(256))
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+class SqlalchemyBackend(Datastore):
+    def __init__(self, app):
+        self.engine = create_engine(app.config["DB_URL"])
+        self.db = sessionmaker(bind=self.engine)
+        super(SqlalchemyBackend, self).__init__(self.db)
 
-    def __init__(self, email, password):
-        self.email = email
-        self.password = password
+        self.user = SQLAlchemyUserDatastore(self.db, User, Role)
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, nullable=True)
+    telephone = Column(String, unique=True)
+    password = Column(String, nullable=True)
+    active = Column(Boolean)
+    create_at = Column(DateTime)
+    last_active_at = Column(DateTime)
+    extra = Column(PickleType)
+    description = Column(String)
+    role_id = Column(Integer, ForeignKey('role.id'))
+    role = relationship("Role", back_populates="user")
 
     def __repr__(self):
-        return '<User Email Account: %r>' % self.email
+        return "<User (Email='%s', Telephone='%s', Password='%s')>" % (self.email, self.telephone, self.password)
 
-class Role(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True)
-    create_at = db.Column(db.DateTime)
-    extra = db.Column(db.PickleType)
-    description = db.Column(db.String(256))
+class Role(Base):
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    create_at = Column(DateTime)
+    extra = Column(PickleType)
+    description = Column(String)
+    user = relationship("User", order_by=User.id, back_populates="role")
 
     def __init__(self, name):
         self.name = name
 
     def __repr__(self):
-        return '<Role: %r>' % self.name
+        return "<Role: (name='%r')>" % self.name
 
 
-class Right(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    right_name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(120), unique=True)
-    enabled = db.Column(db.Boolean)
-    create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-
-    def __init__(self, right_name):
-        self.right_name = right_name
-
-    def __repr__(self):
-        return '<Right %r>' % self.right_name
-
-class UserGroup(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_group_name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(120), unique=True)
-    enabled = db.Column(db.Boolean)
-    create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-
-    def __init__(self, user_group_name):
-        self.user_group_name = user_group_name
-
-    def __repr__(self):
-        return '<UserGroup %r>' % self.user_group_name
-
-class Resource(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    resource_name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(120), unique=True)
-    enabled = db.Column(db.Boolean)
-    create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-
-    def __init__(self, resource_name):
-        self.resource_name = resource_name
-
-    def __repr__(self):
-        return '<Resource %r>' % self.resource_name
-
-
-class IDMap(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, unique=True)
-    role_id = db.Column(db.Integer, unique=True)
-    right_id = db.Column(db.Integer, unique=True)
-    resource_id = db.Column(db.Integer, unique=True)
-    enabled = db.Column(db.Boolean)
-    create_at = db.Column(db.DateTime)
-    last_active_at = db.Column(db.DateTime)
-    extra = db.Column(db.String)
-
-    def __init__(self, user_id, role_id, right_id, resource_id):
-        self.user_id = user_id
-        self.role_id = role_id
-        self.right_id = right_id
-        self.resource_id = resource_id
-
-    def __repr__(self):
-        return '<IDMap user_id:%r, role_id:%r, right_id:%r, resource_id:%r>' % (self.user_id, self.role_id, self.right_id, self.resource_id)
 
 class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
     """A SQLAlchemy datastore implementation for Flask-Security that assumes the
@@ -152,22 +94,3 @@ class SQLAlchemyUserDatastore(SQLAlchemyDatastore, UserDatastore):
     def find_role(self, role):
         return self.role_model.query.filter_by(name=role).first()
 
-class SQLAlchemyCommand(Datastore):
-    def __init__(self):
-        self.user = SQLAlchemyUserDatastore(db,
-                                            User(1, 'admin@test.com', '18612082212', 'abc123', True, '2017-03-20 16:00:00', '2017-03-20 16:00:00', {}, '', 1),
-                                            Role(1, 'admin', '2017-03-20 16:00:00', {}, ''))
-        super(SQLAlchemyCommand, self).__init__(db)
-
-    def create_one(self, database):
-        if database == "user":
-            self.user.create_one()
-
-    def drop_one(self, database):
-        pass
-
-    def create_all(self):
-        self.user.create_one()
-
-    def drop_all(self):
-        pass

@@ -9,6 +9,9 @@
 from flask_pymongo import PyMongo
 
 
+class MongoBackend(object):
+    pass
+
 if __name__ == '__main__':
     pass
     

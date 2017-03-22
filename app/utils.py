@@ -96,4 +96,6 @@ def encrypt_password(password):
 
 def valid_email(email):
     return True
-    
+
+def url(resource, *urls, **kwargs):
+    return resource, urls, kwargs
