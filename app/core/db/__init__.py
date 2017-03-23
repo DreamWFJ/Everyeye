@@ -32,6 +32,12 @@ class StoreBackend(object):
         self.database_engine = dict(self.app.config['DATABASE_ENGINE'])
         self.database = _db_support[self.database_engine](self.app)
 
+    def create_all(self):
+        self.database.create_all()
+
+    def drop_all(self):
+        self.database.drop_all()
+
     def connect_db(self):
         self.database.connect()
 

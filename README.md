@@ -1,7 +1,7 @@
 # Everyeye
 Used to manage users, roles, permissions, resource information, etc
 
-## Intrduction
+## Intrduction REST API
 ### 功能：实现用户，角色，用户组，权限，资源的管理
 ### 需求：
     具有 REST API
@@ -47,8 +47,49 @@ Used to manage users, roles, permissions, resource information, etc
     密码（password）
         id, user_id, password, create_at, expires_at, extra
 
-### 大型程序结构
+### 用户，角色，权限，资源关系
+    1、用户关联角色
+    2、权限只分为：增0x01, 删0x02, 改0x04, 查0x08
+    3、资源与权限进行组合，在为角色分配能够访问的资源的时候，进行设置资源权限组合
 
+### 大型程序结构
+```
+.
+├── app
+│   ├── email.py
+│   ├── __init__.py
+│   ├── main
+│   │   ├── errors.py
+│   │   ├── forms.py
+│   │   ├── __init__.py
+│   │   └── views.py
+│   ├── models.py
+│   ├── static
+│   │   └── favicon.ico
+│   └── templates
+│       ├── 404.html
+│       ├── 500.html
+│       ├── base.html
+│       ├── index.html
+│       ├── mail
+│       │   ├── new_user.html
+│       │   └── new_user.txt
+│       └── user.html
+├── config.py
+├── manage.py
+├── migrations
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+├── readme.md
+├── requirements.txt
+├── sqlite-example.png
+└── tests
+    ├── __init__.py
+    └── test_basics.py
+```
     调用关系图
 ### 扩展包安装
     pip install Flask-HTTPAuth

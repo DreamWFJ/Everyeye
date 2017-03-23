@@ -28,17 +28,36 @@ Base = declarative_base()
 class SqlalchemyBackend(Datastore):
     def __init__(self, app):
         self.engine = create_engine(app.config["DATABASE_URL"], convert_unicode=True)
-        self.db = scoped_session(sessionmaker(autocommit=False,
-                                              autoflush=False,
-                                              bind=self.engine))
+        self.session = scoped_session(sessionmaker(autocommit=False,
+                                                      autoflush=False,
+                                                      bind=self.engine))
+        setattr(self.engine, 'session', self.session)
         super(SqlalchemyBackend, self).__init__(self.db)
 
-        self.user = SQLAlchemyUserDatastore(self.db, User, Role)
+        self.user = SQLAlchemyUserDatastore(self.engine, User, Role)
 
+class SQLAlchemyBackend(object):
+    def __init__(self, app):
+        self.engine = create_engine(app.config["DATABASE_URL"], convert_unicode=True)
+        self.session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=self.engine))
+        setattr(self.engine, 'session', self.session)
+
+    def add_user(self, email, password, telephone=None, active=True, extra={}, description=''):
+        _id = 1
+        self.session.add(User(_id=_id, email=email, telephone=telephone, password=password, active=active, extra=extra, description=description))
+        self.session.commit()
+        return _id
+
+    def query_user(self, name):
+        return self.session.query(User).filter(User.name.in_([name])).order_by(User._id).all()
+        # query.filter(User.name.like('%name%')) 模糊查询， ilike 大小写敏感， in_, is_(None), isnot(None), or_, and_, match,
+
+    def get_all_user(self):
+        return self.session.query(User.name, User._id).all()
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
+    _id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, nullable=True)
     telephone = Column(String, unique=True)
     password = Column(String, nullable=True)
