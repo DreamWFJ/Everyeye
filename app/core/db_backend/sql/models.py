@@ -5,14 +5,90 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-23 16:42
 # ===================================
-
+import hashlib
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask import current_app
+from flask import request, url_for
+from markdown import markdown
 from app.core.db_backend.mixins import UserMixin, AnonymousUserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 _db = SQLAlchemy()
 
 db = _db
+
+# 建立资源与角色的多对多关系
+resources = db.Table('resources',
+                     db.Column('resource_id', db.Integer, db.ForeignKey('resource.id')),
+                     db.Column('role_id', db.Integer, db.ForeignKey('roles.id')),
+                     db.Column('create_at', db.DateTime, default = datetime.utcnow))
+
+
+# 角色表
+class Role(db.Model):
+    __tablename__ = 'roles'
+    _id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    enabled = db.Column(db.Boolean, default = True, index = True)
+    # 与资源的多对多关系
+    resource = db.relationship('Resource',
+                               secondary=resources,
+                               backref = db.backref('roles', lazy='joined'),
+                               lazy='dynamic',
+                               cascade = 'all, delete-orphan')
+    # 与用户的一对多关系
+    users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+class Right(db.Model):
+    __tablename__ = 'rights'
+    _id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    value = db.Column(db.Integer, unique = True)
+    create_at = db.Column(db.DateTime(), default = datetime.utcnow)
+    resource = db.relationship('Resource', backref = 'rights', lazy = 'dynamic')
+
+    @staticmethod
+    def insert_rights():
+        rights = {
+            'None': (0, 0x00),
+            'Show': (1, 0x01),
+            'Create': (1, 0x02),
+            'Update': (1, 0x04),
+            'Delete': (1, 0x08)
+        }
+        for r in rights:
+            right = Right.query.filter_by(name = r).first()
+            if right is None:
+                right = Right(name = r)
+            right._id = rights[r][0]
+            right.value = rights[r][1]
+            db.session.add(right)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<Right %r>' % self.name
+
+
+
+class Resource(db.Model):
+    __tablename__ = 'resource'
+    _id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    value = db.Column(db.Integer)
+    enabled = db.Column(db.Boolean, default=True, index=True)
+    description = db.Column(db.Text(), default=True, index=True)
+    right_id = db.Column(db.Integer, db.ForeignKey('rights.id'))
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+
+    def __repr__(self):
+        return '<Resource %r>' % self.name
+
 
 # 关注关系表
 class Follow(db.Model):
@@ -23,35 +99,47 @@ class Follow(db.Model):
     # 被关注者的ID
     followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
                             primary_key = True)
-    timestamp = db.Column(db.DateTime, default = datetime.utcnow)
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
-    email = db.Column(db.String(64), unique = True, index = True)
-    username = db.Column(db.String(64), unique = True, index = True)
+    # 用户名名称
+    name = db.Column(db.String(64), unique = True, index = True)
+    # 邮件地址
+    email = db.Column(db.String(64), unique = True, index = True, nullable=True)
+    password_hash = db.Column(db.String(128), nullable=True)
+    # 是否激活用户，默认激活
+    enabled = db.Column(db.Boolean, default = False)
+    # 角色ID
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password_hash = db.Column(db.String(128))
-    confirmed = db.Column(db.Boolean, default = False)
-    name = db.Column(db.String(64))
-    location = db.Column(db.String(64))
-    about_me = db.Column(db.Text())
-    member_since = db.Column(db.DateTime(), default = datetime.utcnow)
-    last_seen = db.Column(db.DateTime(), default = datetime.utcnow)
-    avatar_hash = db.Column(db.String(32))
+    # 其他信息
+    extra = db.Column(db.PickleType())
+    # 用户地址信息
+    addresses = db.relationship('Address', backref = 'user', lazy = 'dynamic')
+    # 用户联系方式
+    contact = db.relationship('Contact', backref='user', lazy='dynamic')
+    # 用户创建时间
+    create_at = db.Column(db.DateTime(), default = datetime.utcnow)
+    # 博文信息
     posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+    # 评论信息
+    comments = db.relationship('Comment', backref = 'author', lazy = 'dynamic')
+    # 登陆登出日志信息
+    logs = db.relationship('Log', backref = 'author', lazy = 'dynamic')
+    # 被关注者
     followed = db.relationship('Follow',
                                foreign_keys = [Follow.follower_id],
                                backref = db.backref('follower', lazy = 'joined'),
                                lazy = 'dynamic',
                                cascade = 'all, delete-orphan')
+    # 关注着
     followers = db.relationship('Follow',
                                 foreign_keys = [Follow.followed_id],
                                 backref = db.backref('followed', lazy = 'joined'),
                                 lazy = 'dynamic',
                                 cascade = 'all, delete-orphan')
-    comments = db.relationship('Comment', backref = 'author', lazy = 'dynamic')
-    likes = db.relationship('Like', backref = 'author', lazy = 'dynamic')
+
 
     @property
     def password(self):
@@ -181,11 +269,6 @@ class User(UserMixin, db.Model):
         }
         return json_use
 
-    @property
-    def followed_posts(self):
-        return Post.query.join(Follow, Follow.followed_id == Post.author_id) \
-            .filter(Follow.follower_id == self.id)
-
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -204,6 +287,7 @@ class User(UserMixin, db.Model):
     def generate_fake(count = 100):
         from sqlalchemy.exc import IntegrityError
         from random import seed
+        # 用于产生虚假数据
         import forgery_py
 
         seed()
@@ -239,97 +323,3 @@ class User(UserMixin, db.Model):
             return None
         return User.query.get(data['id'])
 
-class Role(db.Model):
-    __tablename__ = 'roles'
-    _id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    enabled = db.Column(db.Boolean, default = False, index = True)
-    resource = db.relationship('Resource', backref = 'role', lazy = 'dynamic')
-    users = db.relationship('User', backref = 'role', lazy = 'dynamic')
-
-    @staticmethod
-    def insert_roles():
-        roles = {
-            'User': (Permission.FOLLOW |
-                     Permission.COMMENT |
-                     Permission.WRITE_ARTICLES, True),
-            'Anonymity': (Permission.FOLLOW |
-                          Permission.COMMENT |
-                          Permission.WRITE_ARTICLES |
-                          Permission.MODERATE_COMMENTS, False),
-            'Administrator': (0xff, False)
-        }
-        for r in roles:
-            role = Role.query.filter_by(name = r).first()
-            if role is None:
-                role = Role(name = r)
-            role.permissions = roles[r][0]
-            role.default = roles[r][1]
-            db.session.add(role)
-        db.session.commit()
-
-    def __repr__(self):
-        return '<Role %r>' % self.name
-
-class Right(db.Model):
-    __tablename__ = 'rights'
-    _id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    value = db.Column(db.Integer, unique = True)
-    create_at = db.Column(db.DateTime(), default = datetime.utcnow)
-    resource = db.relationship('Resource', backref = 'right', lazy = 'dynamic')
-
-    @staticmethod
-    def insert_rights():
-        rights = {
-            'None': (0, 0x00),
-            'Show': (1, 0x01),
-            'Create': (1, 0x02),
-            'Update': (1, 0x04),
-            'Delete': (1, 0x08)
-        }
-        for r in rights:
-            right = Right.query.filter_by(name = r).first()
-            if right is None:
-                right = Right(name = r)
-            right._id = rights[r][0]
-            right.value = rights[r][1]
-            db.session.add(right)
-        db.session.commit()
-
-    def __repr__(self):
-        return '<Right %r>' % self.name
-
-class Resource(db.Model):
-    __tablename__ = 'resources'
-    _id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    value = db.Column(db.Integer)
-    enabled = db.Column(db.Boolean, default=True, index=True)
-    description = db.Column(db.Text(), default=True, index=True)
-    roles = db.relationship('Role', backref = 'right', lazy = 'dynamic')
-
-    @staticmethod
-    def insert_rights():
-
-        roles = {
-            'User': (Permission.FOLLOW |
-                     Permission.COMMENT |
-                     Permission.WRITE_ARTICLES, True),
-            'Moderator': (Permission.FOLLOW |
-                          Permission.COMMENT |
-                          Permission.WRITE_ARTICLES |
-                          Permission.MODERATE_COMMENTS, False),
-            'Administrator': (0xff, False)
-        }
-        for r in roles:
-            role = Role.query.filter_by(name = r).first()
-            if role is None:
-                role = Role(name = r)
-            role.permissions = roles[r][0]
-            role.default = roles[r][1]
-            db.session.add(role)
-        db.session.commit()
-
-    def __repr__(self):
-        return '<Role %r>' % self.name

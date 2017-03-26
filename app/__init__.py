@@ -6,11 +6,12 @@
 # CreateTime : 2017-03-07 14:56
 # ===================================
 from flask import Flask
-from config import Config
-from v1.routes import load_api_routes
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+
 from app.core.resources import urls
+from config import Config
+
 
 def create_app(env=None):
     app = Flask(__name__)
@@ -55,7 +56,7 @@ class EveryEyeApi(object):
         if DB_BACKEND == "sqlalchemy":
             self.app.config["DB"] = SQLAlchemy(self.app)
         elif DB_BACKEND == "pymongo":
-            from flask_pymongo import MongoClient
+            pass
         else:
             # 这里使用sqlite3处理
             pass
