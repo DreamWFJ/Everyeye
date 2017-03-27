@@ -8,7 +8,7 @@
 from flask import jsonify, current_app
 from flask_restful import Resource, reqparse, fields, marshal_with
 from werkzeug.local import LocalProxy
-from app.utils import valid_email
+from app.utils.verify import valid_email
 from app.core.exceptions import ValidationError
 
 

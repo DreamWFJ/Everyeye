@@ -11,6 +11,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     DB_BACKEND = "sqlalchemy"
+    DATABASE = os.path.join(BASE_DIR, 'test.db')
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
@@ -21,6 +22,8 @@ class Config:
     FLASKY_COMMENTS_PER_PAGE = 50
     SQLACHEMY_RECORD_QUERIES = True
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'data.sqlite').replace('\\', '/')
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     URL_PREFIX = 'api'
     API_VERSION = '1.0'
     @staticmethod

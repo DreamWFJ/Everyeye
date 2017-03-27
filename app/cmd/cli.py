@@ -7,7 +7,8 @@
 # ===================================
 import re
 from flask_script.commands import ShowUrls, Clean
-from flask_script import Command, Server, Option, prompt_bool
+from flask_script import Command, Server, Option, prompt_bool, Shell
+from flask_migrate import MigrateCommand
 from flask import current_app
 from werkzeug.local import LocalProxy
 
@@ -16,7 +17,12 @@ try:
 except ImportError:
     import json
 
-_db = LocalProxy(lambda: current_app.config['DB_COMMAND'])
+# _db = LocalProxy(lambda: current_app.config['DB_COMMAND'])
+from app import db as _db
+from app.core.db_backend.sql.models import User, Role, Right, Resource
+def make_shell_context():
+    return dict(app = current_app, db = _db, User = User, Role = Role, Right=Right, Resource=Resource)
+
 
 encrypt_password = ""
 def pprint(obj):
@@ -91,4 +97,7 @@ def init_command(manager):
     manager.add_command("clean", Clean())
     manager.add_command("init", InitDB())
     manager.add_command("drop", DropDB())
+    manager.add_command('db', MigrateCommand)
+    manager.add_command("shell", Shell(make_context = make_shell_context))
+
     return manager

@@ -8,15 +8,21 @@
 from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_migrate import Migrate, MigrateCommand
+from flask_mail import Mail
 from app.core.resources import urls
 from config import Config
 
+mail = Mail()
+db = SQLAlchemy()
 
 def create_app(env=None):
     app = Flask(__name__)
     app.config.from_object(Config)
-    EveryEyeApi(app)
+    migrate = Migrate(app, db)
+    db.init_app(app)
+    with app.test_request_context():
+        db.create_all()
     return app
 
 

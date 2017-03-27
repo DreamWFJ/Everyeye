@@ -5,41 +5,65 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-23 16:42
 # ===================================
+import os
 import hashlib
+
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
+from flask import current_app, Flask
 from flask import request, url_for
 from markdown import markdown
-from app.core.db_backend.mixins import UserMixin, AnonymousUserMixin
+# from app.core.db_backend.mixins import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-
+basedir = os.path.abspath(os.path.dirname(__file__))
+# app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'SQLITE://'+os.path.join(basedir, 'data.sqlite')
+# app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 _db = SQLAlchemy()
 
 db = _db
 
 # 建立资源与角色的多对多关系
-resources = db.Table('resources',
-                     db.Column('resource_id', db.Integer, db.ForeignKey('resource.id')),
-                     db.Column('role_id', db.Integer, db.ForeignKey('roles.id')),
-                     db.Column('create_at', db.DateTime, default = datetime.utcnow))
+resources_roles = db.Table('resources_roles',
+                     db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
+                     db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
 
+# 建立资源与权限的多对多关系
+resources_rights = db.Table('resources_rights',
+                  db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
+                  db.Column('right_id', db.Integer, db.ForeignKey('rights.id')))
+
+# 建立
+
+class Resource(db.Model):
+    __tablename__ = 'resources'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    enabled = db.Column(db.Boolean, default=True, index=True)
+    extra = db.Column(db.PickleType)
+    description = db.Column(db.Text(), default=True, index=True)
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+    # roles = db.relationship('Role', secondary=resources_roles,
+    #     backref=db.backref('resources', lazy='dynamic'))
+    # rights = db.relationship('Right', secondary=resources_rights,
+    #     backref=db.backref('resources', lazy='dynamic'))
+
+    def __repr__(self):
+        return '<Resource %r>' % self.name
 
 # 角色表
 class Role(db.Model):
     __tablename__ = 'roles'
-    _id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique = True)
     enabled = db.Column(db.Boolean, default = True, index = True)
     # 与资源的多对多关系
-    resource = db.relationship('Resource',
-                               secondary=resources,
-                               backref = db.backref('roles', lazy='joined'),
-                               lazy='dynamic',
-                               cascade = 'all, delete-orphan')
+    resources = db.relationship('Resource',
+                               secondary = resources_roles,
+                               backref = db.backref('roles', lazy='dynamic'))
     # 与用户的一对多关系
-    users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
+    # users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
     def __repr__(self):
@@ -47,12 +71,15 @@ class Role(db.Model):
 
 class Right(db.Model):
     __tablename__ = 'rights'
-    _id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique = True)
     value = db.Column(db.Integer, unique = True)
     create_at = db.Column(db.DateTime(), default = datetime.utcnow)
-    resource = db.relationship('Resource', backref = 'rights', lazy = 'dynamic')
-
+    # 与资源的多对多关系
+    resources = db.relationship('Resource',
+                               secondary=resources_rights,
+                               backref = db.backref('rights', lazy='dynamic'))
+    # resource_id = db.Column(db.Integer, db.ForeignKey('resource.id'))
     @staticmethod
     def insert_rights():
         rights = {
@@ -76,18 +103,7 @@ class Right(db.Model):
 
 
 
-class Resource(db.Model):
-    __tablename__ = 'resource'
-    _id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    value = db.Column(db.Integer)
-    enabled = db.Column(db.Boolean, default=True, index=True)
-    description = db.Column(db.Text(), default=True, index=True)
-    right_id = db.Column(db.Integer, db.ForeignKey('rights.id'))
-    create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
-    def __repr__(self):
-        return '<Resource %r>' % self.name
 
 
 # 关注关系表
@@ -101,7 +117,46 @@ class Follow(db.Model):
                             primary_key = True)
     create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
-class User(UserMixin, db.Model):
+class Address(db.Model):
+    __tablename__ = 'addresses'
+    id = db.Column(db.Integer, primary_key = True)
+    # 用户名名称
+    name = db.Column(db.String(64), unique = True, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return '<Resource %r>' % self.name
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key = True)
+    # 用户名名称
+    name = db.Column(db.String(64), unique = True, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return '<Comment %r>' % self.name
+
+class Contact(db.Model):
+    __tablename__ = 'contacts'
+    id = db.Column(db.Integer, primary_key = True)
+    # 用户名名称
+    name = db.Column(db.String(64), unique = True, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return '<Contact %r>' % self.name
+
+class Log(db.Model):
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return '<Log %r>' % self.name
+
+class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
     # 用户名名称
@@ -122,7 +177,7 @@ class User(UserMixin, db.Model):
     # 用户创建时间
     create_at = db.Column(db.DateTime(), default = datetime.utcnow)
     # 博文信息
-    posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+    # posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
     # 评论信息
     comments = db.relationship('Comment', backref = 'author', lazy = 'dynamic')
     # 登陆登出日志信息
@@ -219,7 +274,7 @@ class User(UserMixin, db.Model):
             (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
-        return self.can(Permission.ADMINISTER)
+        return True
 
     def ping(self):
         self.last_seen = datetime.utcnow()
