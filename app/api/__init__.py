@@ -1,12 +1,14 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# ===================================
+# ScriptName : __init__.py.py
+# Author     : WFJ
+# Email      : wfj_sc@163.com
+# CreateTime : 2017-03-27 15:45
+# ===================================
 
-"""
-Author:         WFJ
-Version:        0.1.0
-FileName:       __init__.py.py
-CreateTime:     2017-03-25 21:28
-"""
+
+
 
 if __name__ == '__main__':
     pass
+    
