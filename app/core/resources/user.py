@@ -64,3 +64,4 @@ class Test(Resource):
 
     def post(self):
         pass
+

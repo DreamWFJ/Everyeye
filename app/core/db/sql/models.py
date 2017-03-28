@@ -7,6 +7,7 @@
 # ===================================
 from datetime import datetime
 from app import sql_db as db
+from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -105,6 +106,7 @@ class Right(db.Model):
         return '<Right %r>' % self.name
 
 class RightWeight(object):
+    """当前只有增、删、改、查、这4种基本权限，若有新的权限，可以在权限库中添加"""
     NONE = 0x00
     SHOW = 0x01
     CREATE = 0x02
@@ -114,6 +116,7 @@ class RightWeight(object):
 
 
 class Address(db.Model):
+    """用户地址信息"""
     __tablename__ = 'addresses'
     id = db.Column(db.Integer, primary_key = True)
     # 用户名名称
@@ -139,6 +142,7 @@ class Address(db.Model):
         return '<Resource %r>' % self.name
 
 class AuditLog(db.Model):
+    """用户的登录登出审计日志"""
     __tablename__ = 'audit_logs'
     id = db.Column(db.Integer, primary_key = True)
     login_city = db.Column(db.String(16))
@@ -176,6 +180,7 @@ class AuditLog(db.Model):
         return '<AuditLog %r>' % self.name
 
 class Log(db.Model):
+    """用户的操作日志"""
     __tablename__ = 'logs'
     id = db.Column(db.Integer, primary_key = True)
     action = db.Column(db.String(64))
@@ -195,7 +200,8 @@ class Log(db.Model):
     def __repr__(self):
         return '<AuditLog %r>' % self.name
 
-class User(db.Model):
+class User(UserMixin, db.Model):
+    """用户信息"""
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
     # 用户名名称
@@ -248,7 +254,19 @@ class User(db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def has_right(self, permissions):
+        return True
+
+class AnonymousUser(AnonymousUserMixin):
+    def is_administrator(self):
+        return False
+
+    def has_right(self, permissions):
+        return False
+
+
 class InitData(object):
+    """初始化数据库"""
     def __init__(self):
         self.resources = self.create_resources()
         self.user = self.create_user()
@@ -324,3 +342,7 @@ class InitData(object):
         Role.insert_roles('User', resources=None, users=None)
 
 
+from app import login_manager
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))

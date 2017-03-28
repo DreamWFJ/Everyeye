@@ -11,4 +11,6 @@ Flask-PyMongo>=0.4.1
 flask-sqlalchemy>=2.2
 flask-migrate>=2.0.3
 flask-testing>=0.6.2
-
+flask-pagedown>=0.2.2
+flask-bootstrap>=3.3.7.1
+flask-moment>=0.5.1
