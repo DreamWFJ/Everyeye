@@ -12,11 +12,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    # 添加邮件前缀
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    # 添加邮件发送者
-    FLASKY_MAIL_SENDER = os.environ.get('MAIL_SENDER')
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'admin@no-replay.com'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'data.sqlite').replace('\\', '/')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     URL_PREFIX = 'api'
@@ -27,7 +23,16 @@ class Config:
         pass
 
 class Default(Config):
-    pass
+    DEBUG = True
+    MAIL_SERVER = 'smtp.qq.com'
+    MAIL_PORT = 25
+    MAIL_USE_TLS = True
+    # 添加邮件前缀
+    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
+    # 添加邮件发送者
+    FLASKY_MAIL_SENDER = os.environ.get('MAIL_SENDER') or '547915448@qq.com'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or '547915448@qq.com'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or 'xhlnyxofgxjpbeij'
 
 class Testing(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql://test:test@localhost/everyeye'

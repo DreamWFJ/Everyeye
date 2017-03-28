@@ -11,5 +11,7 @@ from datetime import datetime
 from flask import render_template
 @main.route('/')
 def index():
-    return render_template('index.html', current_time=datetime.utcnow())
+    ct = datetime.utcnow()
+    print ct
+    return render_template('index.html', current_time=ct)
     

@@ -5,8 +5,12 @@
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-27 15:44
 # ===================================
+import hashlib
+from flask import request, url_for
 from datetime import datetime
 from app import sql_db as db
+from flask import current_app
+from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -209,10 +213,14 @@ class User(UserMixin, db.Model):
     # 邮件地址
     email = db.Column(db.String(64), unique = True, index = True, nullable=True)
     password_hash = db.Column(db.String(128), nullable=True)
-    # 是否激活用户，默认激活
+    # 是否激活用户，默认激活，管理员可以禁止该用户登录，通过设置该选项 --------------- 注意---------------
     enabled = db.Column(db.Boolean, default = True)
+    # 邮件是否确认
+    confirmed = db.Column(db.Boolean, default=False)
     # 角色ID
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    # 个人标识符哈希值
+    avatar_hash = db.Column(db.String(32))
     # 其他信息
     extra = db.Column(db.PickleType())
     # 用户创建时间
@@ -225,10 +233,31 @@ class User(UserMixin, db.Model):
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
 
     def __repr__(self):
-        return '<Right %r>' % self.name
+        return '<User %r>' % self.name
+
+    def generate_confirmation_token(self, expiration=3600):
+        """产生一个激活token"""
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm': self.id})
+
+    def confirm_token(self, token):
+        """验证令牌，若成功并标记该用户已经确认邮件"""
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.load(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        db.session.commit()
+        return True
 
     @staticmethod
     def insert_users(username, email, password, addresses=None, logs=None, audit_logs=None):
+        """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
+        角色所能够操作的资源是预分配的"""
         user = User()
         user.name = username
         user.email = email
@@ -243,6 +272,7 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return user
 
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -256,6 +286,15 @@ class User(UserMixin, db.Model):
 
     def has_right(self, permissions):
         return True
+    # 个人头像标识
+    def gravatar(self, size = 100, default = 'identicon', rating = 'g'):
+        if request.is_secure:
+            url = 'https://cn.gravatar.com/avatar'
+        else:
+            url = 'http://cn.gravatar.com/avatar'
+        hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+            url = url, hash = hash, size = size, default = default, rating = rating)
 
 class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
