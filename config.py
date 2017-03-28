@@ -30,9 +30,9 @@ class Default(Config):
     # 添加邮件前缀
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     # 添加邮件发送者
-    FLASKY_MAIL_SENDER = os.environ.get('MAIL_SENDER') or '547915448@qq.com'
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or '547915448@qq.com'
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or 'xhlnyxofgxjpbeij'
+    FLASKY_MAIL_SENDER = os.environ.get('MAIL_USERNAME')
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 
 class Testing(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql://test:test@localhost/everyeye'
