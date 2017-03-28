@@ -243,10 +243,13 @@ class User(UserMixin, db.Model):
     def confirm_token(self, token):
         """验证令牌，若成功并标记该用户已经确认邮件"""
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        print "user: %s, token: %s" %(self.name, token)
+
         try:
             data = s.load(token)
         except:
             return False
+
         if data.get('confirm') != self.id:
             return False
         self.confirmed = True
@@ -272,6 +275,24 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return user
 
+    def generate_reset_password_token(self, expiration = 3600):
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id})
+
+    def reset_password(self, token, new_password):
+        """重置密码"""
+        print "------------ token: %s, new password: %s ---" %(token, new_password)
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('reset') != self.id:
+            return False
+        self.password = new_password
+        db.session.add(self)
+        db.session.commit()
+        return True
 
     @property
     def password(self):
@@ -280,6 +301,37 @@ class User(UserMixin, db.Model):
     @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
+
+    def change_password(self, password):
+        """修改密码"""
+        self.password_hash = generate_password_hash(password)
+        db.session.add(self)
+        db.session.commit()
+
+    def generate_email_change_token(self, new_email, expiration = 3600):
+        """产生修改邮箱地址的token"""
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'change_email': self.id, 'new_email': new_email})
+
+    def change_email(self, token):
+        """修改邮箱地址"""
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('change_email') != self.id:
+            return False
+        new_email = data.get('new_email')
+        if new_email is None:
+            return False
+        if self.query.filter_by(email = new_email).first() is not None:
+            return False
+        self.email = new_email
+        self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        db.session.add(self)
+        db.session.commit()
+        return True
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)

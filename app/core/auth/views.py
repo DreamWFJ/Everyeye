@@ -12,7 +12,8 @@
 """
 from app.utils.email import send_email
 from app.core.db.sql.models import User
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangeEmailForm, ChangePasswordForm, \
+    PasswordResetForm, PasswordResetRequestForm
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import auth
@@ -88,24 +89,98 @@ def resend_confirmation():
     return redirect(url_for('main.index'))
 
 # before_request 与 before_app_request 请求之前需要处理的事情钩子，一个用于蓝本，一个用于全局
-@auth.before_app_request
-def before_request():
-    """
-    同时满足以下 3 个条件时， before_app_request 处理程序会拦截请求。
-    (1) 用户已登录（ current_user.is_authenticated() 必须返回 True）。
-    (2) 用户的账户还未确认。
-    (3) 请求的端点（ 使用 request.endpoint 获取）不在认证蓝本中。访问认证路由要获取权
-    限，因为这些路由的作用是让用户确认账户或执行其他账户管理操作
-    """
-    print "----------test endpoint: ", request.endpoint
-    if current_user.is_authenticated \
-        and not current_user.confirmed \
-        and request.endpoint[:5] != 'auth.' \
-        and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+# @auth.before_app_request
+# def before_request():
+#     """
+#     同时满足以下 3 个条件时， before_app_request 处理程序会拦截请求。
+#     (1) 用户已登录（ current_user.is_authenticated() 必须返回 True）。
+#     (2) 用户的账户还未确认。
+#     (3) 请求的端点（ 使用 request.endpoint 获取）不在认证蓝本中。访问认证路由要获取权
+#     限，因为这些路由的作用是让用户确认账户或执行其他账户管理操作
+#     """
+#     print "----------test endpoint: ", request.endpoint
+#     if current_user.is_authenticated \
+#         and not current_user.confirmed \
+#         and request.endpoint[:5] != 'auth.' \
+#         and request.endpoint != 'static':
+#         return redirect(url_for('auth.unconfirmed'))
 
 @auth.route('/unconfirmed')
 def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:
         return redirect(url_for('main.index'))
     return render_template('auth/unconfirmed.html')
+
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.old_password.data):
+            current_user.change_password(form.password.data)
+            flash('Your password has been updated')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid password.')
+    return render_template('auth/change_password.html', form = form)
+
+@auth.route('/reset', methods = ['GET', 'POST'])
+def password_reset_request():
+    """密码重置请求"""
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user:
+            token = user.generate_reset_password_token()
+            send_email(user.email, 'Reset Your Password',
+                       'auth/email/reset_password',
+                       user = user, token = token,
+                       next = request.args.get('next'))
+        flash('The reset password link has been sent to your mailbox.')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form = form)
+
+@auth.route('/reset/<token>', methods = ['GET', 'POST'])
+def password_reset(token):
+    if current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user is None:
+            return redirect(url_for('main.index'))
+        if user.reset_password(token, form.password.data):
+            flash('Your password has been updated')
+            return redirect(url_for('auth.login'))
+        else:
+            return redirect(url_for('main.index'))
+    return render_template('auth/reset_password.html', form = form)
+
+@auth.route('/change-email', methods = ['GET', 'POST'])
+@login_required
+def change_email_request():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password.data):
+            new_email = form.email.data
+            token = current_user.generate_email_change_token(new_email)
+            send_email(new_email, 'Confirm your email address',
+                       'auth/email/change_email',
+                       user = current_user, token = token)
+            flash('The confirm email link has been sent to your mailbox.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid email or password.')
+    return render_template('auth/change_email.html', form = form)
+
+@auth.route('/change-email/<token>')
+@login_required
+def change_email(token):
+    if current_user.change_email(token):
+        flash('Your email address has been updated')
+    else:
+        flash('Invalid request')
+    return redirect(url_for('main.index'))
