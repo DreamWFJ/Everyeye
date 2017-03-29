@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}person{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class='col-md-9 col-sm-9'>
+        <div class="page-header">
+            <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+            <div class="profile-header">
+                <h1>{{ user.name }}</h1>
+                {% if 0 %}
+                <p>
+                    {% if user.name %}{{ user.name }}{% endif %}
+                    {% if user.location %}
+                        From <a href = "http://maps.google.com/?q={{ user.location }}">
+                            {{ user.location }}
+                        </a>
+                    {% endif %}
+                </p>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                <p><a href = "mailto:{{ user.email }}">{{ user.email }}</a></p>
+                {% endif %}
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                <p>
+                    成员从{{ moment(user.create_at).format('YYYY年M月D日') }}开始加入
+                </p>
+                <p>
+                    上一次登录时间：{{ moment(user.last_visit_time).fromNow() }}
+                </p>
+
+                <p>
+                    {% if user==current_user %}
+                        <a class="btn btn-default" href="">编辑资料</a>
+                    {% endif %}
+                    {% if current_user.is_administrator() %}
+                        <a class="btn btn-danger" href="">编辑资料 [管理员]</a>
+                    {% endif%}
+                </p>
+            </div>
+        </div>
+        <h3 id="user-posts">{{ user.username }}的文章</h3>
+        
+    </div>
+</div>
+{% endblock %}

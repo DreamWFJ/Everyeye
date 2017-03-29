@@ -6,6 +6,7 @@
 # CreateTime : 2017-03-27 15:44
 # ===================================
 import hashlib
+from app.utils import generate_uuid
 from flask import request, url_for
 from datetime import datetime
 from app import sql_db as db
@@ -14,20 +15,89 @@ from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+class DatabaseError(Exception):
+    pass
+class NotFoundData(Exception):
+    pass
 
 # 建立资源与角色的多对多关系
-resources_roles = db.Table('resources_roles',
-                     db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
-                     db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
+class RolesResources(db.Model):
+    __tablename__ = 'roles_resources'
+    id = db.Column(db.Integer, primary_key = True)
+    resource_id = db.Column(db.Integer, db.ForeignKey('resources.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    # 权重，单独为某个角色附加资源时，对资源的操作权限
+    right_weight = db.Column(db.Integer, default=0x00)
+    # resource = db.relationship('Resource', backref=db.backref('roles', lazy='dynamic'))
+    # role = db.relationship('Role', backref=db.backref('resources', lazy='dynamic'))
+    resource = db.relationship('Resource', back_populates="roles")
+    role = db.relationship('Role', back_populates="resources")
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
-# 建立资源与权限的多对多关系
-resources_rights = db.Table('resources_rights',
-                  db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
-                  db.Column('right_id', db.Integer, db.ForeignKey('rights.id')))
 
-# 建立
+    def __repr__(self):
+        return '<ResourcesRoles %r>' % self.name
 
+
+
+# 角色表
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key = True)
+    # 角色名称
+    name = db.Column(db.String(64), unique = True)
+    # 是否开启
+    enabled = db.Column(db.Boolean, default = True, index = True)
+    # 默认角色选项
+    default = db.Column(db.Boolean, default=False, index=True)
+
+    # 与资源的多对多关系
+    # resources = db.relationship('Resource',
+    #                            secondary = resources_roles,
+    #                            backref = db.backref('roles', lazy='dynamic'))
+    # role_resources = db.relationship('RolesResources', backref = 'roles', cascade="all, delete-orphan")
+    resources = db.relationship("RolesResources", back_populates="role",
+                                primaryjoin="RolesResources.role_id==Role.id")
+    # 与用户的一对多关系
+    # users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+
+    @staticmethod
+    def insert_roles(rolename, role_resource=None, default=None):
+        role = Role(name = rolename)
+        if role_resource:
+            role.resources.append(role_resource)
+        if default:
+            role.default = default
+        db.session.add(role)
+        db.session.commit()
+
+        return role
+
+    @staticmethod
+    def add_resource(rolename, resourcename, weight):
+        role = Role.query.filter_by(name = rolename).first()
+        if role is None:
+            raise NotFoundData('role name <%s> not existed.'%rolename)
+        resource = Resource.query.filter_by(name=resourcename).first()
+        if resource is None:
+            raise NotFoundData('resource name <%s> not existed.'%resourcename)
+        role_resource = RolesResources(right_weight=weight)
+        role_resource.resource = resource
+        role.resources.append(role_resource)
+        db.session.add(resource)
+        db.session.add(role_resource)
+        db.session.add(role)
+        db.session.commit()
+
+        return role
+
+
+# 资源表
 class Resource(db.Model):
     __tablename__ = 'resources'
     id = db.Column(db.Integer, primary_key = True)
@@ -37,13 +107,13 @@ class Resource(db.Model):
     extra = db.Column(db.PickleType)
     description = db.Column(db.Text())
     create_at = db.Column(db.DateTime, default = datetime.utcnow)
+    # resources_roles = db.relationship('ResourcesRoles', backref = 'resources', lazy='dynamic')
+    roles = db.relationship('RolesResources', back_populates = 'resource',
+                            primaryjoin="RolesResources.resource_id==Resource.id")
 
     @staticmethod
     def insert_resources(name, right_weight, enabled=True):
-
-        resource = Resource.query.filter_by(name = name).first()
-        if resource is None:
-            resource = Resource(name = name)
+        resource = Resource(name=name)
         resource.right_weight = right_weight
         resource.enabled = enabled
         db.session.add(resource)
@@ -53,36 +123,36 @@ class Resource(db.Model):
     def __repr__(self):
         return '<Resource %r>' % self.name
 
-# 角色表
-class Role(db.Model):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique = True)
-    enabled = db.Column(db.Boolean, default = True, index = True)
-    # 与资源的多对多关系
-    resources = db.relationship('Resource',
-                               secondary = resources_roles,
-                               backref = db.backref('roles', lazy='dynamic'))
-    # 与用户的一对多关系
-    users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
-    create_at = db.Column(db.DateTime, default = datetime.utcnow)
 
-    def __repr__(self):
-        return '<Role %r>' % self.name
 
-    @staticmethod
-    def insert_roles(rolename, resources=None, users=None):
 
-        role = Role.query.filter_by(name = rolename).first()
-        if role is None:
-            role = Role(name = rolename)
-        if resources:
-            role.resources = resources
-        if users:
-            role.users = users
-        db.session.add(role)
-        db.session.commit()
-        return role
+
+# resources_roles = db.Table('resources_roles',
+#                      db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
+#                      # 权重，单独为某个角色附加资源时，对资源的操作权限
+#                      db.Column('right_weight', db.Integer),
+#                      db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
+
+
+# 建立资源与权限的多对多关系
+# class ResourcesRights(db.Model):
+#     __tablename__ = 'resources_rights'
+#     id = db.Column(db.Integer, primary_key = True)
+#     resource_id = db.Column(db.Integer, db.ForeignKey('resources.id')),
+#     right_id = db.Column(db.Integer, db.ForeignKey('rights.id')),
+#     create_at = db.Column(db.DateTime, default = datetime.utcnow)
+#
+#     def __repr__(self):
+#         return '<ResourcesRights %r>' % self.name
+
+resources_rights = db.Table('resources_rights',
+                  db.Column('resource_id', db.String(36), db.ForeignKey('resources.id')),
+                  db.Column('right_id', db.String(36), db.ForeignKey('rights.id')))
+
+
+
+
+
 
 class Right(db.Model):
     __tablename__ = 'rights'
@@ -97,6 +167,7 @@ class Right(db.Model):
 
     @staticmethod
     def insert_rights(name, weight, resources):
+        print resources
         right = Right.query.filter_by(name = name).first()
         if right is None:
             right = Right(name = name)
@@ -119,6 +190,7 @@ class RightWeight(object):
     ALL = NONE | SHOW | CREATE | UPDATE | DELETE
 
 
+
 class Address(db.Model):
     """用户地址信息"""
     __tablename__ = 'addresses'
@@ -131,7 +203,7 @@ class Address(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_rights(name, country, city, detail_address):
+    def insert_address(name, country, city, detail_address):
         address = Address.query.filter_by(name = name).first()
         if address is None:
             address = Address(name = name)
@@ -153,29 +225,29 @@ class AuditLog(db.Model):
     login_address = db.Column(db.Text())
     ip = db.Column(db.String(16))
     login_time = db.Column(db.DateTime(), default = datetime.utcnow)
-    logout_time = db.Column(db.DateTime())
+    last_request_time = db.Column(db.DateTime())
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_audit_logs(login_city, login_address, ip, login_time, logout_time=None):
+    def insert_audit_logs(login_city, login_address, ip, login_time, last_request_time=None):
         audit_logs = AuditLog()
         audit_logs.login_city = login_city
         audit_logs.login_address = login_address
         audit_logs.ip = ip
         if login_time:
             audit_logs.login_time = login_time
-        if logout_time:
-            audit_logs.logout_time = logout_time
+        if last_request_time:
+            audit_logs.last_request_time = last_request_time
         db.session.add(audit_logs)
         db.session.commit()
         return audit_logs
 
     @staticmethod
-    def update_logout_time(_id, logout_time):
+    def refresh_last_request_time(_id, last_request_time):
         audit_log = AuditLog.query.filter_by(id = _id).first()
         if audit_log is None:
-            raise RuntimeError("database audit log lose id='%s' record."%_id)
-        audit_log.logout_time = logout_time
+            raise NotFoundData("database audit log lose id='%s' record."%_id)
+        audit_log.last_request_time = last_request_time
         db.session.add(audit_log)
         db.session.commit()
 
@@ -232,6 +304,7 @@ class User(UserMixin, db.Model):
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
 
+
     def __repr__(self):
         return '<User %r>' % self.name
 
@@ -258,7 +331,7 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, addresses=None, logs=None, audit_logs=None):
+    def insert_users(username, email, password, addresses=None, logs=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
         user = User()
@@ -271,6 +344,13 @@ class User(UserMixin, db.Model):
         if audit_logs:
             user.audit_logs = audit_logs
         user.password_hash = generate_password_hash(password)
+        if confirmed:
+            user.confirmed = confirmed
+        if is_admin:
+            user_role = Role.query.filter_by(name='Administrator').first()
+        else:
+            user_role = Role.query.filter_by(default=True).first()
+        user.role_id = user_role.id
         db.session.add(user)
         db.session.commit()
         return user
@@ -336,8 +416,26 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def has_right(self, permissions):
+    def has_right(self, res, action):
+        """验证是否具有资源的某项权限，首先检查角色是否拥有该资源，其次再检查该角色绑定的资源是否拥有指定的操作"""
+        right_weight = getattr(RightWeight, action.upper())
+        # 首先获取资源ID
+        resource_result = Resource.query.filter_by(name=res).first()
+        if resource_result is None:
+            return False
+        # 根据角色ID和资源ID组合查询角色下是否拥有该资源
+        role_res = RolesResources.query.filter_by(role_id=self.role_id, resource_id=resource_result.id).first()
+        if role_res is None:
+            return False
+        # 对比权重
+        if role_res.right_weight & right_weight == 0:
+            return False
         return True
+
+    def is_administrator(self):
+        """检查是否是管理员"""
+        return True
+
     # 个人头像标识
     def gravatar(self, size = 100, default = 'identicon', rating = 'g'):
         if request.is_secure:
@@ -348,11 +446,27 @@ class User(UserMixin, db.Model):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url = url, hash = hash, size = size, default = default, rating = rating)
 
+    def new_audit_log(self):
+        """产生审计日志"""
+        log = AuditLog()
+        self.current_audit_log_id = log.id
+        self.audit_logs.append(log)
+        db.session.add(self)
+        db.session.commit()
+
+    def update_last_request_time(self, last_request_time):
+        AuditLog.refresh_last_request_time(self.current_audit_log_id, last_request_time)
+
+    @property
+    def last_visit_time(self):
+        result = AuditLog.query.filter_by(user_id=self.id).order_by(db.desc(AuditLog.last_request_time)).first()
+        return result.last_request_time
+
 class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
         return False
 
-    def has_right(self, permissions):
+    def has_right(self, res, action):
         return False
 
 
@@ -360,9 +474,12 @@ class InitData(object):
     """初始化数据库"""
     def __init__(self):
         self.resources = self.create_resources()
-        self.user = self.create_user()
         self.create_rights()
         self.create_role()
+        self.user = self.create_user()
+        self.create_a_test_user()
+
+
 
     def create_log(self):
         action = 'update user name'
@@ -374,7 +491,7 @@ class InitData(object):
         country = 'China'
         city = 'Beijin'
         detail_address= 'Chao yang country, Beijin, China'
-        return Address.insert_rights(name, country, city, detail_address)
+        return Address.insert_address(name, country, city, detail_address)
 
     def create_audit_log(self):
         login_city = 'Beijin'
@@ -387,7 +504,7 @@ class InitData(object):
     def create_user(self):
         username = 'Administrator'
         email = 'admin@no-replay.com'
-        password = 'this_is_a_test_acount'
+        password = 'this_is_a_test_account'
         address = self.create_address()
         print address.detail_address
         log = self.create_log()
@@ -395,7 +512,9 @@ class InitData(object):
         audit_log = self.create_audit_log()
         print audit_log.ip
         return User.insert_users(username, email, password,
-                                 addresses=[address], logs=[log], audit_logs=[audit_log])
+                                 addresses=[address], logs=[log], audit_logs=[audit_log], is_admin=True, confirmed=True)
+    def create_a_test_user(self):
+        return User.insert_users('test', 'test@163.com', 'test')
 
     def create_rights(self):
         rights = {
@@ -407,30 +526,44 @@ class InitData(object):
         }
         res = list()
         for _k, _v in rights.iteritems():
-            res.append(Right.insert_rights(_k, _v, self.resources))
+            res.append(Right.insert_rights(_k, _v, list(self.resources.itervalues())))
         return res
 
 
     def create_resources(self):
         resources = {
-            'User': 0xff,
-            'Role': 0xff,
-            'Right': 0xff,
-            'Resource': 0xff,
-            'Log': 0xff,
-            'AuditLog': 0xff,
-            'Address': 0xff,
-            'Persion': 0xff
+            'user': 0xff,
+            'role': 0xff,
+            'right': 0xff,
+            'resource': 0xff,
+            'log': 0xff,
+            'audit_log': 0xff,
+            'address': 0xff,
+            'persion': 0xff
         }
-        res = list()
+        res = dict()
         for _name, _weight in resources.iteritems():
-            res.append(Resource.insert_resources(_name, _weight))
+            res[_name] = Resource.insert_resources(_name, _weight)
         return res
 
+
+
     def create_role(self):
-        Role.insert_roles('Administrator', resources=self.resources, users=[self.user])
-        Role.insert_roles('Unknow', resources=None, users=None)
-        Role.insert_roles('User', resources=None, users=None)
+        admin = Role.insert_roles('Administrator')
+        Role.add_resource('Administrator', 'user', 0xff)
+        Role.add_resource('Administrator', 'role', 0xff)
+        Role.add_resource('Administrator', 'right', 0xff)
+        Role.add_resource('Administrator', 'resource', 0xff)
+        Role.add_resource('Administrator', 'log', 0xff)
+        Role.add_resource('Administrator', 'audit_log', 0xff)
+        Role.add_resource('Administrator', 'address', 0xff)
+        Role.add_resource('Administrator', 'persion', 0xff)
+        unknow = Role.insert_roles('Unknow')
+        user = Role.insert_roles('User', default=True)
+        Role.add_resource('User', 'log', 0x01)
+        Role.add_resource('User', 'address', 0x01)
+        Role.add_resource('User', 'persion', 0x01)
+
 
 
 from app import login_manager

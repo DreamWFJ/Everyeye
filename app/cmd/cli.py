@@ -11,7 +11,8 @@ from flask_script.commands import ShowUrls, Clean
 from flask_script import Command, Server, Option, prompt_bool, Shell
 from flask_migrate import MigrateCommand, Migrate
 from app import sql_db as _db
-from app.core.db.sql.models import User, Role, Right, Resource, InitData, Address, Log, AuditLog
+from app.core.db.sql.models import User, Role, Right, Resource, InitData, \
+    Address, Log, AuditLog, RolesResources
 from werkzeug.security import generate_password_hash
 from flask import current_app
 
@@ -91,7 +92,7 @@ def init_command(manager, db):
     Migrate(manager.app, db)
     def make_shell_context():
         return dict(app = manager.app, db = db, User = User, Role = Role, Right = Right,
-                    Resource=Resource, Address=Address, Log=Log, AuditLog=AuditLog)
+                    Resource=Resource, Address=Address, Log=Log, AuditLog=AuditLog, RolesResources=RolesResources)
 
     manager.add_option("-e", "--env",
                    dest="env",

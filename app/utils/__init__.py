@@ -7,8 +7,8 @@
 # ===================================
 
 
+from uuid import uuid4
 
-
-if __name__ == '__main__':
-    pass
+def generate_uuid():
+    return str(uuid4())
     
