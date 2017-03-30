@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 # ===================================
-# ScriptName : index.py
+# ScriptName : views.py
 # Author     : WFJ
 # Email      : wfj_sc@163.com
-# CreateTime : 2017-03-28 10:56
+# CreateTime : 2017-03-30 9:11
 # ===================================
 
-from . import main
+
+from .. import main
 from datetime import datetime
 from flask_login import login_required
 from flask import render_template, abort
