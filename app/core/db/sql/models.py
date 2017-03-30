@@ -225,11 +225,11 @@ class AuditLog(db.Model):
     login_address = db.Column(db.Text())
     ip = db.Column(db.String(16))
     login_time = db.Column(db.DateTime(), default = datetime.utcnow)
-    last_request_time = db.Column(db.DateTime())
+    last_request_time = db.Column(db.DateTime(), default = datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_audit_logs(login_city, login_address, ip, login_time, last_request_time=None):
+    def insert_audit_logs(login_city, login_address, ip, login_time = None, last_request_time=None):
         audit_logs = AuditLog()
         audit_logs.login_city = login_city
         audit_logs.login_address = login_address
@@ -243,10 +243,10 @@ class AuditLog(db.Model):
         return audit_logs
 
     @staticmethod
-    def refresh_last_request_time(_id, last_request_time):
-        audit_log = AuditLog.query.filter_by(id = _id).first()
+    def refresh_last_request_time(user_id, last_request_time):
+        audit_log = AuditLog.query.filter_by(user_id = user_id).first()
         if audit_log is None:
-            raise NotFoundData("database audit log lose id='%s' record."%_id)
+            raise NotFoundData("database audit log lose user_id='%s' the last record."%user_id)
         audit_log.last_request_time = last_request_time
         db.session.add(audit_log)
         db.session.commit()
@@ -448,21 +448,26 @@ class User(UserMixin, db.Model):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url = url, hash = hash, size = size, default = default, rating = rating)
 
-    def new_audit_log(self):
+    def new_audit_log(self, ip):
         """产生审计日志"""
-        log = AuditLog()
-        self.current_audit_log_id = log.id
+        login_city = 'beijin'
+        login_address = 'haidianqu'
+        log = AuditLog.insert_audit_logs(login_city, login_address, ip)
         self.audit_logs.append(log)
         db.session.add(self)
         db.session.commit()
 
-    def refresh_last_request_time(self, last_request_time=datetime.utcnow()):
-        AuditLog.refresh_last_request_time(self.current_audit_log_id, last_request_time)
+    def refresh_last_request_time(self, last_request_time=None):
+        if last_request_time is None:
+            last_request_time = datetime.now()
+        AuditLog.refresh_last_request_time(self.id, last_request_time)
 
     @property
     def last_visit_time(self):
         result = AuditLog.query.filter_by(user_id=self.id).order_by(db.desc(AuditLog.last_request_time)).first()
-        return result.last_request_time
+        if result:
+            return result.last_request_time
+        return None
 
 class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
@@ -505,7 +510,7 @@ class InitData(object):
 
     def create_user(self):
         username = 'Administrator'
-        email = 'admin@no-replay.com'
+        email = 'admin@163.com'
         password = 'this_is_a_test_account'
         address = self.create_address()
         print address.detail_address
@@ -541,6 +546,7 @@ class InitData(object):
             'log': 0xff,
             'audit_log': 0xff,
             'address': 0xff,
+            'email': 0xff,
             'persion': 0xff
         }
         res = dict()
@@ -559,6 +565,7 @@ class InitData(object):
         Role.add_resource('Administrator', 'log', 0xff)
         Role.add_resource('Administrator', 'audit_log', 0xff)
         Role.add_resource('Administrator', 'address', 0xff)
+        Role.add_resource('Administrator', 'email', 0xff)
         Role.add_resource('Administrator', 'persion', 0xff)
         unknow = Role.insert_roles('Unknow')
         user = Role.insert_roles('User', default=True)

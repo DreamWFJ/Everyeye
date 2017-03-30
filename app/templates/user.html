@@ -19,7 +19,7 @@
                     {% endif %}
                 </p>
                 {% endif %}
-                {% if current_user.is_administrator() %}
+                {% if current_user.has_right('email', 'show') %}
                 <p><a href = "mailto:{{ user.email }}">{{ user.email }}</a></p>
                 {% endif %}
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
@@ -27,7 +27,7 @@
                     成员从{{ moment(user.create_at).format('YYYY年M月D日') }}开始加入
                 </p>
                 <p>
-                    上一次登录时间：{{ moment(user.last_visit_time).fromNow() }}
+                    上一次登录时间：{% if user.last_visit_time %}{{ moment(user.last_visit_time).fromNow() }}{% endif %}
                 </p>
 
                 <p>
