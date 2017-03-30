@@ -89,21 +89,23 @@ def resend_confirmation():
     return redirect(url_for('main.index'))
 
 # before_request 与 before_app_request 请求之前需要处理的事情钩子，一个用于蓝本，一个用于全局
-# @auth.before_app_request
-# def before_request():
-#     """
-#     同时满足以下 3 个条件时， before_app_request 处理程序会拦截请求。
-#     (1) 用户已登录（ current_user.is_authenticated() 必须返回 True）。
-#     (2) 用户的账户还未确认。
-#     (3) 请求的端点（ 使用 request.endpoint 获取）不在认证蓝本中。访问认证路由要获取权
-#     限，因为这些路由的作用是让用户确认账户或执行其他账户管理操作
-#     """
-#     print "----------test endpoint: ", request.endpoint
-#     if current_user.is_authenticated \
-#         and not current_user.confirmed \
-#         and request.endpoint[:5] != 'auth.' \
-#         and request.endpoint != 'static':
-#         return redirect(url_for('auth.unconfirmed'))
+@auth.before_app_request
+def before_request():
+    """
+    同时满足以下 3 个条件时， before_app_request 处理程序会拦截请求。
+    (1) 用户已登录（ current_user.is_authenticated() 必须返回 True）。
+    (2) 用户的账户还未确认。
+    (3) 请求的端点（ 使用 request.endpoint 获取）不在认证蓝本中。访问认证路由要获取权
+    限，因为这些路由的作用是让用户确认账户或执行其他账户管理操作
+    """
+    print "----------test endpoint: ", request.endpoint
+    if current_user.is_authenticated:
+        current_user.refresh_last_request_time()
+        if not current_user.confirmed and request.endpoint[:5] != 'auth.' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
+
+
 
 @auth.route('/unconfirmed')
 def unconfirmed():

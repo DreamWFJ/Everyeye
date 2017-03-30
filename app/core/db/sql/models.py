@@ -303,6 +303,8 @@ class User(UserMixin, db.Model):
     logs = db.relationship('Log', backref = 'user', lazy = 'dynamic')
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
+    # 关于我
+    about_me = db.Column(db.Text())
 
 
     def __repr__(self):
@@ -454,7 +456,7 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update_last_request_time(self, last_request_time):
+    def refresh_last_request_time(self, last_request_time=datetime.utcnow()):
         AuditLog.refresh_last_request_time(self.current_audit_log_id, last_request_time)
 
     @property

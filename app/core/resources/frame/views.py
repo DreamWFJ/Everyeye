@@ -6,13 +6,28 @@
 # CreateTime : 2017-03-30 9:11
 # ===================================
 
-
+import os
 from .. import main
 from datetime import datetime
 from flask_login import login_required
-from flask import render_template, abort
+from flask import render_template, abort, redirect, url_for, current_app
 from app.core.db.sql.models import User
 from app.utils.decorators import permission_required
+from werkzeug.utils import secure_filename
+from .forms import PhotoForm
+
+@main.route('/upload', methods=['GET', 'POST'])
+def upload():
+    form = PhotoForm()
+    if form.validate_on_submit():
+        f = form.photo.data
+        filename = secure_filename(f.filename)
+        f.save(os.path.join(
+            current_app.instance_path, 'photos', filename
+        ))
+        return redirect(url_for('index'))
+
+    return render_template('upload.html', form=form)
 
 @main.route('/')
 def index():
