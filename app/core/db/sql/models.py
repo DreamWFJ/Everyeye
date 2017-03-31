@@ -6,7 +6,7 @@
 # CreateTime : 2017-03-27 15:44
 # ===================================
 import hashlib
-from app.utils import generate_uuid
+from app.utils import generate_uuid, get_current_0_24_time
 from flask import request, url_for
 from datetime import datetime
 from app import sql_db as db
@@ -14,6 +14,7 @@ from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import and_
 
 class DatabaseError(Exception):
     pass
@@ -32,7 +33,7 @@ class RolesResources(db.Model):
     # role = db.relationship('Role', backref=db.backref('resources', lazy='dynamic'))
     resource = db.relationship('Resource', back_populates="roles")
     role = db.relationship('Role', back_populates="resources")
-    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+    create_at = db.Column(db.DateTime, default = datetime.now)
 
 
     def __repr__(self):
@@ -60,7 +61,7 @@ class Role(db.Model):
                                 primaryjoin="RolesResources.role_id==Role.id")
     # 与用户的一对多关系
     # users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
-    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+    create_at = db.Column(db.DateTime, default = datetime.now)
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -106,7 +107,7 @@ class Resource(db.Model):
     enabled = db.Column(db.Boolean, default=True, index=True)
     extra = db.Column(db.PickleType)
     description = db.Column(db.Text())
-    create_at = db.Column(db.DateTime, default = datetime.utcnow)
+    create_at = db.Column(db.DateTime, default = datetime.now)
     # resources_roles = db.relationship('ResourcesRoles', backref = 'resources', lazy='dynamic')
     roles = db.relationship('RolesResources', back_populates = 'resource',
                             primaryjoin="RolesResources.resource_id==Resource.id")
@@ -140,7 +141,7 @@ class Resource(db.Model):
 #     id = db.Column(db.Integer, primary_key = True)
 #     resource_id = db.Column(db.Integer, db.ForeignKey('resources.id')),
 #     right_id = db.Column(db.Integer, db.ForeignKey('rights.id')),
-#     create_at = db.Column(db.DateTime, default = datetime.utcnow)
+#     create_at = db.Column(db.DateTime, default = datetime.now)
 #
 #     def __repr__(self):
 #         return '<ResourcesRights %r>' % self.name
@@ -159,7 +160,7 @@ class Right(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique = True)
     weight = db.Column(db.Integer, unique = True)
-    create_at = db.Column(db.DateTime(), default = datetime.utcnow)
+    create_at = db.Column(db.DateTime(), default = datetime.now)
     # 与资源的多对多关系
     resources = db.relationship('Resource',
                                secondary=resources_rights,
@@ -224,8 +225,8 @@ class AuditLog(db.Model):
     login_city = db.Column(db.String(16))
     login_address = db.Column(db.Text())
     ip = db.Column(db.String(16))
-    login_time = db.Column(db.DateTime(), default = datetime.utcnow)
-    last_request_time = db.Column(db.DateTime(), default = datetime.utcnow)
+    login_time = db.Column(db.DateTime(), default = datetime.now)
+    last_request_time = db.Column(db.DateTime(), default = datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
@@ -261,7 +262,7 @@ class Log(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     action = db.Column(db.String(64))
     log_detail = db.Column(db.Text())
-    create_at = db.Column(db.DateTime(), default=datetime.utcnow)
+    create_at = db.Column(db.DateTime(), default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
@@ -296,7 +297,7 @@ class User(UserMixin, db.Model):
     # 其他信息
     extra = db.Column(db.PickleType())
     # 用户创建时间
-    create_at = db.Column(db.DateTime(), default = datetime.utcnow)
+    create_at = db.Column(db.DateTime(), default = datetime.now)
     # 用户地址信息
     addresses = db.relationship('Address', backref = 'user', lazy = 'dynamic')
     # 操作日志信息
@@ -450,9 +451,13 @@ class User(UserMixin, db.Model):
 
     def new_audit_log(self, ip):
         """产生审计日志"""
+        print "user: %s, ip: %s login."%(self.name, ip)
         login_city = 'beijin'
         login_address = 'haidianqu'
-        log = AuditLog.insert_audit_logs(login_city, login_address, ip)
+        s, e = get_current_0_24_time()
+        log = AuditLog.query.filter(and_(AuditLog.user_id==self.id, AuditLog.last_request_time >= s, AuditLog.last_request_time <= e)).first()
+        if log is None:
+            log = AuditLog.insert_audit_logs(login_city, login_address, ip)
         self.audit_logs.append(log)
         db.session.add(self)
         db.session.commit()
@@ -460,7 +465,10 @@ class User(UserMixin, db.Model):
     def refresh_last_request_time(self, last_request_time=None):
         if last_request_time is None:
             last_request_time = datetime.now()
-        AuditLog.refresh_last_request_time(self.id, last_request_time)
+        s, e = get_current_0_24_time()
+        log = AuditLog.query.filter(and_(AuditLog.user_id==self.id, AuditLog.last_request_time >= s, AuditLog.last_request_time <= e)).first()
+        if log:
+            AuditLog.refresh_last_request_time(self.id, last_request_time)
 
     @property
     def last_visit_time(self):

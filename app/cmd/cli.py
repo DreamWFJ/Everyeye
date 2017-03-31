@@ -4,6 +4,7 @@
 # Author     : WFJ
 # Email      : wfj_sc@163.com
 # CreateTime : 2017-03-27 15:46
+# Change     : Add clear session ----- will
 # ===================================
 
 import re
@@ -15,6 +16,10 @@ from app.core.db.sql.models import User, Role, Right, Resource, InitData, \
     Address, Log, AuditLog, RolesResources
 from werkzeug.security import generate_password_hash
 from flask import current_app
+
+"""
+
+"""
 
 try:
     import simplejson as json
