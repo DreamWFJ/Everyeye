@@ -197,20 +197,23 @@ class Address(db.Model):
     __tablename__ = 'addresses'
     id = db.Column(db.Integer, primary_key = True)
     # 用户名名称
-    name = db.Column(db.String(64), unique=True)
-    country = db.Column(db.String(64))
-    city = db.Column(db.String(64))
-    detail_address = db.Column(db.Text())
+    address_name = db.Column(db.String(64), unique=True)
+    address_country = db.Column(db.String(64))
+    address_city = db.Column(db.String(64))
+    address_detail = db.Column(db.Text())
+    default = db.Column(db.Boolean(), default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_address(name, country, city, detail_address):
-        address = Address.query.filter_by(name = name).first()
+    def insert_address(address_name, country, city, address_detail, is_default):
+        address = Address.query.filter_by(address_name = address_name).first()
         if address is None:
-            address = Address(name = name)
-        address.country = country
-        address.city = city
-        address.detail_address = detail_address
+            address = Address(address_name = address_name)
+        address.address_country = country
+        address.address_city = city
+        address.address_detail = address_detail
+        if is_default:
+            address.default = is_default
         db.session.add(address)
         db.session.commit()
         return address
@@ -278,11 +281,15 @@ class Log(db.Model):
         return '<AuditLog %r>' % self.name
 
 class User(UserMixin, db.Model):
-    """用户信息"""
+    """用户信息
+       建议最终将各个类型业务处理单独用类实现，作为一个混合类Mixin
+    """
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
     # 用户名名称
     name = db.Column(db.String(64), unique = True, index = True)
+    # 真实名称
+    real_name = db.Column(db.String(64))
     # 邮件地址
     email = db.Column(db.String(64), unique = True, index = True, nullable=True)
     password_hash = db.Column(db.String(128), nullable=True)
@@ -357,6 +364,17 @@ class User(UserMixin, db.Model):
         db.session.add(user)
         db.session.commit()
         return user
+
+    def update_user(self, name, real_name, email, role_id, enabled, confirmed, about_me):
+        self.name = name
+        self.real_name = real_name
+        self.email = email
+        self.enabled = enabled
+        self.role_id = role_id
+        self.confirmed = confirmed
+        self.about_me = about_me
+        db.session.add(self)
+        db.session.commit()
 
     def generate_reset_password_token(self, expiration = 3600):
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
@@ -463,6 +481,7 @@ class User(UserMixin, db.Model):
         db.session.commit()
 
     def refresh_last_request_time(self, last_request_time=None):
+        """刷新访问时间"""
         if last_request_time is None:
             last_request_time = datetime.now()
         s, e = get_current_0_24_time()
@@ -472,10 +491,38 @@ class User(UserMixin, db.Model):
 
     @property
     def last_visit_time(self):
+        """获取最后访问时间"""
         result = AuditLog.query.filter_by(user_id=self.id).order_by(db.desc(AuditLog.last_request_time)).first()
         if result:
             return result.last_request_time
         return None
+
+    def get_default_address(self):
+        return Address.query.filter(and_(Address.user_id==self.id, Address.default==True)).first()
+
+    def add_new_address(self, name, country, city, address_detail, is_default):
+        """添加新的地址信息"""
+        address = Address.insert_address(name, country, city, address_detail, is_default)
+        self.addresses.append(address)
+        db.session.add_all([self, address])
+        db.session.commit()
+
+    def update_address(self, name, country, city, address_detail):
+        """添加新的地址信息"""
+        address = Address.query.filter(and_(Address.user_id==self.id, Address.default==True)).first()
+        if address:
+            address.city = city
+            address.country = country
+            address.address_detail = address_detail
+            db.session.add(address)
+            db.session.commit()
+
+    def delete_address(self, name):
+        """删除地址信息， 后期需要做到删除后让重新设置一个默认地址"""
+        address = Address.query.filter(and_(Address.user_id==self.id, Address.default==True)).first()
+        if address:
+            db.session.delete(address)
+            db.session.commit()
 
 class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
@@ -505,8 +552,8 @@ class InitData(object):
         name = 'my home'
         country = 'China'
         city = 'Beijin'
-        detail_address= 'Chao yang country, Beijin, China'
-        return Address.insert_address(name, country, city, detail_address)
+        address_detail= 'Chao yang country, Beijin, China'
+        return Address.insert_address(name, country, city, address_detail, True)
 
     def create_audit_log(self):
         login_city = 'Beijin'
@@ -521,7 +568,7 @@ class InitData(object):
         email = 'admin@163.com'
         password = 'this_is_a_test_account'
         address = self.create_address()
-        print address.detail_address
+        print address.address_detail
         log = self.create_log()
         print log.log_detail
         audit_log = self.create_audit_log()
@@ -555,6 +602,7 @@ class InitData(object):
             'audit_log': 0xff,
             'address': 0xff,
             'email': 0xff,
+            'profile': 0xff,
             'persion': 0xff
         }
         res = dict()
@@ -575,11 +623,13 @@ class InitData(object):
         Role.add_resource('Administrator', 'address', 0xff)
         Role.add_resource('Administrator', 'email', 0xff)
         Role.add_resource('Administrator', 'persion', 0xff)
+        Role.add_resource('Administrator', 'profile', 0xff)
         unknow = Role.insert_roles('Unknow')
         user = Role.insert_roles('User', default=True)
         Role.add_resource('User', 'log', 0x01)
         Role.add_resource('User', 'address', 0x01)
         Role.add_resource('User', 'persion', 0x01)
+        Role.add_resource('User', 'profile', 0x01)
 
 
 
