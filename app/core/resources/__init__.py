@@ -8,5 +8,7 @@
 from flask import Blueprint
 
 main = Blueprint('main', __name__)
+manage = Blueprint('manage', __name__)
 
 from .frame import views as frame_views
+from .manage import views as manage_views

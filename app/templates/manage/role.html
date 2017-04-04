@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Log{% endblock %}
+
+{% block page_content %}
+<table id="table1">
+    <thead>
+    <tr>
+        <th scope="col" abbr="Starter">ID</th>
+        <th scope="col" abbr="Medium">Action</th>
+        <th scope="col" abbr="Business">Log Detail</th>
+        <th scope="col" abbr="Deluxe">Time</th>
+    </tr>
+    </thead>
+    <tfoot>
+    </tfoot>
+    <tbody>
+    {% for log in logs %}
+    {% if log %}
+    <tr>
+        <td>{{log.id}}</td>
+        <td>{{log.action}}</td>
+        <td>{{log.log_detail}}</td>
+        <td>{{log.create_at}}</td>
+    </tr>
+    {% else %}
+    <td>Nothing</td>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

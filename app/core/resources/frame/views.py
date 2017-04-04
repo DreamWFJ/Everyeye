@@ -12,7 +12,7 @@ from app import sql_db as db
 from datetime import datetime
 from flask_login import login_required
 from flask import render_template, abort, redirect, url_for, current_app, flash
-from app.core.db.sql.models import User, Role
+from app.core.db.sql.models import User, Role, Log
 from app.utils.decorators import permission_required
 from werkzeug.utils import secure_filename
 from flask_login import login_user, login_required, logout_user, current_user
@@ -54,12 +54,6 @@ def user(name):
 @permission_required('user', 'show')
 def show_user():
     return 'has permission to show user'
-
-@main.route('/log')
-@login_required
-@permission_required('log', 'update')
-def write_log():
-    return 'has permission to write log'
 
 
 @main.route('/edit-profile', methods = ['GET', 'POST'])
@@ -107,3 +101,37 @@ def edit_profile_admin(id):
     form.address_detail.data = address.address_detail
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form = form, user = user)
+
+
+@main.route('/log/<name>')
+@login_required
+@permission_required('log', 'show')
+def logs(name):
+    user = User.query.filter_by(name=name).first()
+    if user is None:
+        abort(404)
+    logs = Log.query.filter_by(user_id=user.id).all()
+    if logs is None:
+        abort(404)
+    return render_template('log.html', logs=logs)
+
+
+# 下面是用户、角色、权限、资源管理设置
+@main.route('/user-list')
+def manage_user():
+    return render_template('manage/user.html')
+
+@main.route('/role-list')
+def manage_role():
+    return render_template('manage/role.html')
+
+@main.route('/right-list')
+def manage_right():
+    return render_template('manage/right.html')
+
+@main.route('/resource-list')
+def manage_resource():
+    return render_template('manage/resource.html')
+
+
+

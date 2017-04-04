@@ -568,13 +568,11 @@ class InitData(object):
         email = 'admin@163.com'
         password = 'this_is_a_test_account'
         address = self.create_address()
-        print address.address_detail
         log = self.create_log()
-        print log.log_detail
+        log1 = self.create_log()
         audit_log = self.create_audit_log()
-        print audit_log.ip
         return User.insert_users(username, email, password,
-                                 addresses=[address], logs=[log], audit_logs=[audit_log], is_admin=True, confirmed=True)
+                                 addresses=[address], logs=[log,log1], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
         return User.insert_users('test', 'test@163.com', 'test')
 
@@ -603,6 +601,7 @@ class InitData(object):
             'address': 0xff,
             'email': 0xff,
             'profile': 0xff,
+            'manage': 0xff, #管理能力，这是先觉条件，然后在看看是否有操作资源的权限
             'persion': 0xff
         }
         res = dict()
@@ -623,6 +622,7 @@ class InitData(object):
         Role.add_resource('Administrator', 'address', 0xff)
         Role.add_resource('Administrator', 'email', 0xff)
         Role.add_resource('Administrator', 'persion', 0xff)
+        Role.add_resource('Administrator', 'manage', 0xff)
         Role.add_resource('Administrator', 'profile', 0xff)
         unknow = Role.insert_roles('Unknow')
         user = Role.insert_roles('User', default=True)
