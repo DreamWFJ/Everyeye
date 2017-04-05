@@ -3,12 +3,12 @@
 # ScriptName : __init__.py.py
 # Author     : WFJ
 # Email      : wfj_sc@163.com
-# CreateTime : 2017-03-08 19:54
+# CreateTime : 2017-04-05 9:59
 # ===================================
+
 from flask import Blueprint
 
-main = Blueprint('main', __name__)
-manage = Blueprint('manage', __name__)
+manage_blueprint = Blueprint('manage', __name__)
 
-from .frame import views as frame_views
-from .manage import user_views
+from . import resource_views, role_views, right_views, user_views
+    

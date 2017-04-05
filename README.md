@@ -19,6 +19,16 @@ Used to manage users, roles, permissions, resource information, etc
     快速权限判定如何实现，基于异或操作？位操作？
     角色，用户，用户组的关系，权限资源的关系，角色与权限的关系，是否可以重叠
 
+### 疑问
+    1. 为什么需要在蓝图所在py导入视图，比如下面这样，否则会无法运行
+        resource_blueprint = Blueprint('resource', __name__)
+        from . import views
+        from .logs import views
+        from .persons import views
+    2. 还有模板和静态文件的路径为什么是app目录下
+        也可以在蓝图中直接指明位置
+        admin = Blueprint('admin', __name__, static_folder='static', template_folder='templates')
+
 ### 需求实现思路：
     1、插件式数据库支持
         通过公共配置ini或者conf等类似的配置文件，默认值数据库使用sqlite3，可选项有mysql, mongodb, sqlalchemy, redis, memory

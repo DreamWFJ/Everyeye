@@ -11,7 +11,7 @@ CreateTime:     2017-04-04 20:11
 from app.core.db.sql.models import User
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from app.core.resources import manage
+from . import manage_blueprint as manage
 
 @manage.route('/users')
 def user():

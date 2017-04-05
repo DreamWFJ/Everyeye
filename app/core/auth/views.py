@@ -35,7 +35,7 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             current_user.new_audit_log(request.remote_addr)
-            return redirect(request.args.get('next') or url_for('main.index'))
+            return redirect(request.args.get('next') or url_for('resource.index'))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
@@ -46,7 +46,7 @@ def logout():
     """登出用户"""
     logout_user()
     flash('You have been logged out.')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('resource.index'))
 
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -63,7 +63,7 @@ def register():
         send_email(user.email, 'Confirm Your Account',
                    'auth/email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('resource.index'))
     return render_template('auth/register.html', form=form)
 
 @auth.route('/confirm/<token>')
@@ -72,12 +72,12 @@ def confirm(token):
     """用于账户邮件确认"""
     # 首先检查是否已经确认过
     if current_user.confirmed:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('resource.index'))
     if current_user.confirm_token(token):
         flash('You have confirmed your account. Thanks!')
     else:
         flash('The confirmation link is invalid or has expired.')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('resource.index'))
 
 @auth.route('/confirm')
 @login_required
@@ -87,7 +87,7 @@ def resend_confirmation():
     send_email(current_user.email, 'Confirm Your Account',
                'auth/email/confirm', user=current_user, token=token)
     flash('A new confirmation email has been sent to you by email.')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('resource.index'))
 
 # before_request 与 before_app_request 请求之前需要处理的事情钩子，一个用于蓝本，一个用于全局
 @auth.before_app_request
@@ -99,7 +99,6 @@ def before_request():
     (3) 请求的端点（ 使用 request.endpoint 获取）不在认证蓝本中。访问认证路由要获取权
     限，因为这些路由的作用是让用户确认账户或执行其他账户管理操作
     """
-    print "----------test endpoint: ", request.endpoint
     if current_user.is_authenticated:
         current_user.refresh_last_request_time()
         if not current_user.confirmed and request.endpoint[:5] != 'auth.' \
@@ -111,7 +110,7 @@ def before_request():
 @auth.route('/unconfirmed')
 def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('resource.index'))
     return render_template('auth/unconfirmed.html')
 
 
@@ -123,7 +122,7 @@ def change_password():
         if current_user.verify_password(form.old_password.data):
             current_user.change_password(form.password.data)
             flash('Your password has been updated')
-            return redirect(url_for('main.index'))
+            return redirect(url_for('resource.index'))
         else:
             flash('Invalid password.')
     return render_template('auth/change_password.html', form = form)
@@ -132,7 +131,7 @@ def change_password():
 def password_reset_request():
     """密码重置请求"""
     if not current_user.is_anonymous:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('resource.index'))
     form = PasswordResetRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
@@ -149,17 +148,17 @@ def password_reset_request():
 @auth.route('/reset/<token>', methods = ['GET', 'POST'])
 def password_reset(token):
     if current_user.is_anonymous:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('resource.index'))
     form = PasswordResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
         if user is None:
-            return redirect(url_for('main.index'))
+            return redirect(url_for('resource.index'))
         if user.reset_password(token, form.password.data):
             flash('Your password has been updated')
             return redirect(url_for('auth.login'))
         else:
-            return redirect(url_for('main.index'))
+            return redirect(url_for('resource.index'))
     return render_template('auth/reset_password.html', form = form)
 
 @auth.route('/change-email', methods = ['GET', 'POST'])
@@ -174,7 +173,7 @@ def change_email_request():
                        'auth/email/change_email',
                        user = current_user, token = token)
             flash('The confirm email link has been sent to your mailbox.')
-            return redirect(url_for('main.index'))
+            return redirect(url_for('resource.index'))
         else:
             flash('Invalid email or password.')
     return render_template('auth/change_email.html', form = form)
@@ -186,4 +185,4 @@ def change_email(token):
         flash('Your email address has been updated')
     else:
         flash('Invalid request')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('resource.index'))

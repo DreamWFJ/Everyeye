@@ -3,6 +3,12 @@
 # ScriptName : __init__.py.py
 # Author     : WFJ
 # Email      : wfj_sc@163.com
-# CreateTime : 2017-03-30 9:14
+# CreateTime : 2017-04-05 10:47
 # ===================================
 
+
+
+
+if __name__ == '__main__':
+    pass
+    

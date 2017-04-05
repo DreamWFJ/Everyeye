@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # ===================================
-# ScriptName : exceptions.py
+# ScriptName : __init__.py.py
 # Author     : WFJ
 # Email      : wfj_sc@163.com
-# CreateTime : 2017-03-16 18:41
+# CreateTime : 2017-04-05 10:29
 # ===================================
 
 
-class ValidationError(Exception):
+
+
+if __name__ == '__main__':
     pass
+    
