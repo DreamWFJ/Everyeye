@@ -40,8 +40,8 @@ def create_app(config_name):
     from .core.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix = '/auth')
 
-    from .core.auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix = '/auth')
+    from .core.resources import manage as manage_blueprint
+    app.register_blueprint(manage_blueprint, url_prefix = '/manage')
     #
     # from .api_1_0 import api as api_1_0_blueprint
     # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')

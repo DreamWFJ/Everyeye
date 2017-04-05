@@ -7,8 +7,9 @@
     <thead>
     <tr>
         <th scope="col" abbr="Starter">ID</th>
-        <th scope="col" abbr="Medium">Action</th>
-        <th scope="col" abbr="Business">Log Detail</th>
+        <th scope="col" abbr="Medium">Name</th>
+        <th scope="col" abbr="Business">Email</th>
+        <th scope="col" abbr="Deluxe">Enabled</th>
         <th scope="col" abbr="Deluxe">Time</th>
     </tr>
     </thead>
@@ -19,8 +20,9 @@
     {% if user %}
     <tr>
         <td>{{user.id}}</td>
-        <td>{{user.action}}</td>
-        <td>{{user.log_detail}}</td>
+        <td>{{user.name}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.enabled}}</td>
         <td>{{user.create_at}}</td>
     </tr>
     {% else %}

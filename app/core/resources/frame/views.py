@@ -66,7 +66,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
         db.session.commit()
-        flash(u'你的个人资料已更新')
+        flash('Your profile has been updated.')
         return redirect(url_for('.user', name = current_user.name))
     form.name.data = current_user.name
     form.location.data = current_user.location
