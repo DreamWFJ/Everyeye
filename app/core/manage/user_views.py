@@ -19,3 +19,6 @@ def user():
     return render_template('manage/user.html', users=users)
 
 
+@manage.route('/test')
+def test():
+    return render_template('manage/frame.html')
