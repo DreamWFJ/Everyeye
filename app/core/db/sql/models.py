@@ -280,6 +280,29 @@ class Log(db.Model):
     def __repr__(self):
         return '<AuditLog %r>' % self.name
 
+class Message(db.Model):
+    """用户的消息记录"""
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, primary_key = True)
+    message_subject = db.Column(db.String(64))
+    message_detail = db.Column(db.Text())
+    create_at = db.Column(db.DateTime(), default=datetime.now)
+    from_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # to_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @staticmethod
+    def insert_message(message_subject, message_detail):
+        message = Message()
+        message.message_subject = message_subject
+        message.message_detail = message_detail
+        db.session.add(message)
+        db.session.commit()
+        return message
+
+    def __repr__(self):
+        return '<Message %r>' % self.id
+
+
 class User(UserMixin, db.Model):
     """用户信息
        建议最终将各个类型业务处理单独用类实现，作为一个混合类Mixin
@@ -309,6 +332,10 @@ class User(UserMixin, db.Model):
     addresses = db.relationship('Address', backref = 'user', lazy = 'dynamic')
     # 操作日志信息
     logs = db.relationship('Log', backref = 'user', lazy = 'dynamic')
+
+    # 消息信息
+    messages = db.relationship('Message', backref = 'user', lazy = 'dynamic')
+
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
     # 关于我
@@ -341,7 +368,7 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, addresses=None, logs=None, audit_logs=None, is_admin=False, confirmed=False):
+    def insert_users(username, email, password, addresses=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
         user = User()
@@ -353,6 +380,8 @@ class User(UserMixin, db.Model):
             user.logs = logs
         if audit_logs:
             user.audit_logs = audit_logs
+        if messages:
+            user.messages = messages
         user.password_hash = generate_password_hash(password)
         if confirmed:
             user.confirmed = confirmed
@@ -548,6 +577,9 @@ class InitData(object):
         log_detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation'
         return Log.insert_logs(action, log_detail)
 
+    def create_message(self):
+        return  Message.insert_message('test', "this is a test message")
+
     def create_address(self):
         name = 'my home'
         country = 'China'
@@ -570,10 +602,12 @@ class InitData(object):
         address = self.create_address()
         log = self.create_log()
         log1 = self.create_log()
+        message = self.create_message()
         audit_log = self.create_audit_log()
         return User.insert_users(username, email, password,
-                                 addresses=[address], logs=[log,log1], audit_logs=[audit_log], is_admin=True, confirmed=True)
+                                 addresses=[address], logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
+        User.insert_users('wfj', 'wfj@163.com', 'test', confirmed=True)
         return User.insert_users('test', 'test@163.com', 'test')
 
     def create_rights(self):
@@ -601,6 +635,7 @@ class InitData(object):
             'address': 0xff,
             'email': 0xff,
             'profile': 0xff,
+            'message': 0xff,
             'manage': 0xff, #管理能力，这是先觉条件，然后在看看是否有操作资源的权限
             'persion': 0xff
         }
@@ -623,6 +658,7 @@ class InitData(object):
         Role.add_resource('Administrator', 'email', 0xff)
         Role.add_resource('Administrator', 'persion', 0xff)
         Role.add_resource('Administrator', 'manage', 0xff)
+        Role.add_resource('Administrator', 'message', 0xff)
         Role.add_resource('Administrator', 'profile', 0xff)
         unknow = Role.insert_roles('Unknow')
         user = Role.insert_roles('User', default=True)

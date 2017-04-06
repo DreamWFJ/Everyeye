@@ -7,69 +7,6 @@
 <link rel="shortcut icon" href="{{ url_for('static', filename = 'favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename = 'favicon.ico') }}" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-<style type="text/css">
-        *{
-            margin: 0;
-            padding: 0;
-        }
-        body{
-            font: italic 20px Georgia, serif;
-            letter-spacing: normal;
-            background-color: #f0f0f0;
-        }
-        #content{
-            width: 750px;
-            padding: 40px;
-            margin: 0 auto;
-            background-color: #fff;
-            border-left: 30px solid #1D81B6;
-            border-right: 1px solid #ddd;
-            box-shadow: 0px 0px 16px #aaa;
-        }
-        #table1{
-            font: bold 16px/1.4em "Trebuchet MS", sans-serif;
-        }
-        #table1 thead th{
-            padding: 15px;
-            border: 1px solid #93CE37;
-            border-bottom: 3px solid #9ED929;
-            text-shadow: 1px 1px 1px #568F23;
-            color: #fff;
-            background-color: #9DD929;
-            border-radius: 5px 5px 0px 0px;
-        }
-        #table1 thead th:empty{
-            background-color: transparent;
-            border: none;
-        }
-        #table1 tbody th{
-            padding: 0px 10px;
-            border: 1px solid #93CE37;
-            border-right: 3px solid #9ED929;
-            text-shadow: 1px 1px 1px #568F23;
-            color: #666;
-            background-color: #9DD929;
-            border-radius: 5px 0px 0px 5px;
-        }
-        #table1 tbody td{
-            padding: 10px;
-            border: 2px solid #E7EFE0;
-            text-align: center;
-            text-shadow: 1px 1px 1px #fff;
-            color: #666;
-            background-color: #DEF3CA;
-            border-radius: 2px;
-        }
-
-        #table1 tfoot td{
-            padding: 10px 0px;
-            font-size: 32px;
-            color: #9CD009;
-            text-align: center;
-            text-shadow: 1px 1px 1px #444;
-        }
-    </style>
-
 {% endblock %}
 
 {% block navbar %}
@@ -95,7 +32,9 @@
 
 
                 {% if current_user.is_authenticated %}
-                    <li><a href="">Messages</a></li>
+                    {% if current_user.has_right('message', 'show') %}
+                        <li><a href="{{ url_for('resource.message', name=current_user.name)}}">Messages</a></li>
+                    {% endif %}
                     <li class="dropdown">
                         <a href='#' class="dropdown-toggle" data-toggle="dropdown">
                             <img src="{{ current_user.gravatar(size=18) }}"> {{ current_user.name }} <b class="caret"></b>
@@ -114,10 +53,10 @@
                                 Manage<b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="">User</a></li>
-                                <li><a href="">Role</a></li>
-                                <li><a href="">Right</a></li>
-                                <li><a href="">Resource</a></li>
+                                <li><a href="{{ url_for('manage.user') }}">User</a></li>
+                                <li><a href="{{ url_for('manage.role') }}">Role</a></li>
+                                <li><a href="{{ url_for('manage.right') }}">Right</a></li>
+                                <li><a href="{{ url_for('manage.resource') }}">Resource</a></li>
                             </ul>
                         </li>
                     {% endif %}

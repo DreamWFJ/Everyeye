@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Log{% endblock %}
+{% block title %}message{% endblock %}
 {% block head %}
 {{ super() }}
 <style type="text/css">
@@ -66,29 +66,28 @@
     }
 </style>
 {% endblock %}
-
 {% block page_content %}
 <table id="table1">
     <thead>
     <tr>
         <th scope="col" abbr="Starter">ID</th>
-        <th scope="col" abbr="Medium">Name</th>
-        <th scope="col" abbr="Business">Default</th>
-        <th scope="col" abbr="Deluxe">Enabled</th>
+        <th scope="col" abbr="Medium">Message Subject</th>
+        <th scope="col" abbr="Business">Message Detail</th>
+        <th scope="col" abbr="Business">From ID</th>
         <th scope="col" abbr="Deluxe">Time</th>
     </tr>
     </thead>
     <tfoot>
     </tfoot>
     <tbody>
-    {% for role in roles %}
-    {% if role %}
+    {% for message in messages %}
+    {% if message %}
     <tr>
-        <td>{{role.id}}</td>
-        <td>{{role.name}}</td>
-        <td>{{role.default}}</td>
-        <td>{{role.enabled}}</td>
-        <td>{{role.create_at}}</td>
+        <td>{{message.id}}</td>
+        <td>{{message.message_subject}}</td>
+        <td>{{message.message_detail}}</td>
+        <td>{{message.from_id}}</td>
+        <td>{{message.create_at}}</td>
     </tr>
     {% else %}
     <td>Nothing</td>

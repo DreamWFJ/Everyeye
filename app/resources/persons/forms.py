@@ -22,7 +22,10 @@ class PhotoForm(FlaskForm):
 class EditProfileForm(FlaskForm):
     """编辑个人配置"""
     name = StringField('Name', validators = [Length(0, 64)])
-    Address = StringField('Address', validators = [Length(0, 64)])
+    address_name = StringField('Address Name', validators = [Length(0, 64)])
+    address_country = StringField('Address Country', validators = [Length(0, 64)])
+    address_city = StringField('Address City', validators = [Length(0, 64)])
+    address_detail = StringField('Address Detail', validators = [Length(0, 128)])
     about_me = TextAreaField('About Me')
     submit = SubmitField('Confirm')
 

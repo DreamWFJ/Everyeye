@@ -31,14 +31,20 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.name = form.name.data
-        current_user.location = form.location.data
+        current_user.update_address(form.address_name.data, form.address_country.data, form.address_city.data,
+                            form.address_detail.data)
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
         db.session.commit()
         flash('Your profile has been updated.')
         return redirect(url_for('.user', name = current_user.name))
     form.name.data = current_user.name
-    form.location.data = current_user.location
+    address = current_user.get_default_address()
+    if address:
+        form.address_name.data = address.address_name
+        form.address_country.data = address.address_country
+        form.address_city.data = address.address_city
+        form.address_detail.data = address.address_detail
     form.about_me.data = current_user.about_me
     return render_template('resources/user/edit_profile.html', form = form)
 

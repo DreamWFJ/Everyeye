@@ -13,3 +13,4 @@ resource_blueprint = Blueprint('resource', __name__)
 from . import views
 from .logs import views
 from .persons import views
+from .messages import views
