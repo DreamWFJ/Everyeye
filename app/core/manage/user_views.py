@@ -21,4 +21,12 @@ def user():
 
 @manage.route('/test')
 def test():
+    return render_template('manage/test.html')
+
+@manage.route('/test1')
+def test1():
+    return render_template('manage/test1.html')
+
+@manage.route('/frame')
+def frame():
     return render_template('manage/frame.html')
