@@ -29,4 +29,12 @@ def test1():
 
 @manage.route('/frame')
 def frame():
-    return render_template('manage/frame.html')
+    return render_template('manage/frame.html')\
+
+@manage.route('/profile')
+def profile():
+    return render_template('manage/profile.html')
+
+@manage.route('/user-profile')
+def user_profile():
+    return render_template('manage/user_profile.html')

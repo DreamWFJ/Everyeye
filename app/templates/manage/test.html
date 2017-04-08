@@ -1,72 +1,122 @@
+{% import 'manage/frame/__macro__.html' as tools %}
 {% extends "manage/frame.html" %}
 {% block title %}test{% endblock title %}
 {% block content %}
-{% import 'manage/frame/__macro__.html' as tools %}
-{{ tools.page_navigation(10, 1, 'http://test.com/page') }}
-{{ tools.page_navigation(10, 2, 'http://test.com/page') }}
-{{ tools.page_navigation(10, 10, 'http://test.com/page') }}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Telephone</th>
+                    <th>Password</th>
+                    <th>Actived</th>
+                    <th>Register Time</th>
+                    <th>Details</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="http://www.cnblogs.com" target="_blank">show</a> </td>
+                    <td>add, update, delete, email, disable</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete, enabled</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">4</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">5</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">6</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">7</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
 {% endblock content %}
 {% block sidebar %}
 
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingDefault">
-            <h4 class="panel-title">
-                <span>Manage</span>
-            </h4>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingOne">
-            <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                    User
-                </a>
-            </h4>
-        </div>
-        <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-            <div class="panel-body">
-                <ul class="nav nav-pills nav-stacked">
-                    <li role="presentation" class="active"><a href="#">Home</a></li>
-                    <li role="presentation"><a href="#">Profile</a></li>
-                    <li role="presentation"><a href="#">Messages</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingTwo">
-            <h4 class="panel-title">
-                <a class="collapsed " role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Role
-                </a>
-            </h4>
-        </div>
-        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-            <div class="panel-body">
-                <ul class="nav nav-pills nav-stacked">
-                    <li role="presentation" class="active"><a href="#">Home</a></li>
-                    <li role="presentation"><a href="#">Profile</a></li>
-                    <li role="presentation"><a href="#">Messages</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
+    {% set navigation = [{'href':'index.html', 'caption':'Index'},
+    {'href':'user.html', 'caption':'User'},
+    {'href':'role.html', 'caption':'Role'},
+    {'href':'right.html', 'caption':'Right'},
+    {'href':'resource.html', 'caption':'Resource'},
+    {'href':'log.html', 'caption':'log'},
+    {'href':'email.html', 'caption':'Email'},
+    {'href':'audit_log.html', 'caption':'AuditLog'}] %}
+    {{ tools.sider_menu_navigation(navigation, 'Role') }}
 
-        <button class="btn btn-primary btn-block" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-            Right
-        </button>
-        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-            <div class="panel-body">
-                <ul class="nav nav-pills nav-stacked">
-                    <li role="presentation" class="active"><a href="#">Home</a></li>
-                    <li role="presentation"><a href="#">Profile</a></li>
-                    <li role="presentation"><a href="#">Messages</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock sidebar %}
 {% block footer %}{% endblock footer %}
