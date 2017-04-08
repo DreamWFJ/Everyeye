@@ -1,0 +1,180 @@
+{% import 'manage/frame/__macro__.html' as tools %}
+{% extends "manage/frame.html" %}
+{% block title %}User Profile{% endblock title %}
+{% block sidebar %}
+
+    <div>
+        <div>
+
+        </div>
+        <a><img src="{{ url_for('static', filename='img/head_portrait/test.png' )}}" width="230" height="230"></a>
+    </div>
+    <div style="position: static;">
+        <h1>
+            <span>DreamWFJ</span>
+        </h1>
+    </div>
+    <a href="/account" class="btn btn-block mb-3">Edit Head Portrait</a>
+
+{% endblock sidebar %}
+
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <!-- Table -->
+        <div class="panel-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputUsername" class="col-sm-2 control-label">Username</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="inputUsername" placeholder="Username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputRealName" class="col-sm-2 control-label">RealName</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="inputRealName" placeholder="RealName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputTelephone" class="col-sm-2 control-label">Telephone</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputTelephone" placeholder="Telephone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="col-sm-2 control-label">Password</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputQQ" class="col-sm-2 control-label">QQ</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="inputQQ" placeholder="QQ">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputIdentityCardNumber" class="col-sm-2 control-label">Identity Card Number</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="inputIdentityCardNumber" placeholder="Identity Card Number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputRegisterTime" class="col-sm-2 control-label">Register Time</label>
+                    <div class="col-sm-10">
+                        <input type="datetime" class="form-control" disabled id="inputRegisterTime" placeholder="Register Time">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Last Login</label>
+                    <div class="col-sm-10">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="inputLastLoginTime" class="col-sm-2 control-label">Time</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" disabled id="inputLastLoginTime" placeholder="Last Login Time">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputLastLoginAddress" class="col-sm-2 control-label">Address</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" disabled id="inputLastLoginAddress" placeholder="Last Login Address">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputLastLoginIP" class="col-sm-2 control-label">IP</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" disabled id="inputLastLoginIP" placeholder="Last Login IP">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">High Frequency Login Address</label>
+                    <div class="col-sm-10">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">One</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" disabled placeholder="High Frequency Address One" id="inputHighFrequencyAddressOne">
+                                            <span class="input-group-addon">10</span>
+                                            <span class="input-group-addon">Times</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Two</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" disabled placeholder="High Frequency Address Two" id="inputHighFrequencyAddressTwo">
+                                            <span class="input-group-addon">10</span>
+                                            <span class="input-group-addon">Times</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Three</label>
+                                    <div class="col-sm-10">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" disabled placeholder="High Frequency Address Three" id="inputHighFrequencyAddressThree">
+                                            <span class="input-group-addon">30</span>
+                                            <span class="input-group-addon">Times</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputTotalLoginCount" class="col-sm-2 control-label">Total Login Count</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" disabled id="inputTotalLoginCount" placeholder="Total Login Count">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputTotalOnlineTime" class="col-sm-2 control-label">Total Online Time</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" disabled id="inputTotalOnlineTime" placeholder="Total Online Time">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"> Disable User
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block footer %}{% endblock footer %}

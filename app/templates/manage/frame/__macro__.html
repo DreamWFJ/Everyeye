@@ -1,0 +1,139 @@
+<!-- 分页, 注意下面的小技巧，当为第一页的时候，将a标签换为span标签， ul中添加pagination-sm等可以改变大小 -->
+{#
+    使用例子
+    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+    {{ tools.page_navigation(10, 2, 'http://test.com/page', 'smail') }}
+    {{ tools.page_navigation(10, 10, 'http://test.com/page', 'large') }}
+#}
+{% macro page_navigation(total, current, url, page_size=10, standard='default') %}
+    <nav aria-label="Page navigation">
+        {% if standard == 'default' %}
+            <ul class="pagination">
+        {% elif standard == 'large' %}
+            <ul class="pagination pagination-lg">
+        {% elif standard == 'smail' %}
+            <ul class="pagination pagination-sm">
+        {% endif %}
+        {% if current == 1 %}
+            <li class="disabled">
+                <span href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </span>
+            </li>
+            <li class="active"><span>1 <span class="sr-only">(current)</span></span></li>
+            {% for i in range(2, total + 1) %}
+                <li><a href="#">{{i}}</a></li>
+            {% endfor %}
+            <li>
+                <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% elif current < total %}
+            <li>
+                <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% for i in range(1, total + 1) %}
+                {% if current == i %}
+                    <li class="active"><span>{{i}}<span class="sr-only">(current)</span></span></li>
+                {% else %}
+                    <li><a href="#">{{i}}</a></li>
+                {% endif %}
+            {% endfor %}
+            <li>
+                <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li>
+                <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% for i in range(1, total) %}
+                <li><a href="#">{{i}}</a></li>
+            {% endfor %}
+            <li class="active"><span>{{total}} <span class="sr-only">(current)</span></span></li>
+            <li class="disabled">
+                <span href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </span>
+            </li>
+
+        {% endif %}
+            <li class="pull-right"><span>total: {{ total * page_size }}</span></li>
+        </ul>
+
+    </nav>
+{% endmacro %}
+
+<!-- 侧边菜单导航 -->
+{#
+    {% set navigation = [{'href':'index.html', 'caption':'Index'},
+    {'href':'blog.html', 'caption':'Blog'},
+    {'href':'work.html', 'caption':'Work'},
+    {'href':'about.html', 'caption':'About'}] %}
+    {{ tools.menu_navigation(navigation, 'Work') }}
+#}
+{% macro sider_menu_navigation(menus, current) %}
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <ul class="nav nav-pills nav-stacked">
+                {% for item in menus %}
+                    {% if current == item.caption %}<li class="active">{% else %}<li>{% endif %}
+                <a href="{{ item.href }}">{{ item.caption }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- 表格 -->
+{% macro table(headers, datas) %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <div class="panel-body">
+            <p>panel content</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Username</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-footer">panel footer</div>
+    </div>
+{% endmacro %}

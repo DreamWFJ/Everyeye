@@ -19,3 +19,22 @@ def user():
     return render_template('manage/user.html', users=users)
 
 
+@manage.route('/test')
+def test():
+    return render_template('manage/test.html')
+
+@manage.route('/test1')
+def test1():
+    return render_template('manage/test1.html')
+
+@manage.route('/frame')
+def frame():
+    return render_template('manage/frame.html')\
+
+@manage.route('/profile')
+def profile():
+    return render_template('manage/profile.html')
+
+@manage.route('/user-profile')
+def user_profile():
+    return render_template('manage/user_profile.html')

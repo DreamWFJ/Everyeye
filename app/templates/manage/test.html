@@ -1,0 +1,122 @@
+{% import 'manage/frame/__macro__.html' as tools %}
+{% extends "manage/frame.html" %}
+{% block title %}test{% endblock title %}
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Telephone</th>
+                    <th>Password</th>
+                    <th>Actived</th>
+                    <th>Register Time</th>
+                    <th>Details</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="http://www.cnblogs.com" target="_blank">show</a> </td>
+                    <td>add, update, delete, email, disable</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete, enabled</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">4</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">5</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">6</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                <tr>
+                    <th scope="row">7</th>
+                    <td>Mark</td>
+                    <td>mark@163.com</td>
+                    <td>13641361488</td>
+                    <td>******</td>
+                    <td>True</td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td><a href="#">show</a> </td>
+                    <td>add, update, delete</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+{% endblock content %}
+{% block sidebar %}
+
+    {% set navigation = [{'href':'index.html', 'caption':'Index'},
+    {'href':'user.html', 'caption':'User'},
+    {'href':'role.html', 'caption':'Role'},
+    {'href':'right.html', 'caption':'Right'},
+    {'href':'resource.html', 'caption':'Resource'},
+    {'href':'log.html', 'caption':'log'},
+    {'href':'email.html', 'caption':'Email'},
+    {'href':'audit_log.html', 'caption':'AuditLog'}] %}
+    {{ tools.sider_menu_navigation(navigation, 'Role') }}
+
+{% endblock sidebar %}
+{% block footer %}{% endblock footer %}
