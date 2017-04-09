@@ -20,6 +20,7 @@
 
 </head>
 <body>
+{% import 'manage/frame/__macro__.html' as tools %}
 {% block body %}
     <!--- navbar-inverse, navbar-static-top, navbar-fixed-top, navbar-fixed-bottom --->
     <header class="navbar navbar-default navbar-static-top">
@@ -90,52 +91,7 @@
         <div class="row">
             <div class="col-md-3">
                 {% block sidebar %}
-                    <!-- 标签页 -->
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" class="active"><a href="#">Home</a></li>
-                        <li role="presentation"><a href="#">Profile</a></li>
-                        <li role="presentation" class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                Dropdown <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <!-- 列表 -->
-                    <div class="list-group">
-                        <a href="#" class="list-group-item active">
-                            <span class="badge">14</span>
-                            Cras justo odio
-                        </a>
-                        <a href="#" class="list-group-item">Dapibus ac facilisis in</a>
-                        <a href="#" class="list-group-item">Morbi leo risus</a>
-                        <a href="#" class="list-group-item">Porta ac consectetur ac</a>
-                        <a href="#" class="list-group-item">Vestibulum at eros</a>
-                    </div>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item active">
-                            <h4 class="list-group-item-heading">List group item heading</h4>
-                            <p class="list-group-item-text">列表组中的每个元素都可以是任何 HTML 内容，甚至是像下面的带链接的列表组</p>
-                        </a>
-                        <a href="#" class="list-group-item">
-                            <h4 class="list-group-item-heading">List group item heading</h4>
-                            <p class="list-group-item-text">列表组中的每个元素都可以是任何 HTML 内容，甚至是像下面的带链接的列表组</p>
-                        </a>
-                    </div>
-
-                    <ul class="list-group">
-                        <li class="list-group-item"><span class="badge">14</span>Cras justo odio</li>
-                        <li class="list-group-item">Dapibus ac facilisis in</li>
-                        <li class="list-group-item">Morbi leo risus</li>
-                        <li class="list-group-item">Porta ac consectetur ac</li>
-                        <li class="list-group-item">Vestibulum at eros</li>
-                    </ul>
+                    {{ tools.sider_menu_navigation('User') }}
                 {% endblock sidebar %}
             </div>
             <div class="col-md-9">

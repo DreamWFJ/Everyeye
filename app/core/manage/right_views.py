@@ -12,7 +12,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
 
-@manage.route('/rights')
-def right():
-    rights = Right.query.all()
-    return render_template('manage/right.html', rights=rights)
+# @manage.route('/rights')
+# def right():
+#     rights = Right.query.all()
+#     return render_template('manage/right.html', rights=rights)

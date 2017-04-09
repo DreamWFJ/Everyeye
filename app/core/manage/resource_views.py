@@ -13,7 +13,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
 
-@manage.route('/resources')
-def resource():
-    resources = Resource.query.all()
-    return render_template('manage/resource.html', resources=resources)
+# @manage.route('/resources')
+# def resource():
+#     resources = Resource.query.all()
+#     return render_template('manage/resource.html', resources=resources)

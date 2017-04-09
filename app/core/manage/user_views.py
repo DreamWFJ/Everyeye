@@ -13,11 +13,26 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
 
-@manage.route('/users')
+@manage.route('/user')
 def user():
     users = User.query.all()
     return render_template('manage/user.html', users=users)
 
+@manage.route('/role')
+def role():
+    return render_template('manage/role.html')
+
+@manage.route('/right')
+def right():
+    return render_template('manage/right.html')
+
+@manage.route('/resource')
+def resource():
+    return render_template('manage/resource.html')
+
+@manage.route('/log')
+def log():
+    return render_template('manage/log.html')
 
 @manage.route('/test')
 def test():
@@ -37,4 +52,8 @@ def profile():
 
 @manage.route('/user-profile')
 def user_profile():
-    return render_template('manage/user_profile.html')
+    return render_template('manage/user_profile.html')\
+
+@manage.route('/email')
+def email():
+    return render_template('manage/email.html')
