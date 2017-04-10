@@ -57,3 +57,7 @@ def user_profile():
 @manage.route('/email')
 def email():
     return render_template('manage/email.html')
+
+@manage.route('/audit-log')
+def audit_log():
+    return render_template('manage/audit_log.html')
