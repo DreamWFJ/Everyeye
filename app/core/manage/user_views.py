@@ -61,3 +61,12 @@ def email():
 @manage.route('/audit-log')
 def audit_log():
     return render_template('manage/audit_log.html')
+
+
+@manage.route('/blog')
+def blog():
+    return render_template('manage/blog.html')
+
+@manage.route('/comment')
+def comment():
+    return render_template('manage/comment.html')
