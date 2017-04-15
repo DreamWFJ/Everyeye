@@ -1,27 +1,32 @@
 {% import 'manage/frame/__macro__.html' as tools %}
 {% extends "manage/frame.html" %}
-{% block title %}Blog{% endblock title %}
+{% block title %}Language Rule{% endblock title %}
 {% block content %}
     <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
+        <div class="panel-heading">Add Language Rule</div>
         <div class="panel-body">
             <form class="form">
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-user"></span></span>
-                            <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-file-word-o"></span></span>
+                            <input type="text" class="form-control" placeholder="Key Word" aria-describedby="basic-addon1">
                         </div>
 
                     </div>
                     <div class="col-lg-6">
                         <div class="input-group">
                             <span class="input-group-addon">
-                                <span class="fa fa-envelope-o"></span>
+                                <span class="fa fa-file-text-o"></span>
                             </span>
-                            <input type="text" class="form-control" placeholder="Email">
+                            <select class="form-control">
+                                <option>Select Replace Text</option>
+                                <option>*</option>
+                                <option>#</option>
+                                <option>''</option>
+                            </select>
                         </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
                 </div>
@@ -32,43 +37,34 @@
                     <div class="col-lg-6">
                         <div class="input-group">
                             <span class="input-group-addon">
-                                Order
+                                Priority
                             </span>
                             <select class="form-control">
-                                <option>Username</option>
-                                <option>Email</option>
-                                <option>Blog Count</option>
-                                <option>Last Post Blog Time</option>
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
                             </select>
                         </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
                     <div class="col-lg-6">
                         <div class="input-group">
-                            <div class="form-control">
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
-                                </label>
-                            </div>
-
 
                         </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
                 </div><!-- /.row -->
                 <br>
 
-
                 <div class="row">
                     <div class="col-lg-6">
                     </div>
                     <div class="col-lg-6">
                         <div class="pull-right">
-                            <button type="submit" class="btn btn-default">Search</button>
+                            <button type="submit" class="btn btn-default">Add</button>
+                            <button type="submit" class="btn btn-default">Delete</button>
                         </div>
                     </div>
-
                 </div>
             </form>
         </div>
@@ -81,10 +77,9 @@
                         <input type="checkbox" value="option1" >
                     </th>
                     <th>ID</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Blog Count</th>
-                    <th>Last Post Blog Time</th>
+                    <th>Key Word</th>
+                    <th>Replace Text</th>
+                    <th>Priority</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -95,15 +90,13 @@
                     </td>
                     <td scope="row">1</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -113,15 +106,13 @@
                     </td>
                     <td scope="row">2</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -131,15 +122,13 @@
                     </td>
                     <td scope="row">3</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>#</td>
+                    <td>3</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -149,15 +138,13 @@
                     </td>
                     <td scope="row">4</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -167,15 +154,13 @@
                     </td>
                     <td scope="row">5</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -185,15 +170,13 @@
                     </td>
                     <td scope="row">6</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -203,15 +186,13 @@
                     </td>
                     <td scope="row">7</td>
                     <td>Mark</td>
-                    <td>mark@163.com</td>
-                    <td><a href="#">12</a></td>
-                    <td>2014-11-24 13:16:44</td>
+                    <td>*</td>
+                    <td>1</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
+                            <a href="#"><span class="fa fa-remove"></span></a>
                             <a href="#"><span class="fa fa-lock"></span></a>
                             <a href="#"><span class="fa fa-unlock"></span></a>
-
                         </div>
                     </td>
                 </tr>
@@ -223,7 +204,7 @@
 {% endblock content %}
 
 {% block sidebar %}
-    {{ tools.sider_menu_navigation('Blog') }}
+    {{ tools.sider_menu_navigation('LanguageRule') }}
 {% endblock sidebar %}
 
 {% block footer %}{% endblock footer %}

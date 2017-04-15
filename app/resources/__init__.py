@@ -14,3 +14,4 @@ from . import views
 from .logs import views
 from .persons import views
 from .messages import views
+from .blogs import views

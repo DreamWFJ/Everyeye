@@ -70,3 +70,7 @@ def blog():
 @manage.route('/comment')
 def comment():
     return render_template('manage/comment.html')
+
+@manage.route('/language-rule')
+def language_rule():
+    return render_template('manage/language_rule.html')

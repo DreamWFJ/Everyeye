@@ -1,0 +1,120 @@
+{% import 'resources/__macro__.html' as tools %}
+{% extends "resources/user_frame.html" %}
+{% block script %}
+    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
+        });
+    </script>
+{% endblock script %}
+{% block title %}Blog{% endblock title %}
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+        </div>
+        <div class="panel-body">
+            <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+                <div class="overlay-container">
+                    <img src="images/blog-1.jpg" alt="">
+                    <div class="overlay">
+                        <div class="overlay-links">
+                            <a href="blog-post.html"><i class="fa fa-link"></i></a>
+                            <a href="images/blog-1.jpg" class="popup-img-single" title="image title"><i class="fa fa-search-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="blogpost-body">
+                    <div class="post-info">
+                        <span class="day">12</span>
+                        <span class="month">Sept 2014</span>
+                    </div>
+                    <div class="blogpost-content">
+                        <header>
+                            <h2 class="title"><a href="blog-post.html">Blogpost with image</a></h2>
+                            <div class="submitted"><i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a></div>
+                        </header>
+                        <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                    </div>
+                </div>
+                <footer class="clearfix">
+                    <ul class="links pull-left">
+                        <li><i class="fa fa-comment-o pr-5"></i> <a href="#">22 comments</a> |</li>
+                        <li><i class="fa fa-tags pr-5"></i> <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a> </li>
+                    </ul>
+                    <a class="pull-right link" href="blog-post.html"><span>Read more</span></a>
+                </footer>
+            </article>
+            <!-- 缩略图 -->
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img data-src="holder.js/100%x200" alt="100%x200" style="height: 200px; width: 100%; display: block;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjQyIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDI0MiAyMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjwhLS0KU291cmNlIFVSTDogaG9sZGVyLmpzLzEwMCV4MjAwCkNyZWF0ZWQgd2l0aCBIb2xkZXIuanMgMi42LjAuCkxlYXJuIG1vcmUgYXQgaHR0cDovL2hvbGRlcmpzLmNvbQooYykgMjAxMi0yMDE1IEl2YW4gTWFsb3BpbnNreSAtIGh0dHA6Ly9pbXNreS5jbwotLT48ZGVmcz48c3R5bGUgdHlwZT0idGV4dC9jc3MiPjwhW0NEQVRBWyNob2xkZXJfMTViNDNlNWViNzIgdGV4dCB7IGZpbGw6I0FBQUFBQTtmb250LXdlaWdodDpib2xkO2ZvbnQtZmFtaWx5OkFyaWFsLCBIZWx2ZXRpY2EsIE9wZW4gU2Fucywgc2Fucy1zZXJpZiwgbW9ub3NwYWNlO2ZvbnQtc2l6ZToxMnB0IH0gXV0+PC9zdHlsZT48L2RlZnM+PGcgaWQ9ImhvbGRlcl8xNWI0M2U1ZWI3MiI+PHJlY3Qgd2lkdGg9IjI0MiIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSI4OS44NTAwMDAzODE0Njk3MyIgeT0iMTA1Ljc0OTk5OTgwOTI2NTEzIj4yNDJ4MjAwPC90ZXh0PjwvZz48L2c+PC9zdmc+" data-holder-rendered="true">
+                        <div class="caption">
+                            <h3>Thumbnail label</h3>
+                            <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+                            <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- 评论使用 -->
+        <div class="panel-footer">
+        </div>
+
+
+
+    </div>
+
+{% endblock content %}
+
+{% block sidebar %}
+    <div>
+        {{ tools.sider_menu_navigation('Blog') }}
+    </div>
+
+{% endblock sidebar %}
+
+{% block footer %}{% endblock footer %}

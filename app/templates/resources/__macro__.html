@@ -79,16 +79,10 @@
     {{ tools.menu_navigation(navigation, 'Work') }}
 #}
 {% set navigation = [{'href':'index.html', 'caption':'Index'},
-                    {'href':'user', 'caption':'User'},
-                    {'href':'role', 'caption':'Role'},
-                    {'href':'right', 'caption':'Right'},
-                    {'href':'resource', 'caption':'Resource'},
                     {'href':'log', 'caption':'log'},
                     {'href':'email', 'caption':'Email'},
                     {'href':'blog', 'caption':'Blog'},
-                    {'href':'comment', 'caption':'Comment'},
-                    {'href':'language-rule', 'caption':'LanguageRule'},
-                    {'href':'audit-log', 'caption':'AuditLog'}] %}
+                    {'href':'comment', 'caption':'Comment'}] %}
 {% macro sider_menu_navigation(current) %}
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
         <div class="panel panel-default">
@@ -98,6 +92,66 @@
                 <a href="{{ item.href }}">{{ item.caption }}</a></li>
                 {% endfor %}
             </ul>
+        </div>
+        <div class="panel panel-default">
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Dropdown <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                        <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
+                        <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
+                        <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="profile">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
+                        <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="messages">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="life">...</div>
+                <div role="tabpanel" class="tab-pane" id="happly">...</div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Keyword Cloud</div>
+            <div class="panel-body">
+                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
+                </canvas>
+
+            <div id="ExtendCloudTag" style="display: none">
+                <ul>
+                    <li><a href="http://www.google.com" target="_blank">Google</a></li>
+                    <li><a href="/fish">Fish</a></li>
+                    <li><a href="/chips">Chips</a></li>
+                    <li><a href="/salt">Salt</a></li>
+                    <li><a href="/vinegar">Vinegar</a></li>
+                </ul>
+            </div>
+                </div>
         </div>
     </div>
 {% endmacro %}

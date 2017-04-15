@@ -1,0 +1,428 @@
+{% import 'resources/__macro__.html' as tools %}
+{% extends "resources/user_frame.html" %}
+{% block script %}
+    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
+        });
+    </script>
+{% endblock script %}
+{% block title %}Blog{% endblock title %}
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+            <div class="page-header">
+                <h1 id="artibodyTitle" cid="187315" docid="fyeifqx5858211">《求是》刊文阐述习近平总体国家安全观意义</h1>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="wrap-inner">
+
+
+
+
+
+
+
+                <!-- 修改 吸顶开始 2015.11.19-->
+                <!-- 顶部 固定 分享按钮 -->
+                <script type="text/javascript" charset="utf-8" src="http://static.bshare.cn/b/buttonLite.js#style=-1&amp;uuid=cc6dc2b3-f467-40cb-afae-c7c6154a5f54&amp;pophcol=2&amp;lang=zh"></script>
+                <script type="text/javascript" charset="utf-8" src="http://static.bshare.cn/b/bshareC0.js"></script>
+                <script src="http://news.sina.com.cn/268/2014/0919/bshare_update.js" charset="utf-8"></script>
+
+                <div class="page-info" id="page-info">
+                    <div class="page-tools" id="page-tools">
+                        <div class="bshare-custom topShareBox" bshareupdate="1" data-mburl="http://doc.sina.cn/?id=comos:fyeifqx5858211" h5qr="http://comet.blog.sina.com.cn/qr?http://doc.sina.cn/?id=comos:fyeifqx5858211&amp;fromsinaweb="><div class="bsPromo bsPromo2"></div>
+                            <a onclick="javascript:bShare.share(event,'sinaminiblog'); _S_uaTrack('index_news_content', 'weibo_click'); return false;" title="分享到新浪微博" class="sinaminiblog"></a>
+
+                            <a href="javascript:;" title="分享到微信" class="bshare-weixin" onclick="_S_uaTrack('index_news_content', 'weixin_click');"></a>
+                            <a onclick="javascript:bShare.share(event,'qzone',0); _S_uaTrack('index_news_content', 'QQ_click'); return false;" class="qzone" title="分享到QQ空间"></a>
+                        </div>
+          <span class="page-tool-i page-tool-s" title="分享">
+            <a href="javascript:;" id="shareArticleButton" onclick="_S_uaTrack('index_news_content', 'other_click');">分享</a>
+          </span>
+                        <script type="text/javascript">
+
+
+                            var shareHref=location.href.split("?")[0];
+                            bShare.addEntry({
+                                title: '',
+                                summary: document.getElementById('artibodyTitle').innerHTML.replace(/<[^<>]*?font[^<>]*?>/gi,"") ,
+                                url: shareHref,
+                                pic:[]
+                            });
+                            $('#shareArticleButton').on('click', function(e){
+                                bShare.more();
+                                e.preventDefault();
+                            });
+                            bShareUpdate();
+
+                        </script>
+          <span class="page-tool-i page-tool-c page-tool-share" title="评论">
+            <span id="commentCount1">427<i style="padding-left:5px" class="pinglun">评论</i></span>
+            <a href="javascript:;" suda-uatrack="key=index_news_content&amp;value=comment_click"></a>
+          </span>
+                    </div>
+	<span class="time-source" id="navtimeSource">2017年04月15日05:55		<span>
+<span data-sudaclick="media_name"><a href="http://news.xinhuanet.com/politics/2017-04/14/c_1120810439.htm" target="_blank" rel="nofollow">新华网</a></span></span>
+	</span>
+                </div>
+                <style type="text/css">
+                    #navtimeSource{font-size: 18px;}
+                    #navtimeSource>span{padding-left:15px;}
+                    .real-time-window{bottom:0 !important;}
+                    /* 固定分享按钮样式 */
+                    .page-info{height:36px; position:relative;}
+                    .page-tools .page-tool-i{padding:0 14px 0 0; margin:0; border:none 0; height:36px;}
+                    .page-tools #commentCount1{ height:36px; line-height: 36px; padding-left:15px; margin:0 18px 0 0; color:#ff8500; font-size: 36px; font-family: "Arial black"; }
+                    .page-tools #commentCount1 i{color:#555555; height:36px; font-style: normal;  font-size: 14px; font-family: "Microsoft YaHei","\u5FAE\u8F6F\u96C5\u9ED1","Arial","SimSun","\u5B8B\u4F53";}
+
+                    .page-tools{position:absolute; top:0; *top:50%; left:0; float:inherit;}
+                    .page-tools .topShareBox{float:left; height:36px; margin-right:-2px;}
+                    .page-tools .topShareBox a{display: block; float:left; padding:0; margin:0 10px 0 0;  height:36px;}
+                    .page-tools .topShareBox a.sinaminiblog{width:78px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat 0 0;  }
+                    .page-tools .topShareBox a.bshare-weixin{width:78px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat -88px 0; }
+                    .page-tools .topShareBox a.qzone{ width:100px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat -176px 0;}
+
+                    .page-tools #shareArticleButton{margin:0; padding:0; width:40px; background:url(http://n.sinaimg.cn/news/090e8200/20151116/shareIcon.jpg) no-repeat -150px 0;}
+                    .page-tools #shareArticleButton:hover{opacity: .8;filter:alpha(opacity:80);}
+                    .page-tools span.page-tool-share a{height:36px; width:40px; background:url(http://n.sinaimg.cn/news/090e8200/20151116/shareIcon.jpg) no-repeat -200px 0; margin-top:0;}
+
+                    .page-tools span.page-tool-c{ border-left:1px solid #ccc;}
+
+                    /* time */
+                    .time-source{position:absolute; right:0; top:0; line-height:36px; height: 36px;}
+                </style>
+                <!-- /顶部 固定 分享按钮 -->
+
+                <!-- 吸顶 分享按钮 -->
+
+
+                <div class="page-content clearfix" id="articleContent">
+                    <div class="left">
+                        <!-- 窄通 begin -->
+                        <ins class="sinaads" data-ad-pdps="PDPS000000056819" style="margin-top:10px;"></ins>
+                        <script>(sinaads = window.sinaads || []).push({});</script>
+                        <!-- 窄通 end -->
+
+                        <div class="article article_16" id="artibody">
+
+
+
+
+
+                            <p>　　原标题：以习近平总书记总体国家安全观为指引 谱写国家安全新篇章</p>
+                            <p>　　新华社北京4月14日电 4月15日出版的《求是》杂志第8期发表署名钟国安的文章《以习近平总书记总体国家安全观为指引 谱写国家安全新篇章》。</p>
+                            <p>　　文章共分四个部分，深刻阐述了习近平总书记总体国家安全观具有重大的时代意义、理论意义、实践意义和世界意义。第一部分，总体国家安全观承载为实现中华民族伟大复兴提供坚强保障的历史使命，具有鲜明的时代特色。文章指出，总体国家安全观是时代的产物，同时又为时代注入了新的内涵。第二部分，总体国家安全观是我们党关于国家安全理论的重大创新，丰富和发展了中国特色社会主义理论体系。文章指出，总体国家安全观揭示了国家安全的本质和内涵，科学回答了中国这样一个发展中的社会主义大国如何维护和塑造国家安全的基本问题，标志着我们党对国家安全基本规律的认识达到了新高度。第三部分，总体国家安全观是维护和塑造中国特色大国安全的行动指南，具有重大的实践意义。文章强调，总体国家安全观蕴含着中国特色国家安全价值理念、工作思路和机制路径，是指导国家安全工作的科学理论。第四部分，总体国家安全观倡导构建人类命运共同体，具有广泛的包容性，产生了深远的国际影响。文章指出，总体国家安全观所倡导的安全理念，摒弃了零和博弈、绝对安全、结盟理论等旧观念，在国际上树立起一种普遍包容的国家安全理念，体现了中国风格，展示了中国胸怀，彰显了中国智慧。</p>
+                            <p>　　这篇重要文章的发表，对于深入学习贯彻习近平总书记总体国家安全观，奋力开拓国家安全工作新局面，具有重要指导作用。</p>
+
+
+
+
+
+
+
+
+                            <p class="article-editor">责任编辑：刘光博 </p>
+
+
+
+
+
+
+
+                        </div>
+
+                        <!-- 吸顶导航结束定位标记 -->
+                        <div id="navStopHere" style="position:relative;"></div>
+                        <!-- 吸顶导航结束定位标记 -->
+
+
+                        <div class="article-info clearfix">
+                            <!-- 文章关键字 begin -->
+                            <div class="article-keywords" data-sudaclick="art_keywords">
+                                <span>文章关键词：</span>
+                                <a href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a> <a href="http://tags.news.sina.com.cn/安全观" target="_blank">安全观</a> <a href="http://tags.news.sina.com.cn/总书记" target="_blank">总书记</a>
+                            </div>
+                            <!-- 文章关键字 end -->
+
+                            <!-- reedit -->
+
+                            <div class="article-feedback">
+                                <a href="http://comment5.news.sina.com.cn/comment/skin/feedback_1.html?channel=ly&amp;newsid=3" target="_blank">我要反馈</a>
+                                <a href="http://roll.news.sina.com.cn/savepage/save.php?url=http%3A%2F%2Fnews.sina.com.cn%2Fc%2F2017-04-15%2Fdoc-ifyeifqx5858211.shtml&amp;ie=utf8" target="_blank">保存网页</a>
+                            </div>
+
+                            <div class="news_weixin_ercode clearfix"> <div class="img_wrapper"><img class="news_con_qrcode" alt="新浪新闻" src="http://n.sinaimg.cn/news/content2014/news_con_qrcode.jpg"></div></div>
+
+
+                        </div>
+
+
+
+
+                        <!-- 评论上方悬停广告 begin -->
+                        <div id="sinaads_box" class="adNone">
+                            <div id="sinaads_fixed" style="position: relative;" class=" sinaads_fixed">
+                                <ins class="sinaads" data-ad-pdps="PDPS000000055164"></ins>
+                                <div id="sinaads-float-close" style="width:40px;height:18px;position:absolute;right:0;top:0;z-index:9999;cursor:pointer;background:url(http://d9.sina.com.cn/litong/zhitou/test/images/close-h.jpg) 100% 50% no-repeat rgb(235, 235, 235);"></div>
+                                <script>(sinaads = window.sinaads || []).push({});</script>
+                                <script>
+                                    var sinaadsClose=document.getElementById("sinaads-float-close");
+                                    var sinaadsBox=document.getElementById("sinaads_fixed");
+                                    sinaadsBox.style.position="relative";
+                                    sinaadsClose.onclick=function(){
+                                        sinaadsBox.style.display="none";
+                                    };
+                                </script>
+                            </div>
+                        </div>
+                        <!-- 评论上方悬停广告 end -->
+
+                        <div class="sytjad_lbtm adsytjad">
+                            <div style="margin-bottom:30px;margin-top:30px;">
+                                <!-- 推荐代码 -->
+                                <script>
+                                    (function (d, s, id) {
+                                        var n = d.getElementsByTagName(s)[0];
+                                        if (d.getElementById(id)) return;
+                                        s = d.createElement(s);
+                                        s.id = id;
+                                        s.setAttribute('charset', 'utf-8');
+                                        s.src = '//d' + Math.floor(0 + Math.random() * (9 - 0 + 1)) + '.sina.com.cn/litong/zhitou/sinaads/test/e-recommendation/release/sinaere.js';
+                                        n.parentNode.insertBefore(s, n);
+                                    })(document, 'script', 'sinaere-script');
+                                </script>
+                                <ins class="sinaere" data-tpl="2" data-pos="P_N_T_2" data-w="600" data-h="150" data-num="3" data-channel="news"></ins>
+                                <script>
+                                    //推荐启动代码
+                                    (sinaere = window.sinaere || []).push({});
+                                </script>
+                            </div>
+
+                        </div>
+
+                        <!-- 相关阅读容器 -->
+                        <div class="feed-wrap" id="relatedNewsWrap" style="margin-top: 75px;">
+                            <div class="feed-title">
+                                <h3>相关阅读</h3>
+                            </div>
+                            <div class="feed-c">
+                                <div id="feedCard" class="feed-card-fixed"><div class="feed-card-tab" id="feedCardTab"><div class="feed-card-tabs feed-card-clearfix" data-sudaclick="feed_nav"><div class="feed-card-tab-firstTab" style="width:60px;"><span id="feedCardTabFirstTab" style="width:40px;" class="feed-card-tab-tabi feed-card-tab-tabi-selected" data-lid="-2000">最新</span></div><div class="feed-card-tab-tabContainer" style="width: 598px;"><div id="feedCardConfigurableTabs" class="feed-card-tab-ctabs feed-card-clearfix"></div><div id="feedCardMoreTabsTrigger" class="feed-card-tab-more-trigger" style="display:none;">更多<i></i></div></div><div class="feed-card-tab-lastTab" suda-uatrack="key=index_feed&amp;value=float_setting" style="display: none;"><span class="feed-card-tab-tabi" id="feedCardSettingsTrigger">兴趣设置</span></div></div><div class="feed-card-tab-more" id="feedCardMoreTabs" style="display: none; right: 0px;"></div><div class="feed-card-tab-edit" id="feedCardTabEditor" data-sudaclick="posi-setting" style="display:none;"><div class="feed-card-tab-select" id="feedCardEditStep1"><div class="feed-card-tab-edit-col"><div class="feed-card-tab-edit-tit feed-card-clearfix"><h5>我的栏目：</h5><p>请点击选择您所感兴趣的栏目</p></div><div class="feed-card-tab-edit-cols feed-card-clearfix" id="feedCardEditCols"></div></div></div><div class="feed-card-tab-reorder" style="display:none;" id="feedCardEditStep2"><div class="feed-card-tab-edit-tit feed-card-clearfix"><p>您可以拖拽调整显示顺序</p></div><div class="feed-card-tab-reorder-c feed-card-clearfix" id="feedCardEditSelectW"></div></div><div class="feed-card-tab-edit-step feed-card-clearfix"><p id="feedCardEditTip"></p><div class="feed-card-tab-edit-steps"><a href="javascript:;" class="prev" id="feedCardEditPrev" style="display:none;" suda-uatrack="key=index_feed&amp;value=setting_btn_prev">上一步</a><a href="javascript:;" class="next" id="feedCardEditNext" suda-uatrack="key=index_feed&amp;value=setting_btn_next">下一步</a><a href="javascript:;" class="done" id="feedCardEditDone" style="display:none;" suda-uatrack="key=index_feed&amp;value=setting_btn_save">完成</a></div></div></div><div class="feed-card-tab-toast" id="feedCardTabToast" style="display:none;"><div id="feedCardTabToastC"></div><a href="javascript:;" id="feedCardTabToastClose">Close</a><span></span></div><div class="feed-card-tab-labels2" id="feedCardLabels" style="display:none;"><a href="javascript;" class="feed-card-tab-labels-toggle" id="feedCardLabelsToggle">更多</a><div class="feed-card-tab-labels-c feed-card-clearfix" id="feedCardLabelsC"></div></div></div><div class="feed-card-tag-tip" id="feedCardTagTip" suda-uatrack="key=index_feed&amp;value=tag_tip" style="display:none;"><div>喜欢“<em id="feedCardTagTipLabel"></em>”？<a href="javascript;" id="feedCardTagTipAdd">马上订阅</a>欣赏最精彩内容~</div><a href="javascript;" id="feedCardTagTipClose">关闭</a></div><div class="feed-card-select-tag" id="feedCardSelectTag" style="display:none;"><div class="feed-card-select-tag-will">欲添加的的标签：<span id="feedCardSelectWillTag"></span></div><div class="feed-card-select-tag-close"><a href="javascript;" id="feedCardSelectTagClose">关闭</a></div><div class="feed-card-select-tags feed-card-clearfix" id="feedCardSelectTagLabels"></div><div class="feed-card-select-tag-tip feed-card-clearfix"><p id="feedCardSelectTagTip"></p><a href="javascript;" id="feedCardSelectTagDone" class="disable">完成</a></div></div><div class="feed-card-notification2" id="feedCardNotification2" style="display:none;"></div><div class="feed-card-notification" id="feedCardNotification" style="display:none;" suda-uatrack="key=index_feed&amp;value=notification"></div><div class="feed-card-content" id="feedCardContent" data-sudaclick="feed_list"><div> <div class="feed-card-item"><h2 suda-uatrack="key=index_feed&amp;value=news_click:-2000:0:0" class="undefined"><a href="http://news.sina.com.cn/c/2017-04-15/doc-ifyeimzx6445075.shtml?cre=newspagepc&amp;mod=f&amp;loc=1&amp;r=9&amp;doct=0&amp;rfunc=78" target="_blank">习近平点赞的县委书记 上了人民日报头版头条</a></h2><div class="feed-card-c"><div class="feed-card-txt"><a href="http://news.sina.com.cn/c/2017-04-15/doc-ifyeimzx6445075.shtml?cre=newspagepc&amp;mod=f&amp;loc=1&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-summary" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:0:0" target="_blank">原标题：这位习近平点赞的县委书记 今天上了人民日报头版头条 中共中央总书记、国家主席、中央军委主席习近平近日对廖俊波同志先进事迹作出重要指示强调...</a><a href="http://news.sina.com.cn/c/2017-04-15/doc-ifyeimzx6445075.shtml?cre=newspagepc&amp;mod=f&amp;loc=1&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-detail" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:0:0" target="_blank">[详细]</a></div></div><div class="feed-card-a feed-card-clearfix"><div class="feed-card-time">今天13:08</div><div class="feed-card-tags"><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/县委书记" target="_blank">县委书记</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/廖俊波" target="_blank">廖俊波</a></div><div class="feed-card-actions"><a href="javascript:;" onclick="__SinaFeedCard__.showComment(this, 'gn','comos-fyeimzx6445075','0', 0, '4', 'http://news.sina.com.cn/c/2017-04-15/doc-ifyeimzx6445075.shtml?cre=newspagepc&amp;mod=f&amp;loc=1&amp;r=9&amp;doct=0&amp;rfunc=78'); return false;" class="feed-card-comment" suda-uatrack="key=index_feed&amp;value=news_comment_click:0:0" target="_blank">评论(58)</a><span class="feed-card-spliter">|</span><span id="bdshare" class="bdshare_t bds_tools get-codes-bdshare feed-card-share" data="text:'习近平点赞的县委书记 上了人民日报头版头条',url:'http://doc.sina.cn/?id=comos:fyeimzx6445075'"><span class="bds_more">分享</span></span></div></div><div style="display:none; margin-top:10px;" class="feed-card-comment-w" data-id="feedCardComment_comos-fyeimzx6445075_w"><div class="feed-card-comment-top" data-id="feedCardCommentTop_comos-fyeimzx6445075"><em>◆</em><span>◆</span></div><div class="feed-card-comment-c" data-id="feedCardComment_comos-fyeimzx6445075_c"></div><a href="javascript:;" class="feed-card-comment-close" onclick="__SinaFeedCard__.hideComment(this, 'comos-fyeimzx6445075'); return false;"><span>╱╲</span> 收起</a></div></div> <div class="feed-card-item"><h2 suda-uatrack="key=index_feed&amp;value=news_click:-2000:1:0" class="feed-card-icon feed-card-icon-video  undefined"><a href="http://news.sina.com.cn/c/nd/2017-04-09/doc-ifyecfnu7798187.shtml?cre=newspagepc&amp;mod=f&amp;loc=2&amp;r=9&amp;doct=0&amp;rfunc=78" target="_blank">王毅:中美元首会晤实现新时期两国关系良好开局</a></h2><div class="feed-card-c"><div class="feed-card-txt"><a href="http://news.sina.com.cn/c/nd/2017-04-09/doc-ifyecfnu7798187.shtml?cre=newspagepc&amp;mod=f&amp;loc=2&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-summary" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:1:0" target="_blank"> 应特朗普总统邀请，习近平主席4月6日至7日在美国佛罗里达州海湖庄园同特朗普总统举行中美元首会晤。行程结束之际，外交部长王毅向记者介绍此访情况。</a><a href="http://news.sina.com.cn/c/nd/2017-04-09/doc-ifyecfnu7798187.shtml?cre=newspagepc&amp;mod=f&amp;loc=2&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-detail" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:1:0" target="_blank">[详细]</a></div></div><div class="feed-card-a feed-card-clearfix"><div class="feed-card-time">4月9日 08:50</div><div class="feed-card-tags"><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/特朗普" target="_blank">特朗普</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/中美" target="_blank">中美</a></div><div class="feed-card-actions"><a href="javascript:;" onclick="__SinaFeedCard__.showComment(this, 'gn','comos-fyecfnu7798187','0', 1, '8', 'http://news.sina.com.cn/c/nd/2017-04-09/doc-ifyecfnu7798187.shtml?cre=newspagepc&amp;mod=f&amp;loc=2&amp;r=9&amp;doct=0&amp;rfunc=78'); return false;" class="feed-card-comment" suda-uatrack="key=index_feed&amp;value=news_comment_click:1:0" target="_blank">评论(36)</a><span class="feed-card-spliter">|</span><span id="bdshare" class="bdshare_t bds_tools get-codes-bdshare feed-card-share" data="text:'王毅:中美元首会晤实现新时期两国关系良好开局',url:'http://doc.sina.cn/?id=comos:fyecfnu7798187'"><span class="bds_more">分享</span></span></div></div><div style="display:none; margin-top:10px;" class="feed-card-comment-w" data-id="feedCardComment_comos-fyecfnu7798187_w"><div class="feed-card-comment-top" data-id="feedCardCommentTop_comos-fyecfnu7798187"><em>◆</em><span>◆</span></div><div class="feed-card-comment-c" data-id="feedCardComment_comos-fyecfnu7798187_c"></div><a href="javascript:;" class="feed-card-comment-close" onclick="__SinaFeedCard__.hideComment(this, 'comos-fyecfnu7798187'); return false;"><span>╱╲</span> 收起</a></div></div> <div class="feed-card-item"><h2 suda-uatrack="key=index_feed&amp;value=news_click:-2000:2:0" class="undefined"><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5508472.shtml?cre=newspagepc&amp;mod=f&amp;loc=3&amp;r=9&amp;doct=0&amp;rfunc=78" target="_blank">特朗普：我们正派出无敌舰队 金正恩在做错事</a></h2><div class="feed-card-c"><div class="feed-card-txt"><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5508472.shtml?cre=newspagepc&amp;mod=f&amp;loc=3&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-summary" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:2:0" target="_blank">[环球时报综合报道]“昨晚与中国国家主席就朝鲜威胁通电话，过程非常愉快”——正当朝鲜半岛剑拔弩张之时，中国国家主席习近平12日上午应约同美国总统特朗普通电话...</a><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5508472.shtml?cre=newspagepc&amp;mod=f&amp;loc=3&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-detail" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:2:0" target="_blank">[详细]</a></div></div><div class="feed-card-a feed-card-clearfix"><div class="feed-card-time">4月13日 01:21</div><div class="feed-card-tags"><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/特朗普" target="_blank">特朗普</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/中美关系" target="_blank">中美关系</a></div><div class="feed-card-actions"><a href="javascript:;" onclick="__SinaFeedCard__.showComment(this, 'gj','comos-fyeifqx5508472','0', 2, '19', 'http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5508472.shtml?cre=newspagepc&amp;mod=f&amp;loc=3&amp;r=9&amp;doct=0&amp;rfunc=78'); return false;" class="feed-card-comment" suda-uatrack="key=index_feed&amp;value=news_comment_click:2:0" target="_blank">评论(163)</a><span class="feed-card-spliter">|</span><span id="bdshare" class="bdshare_t bds_tools get-codes-bdshare feed-card-share" data="text:'特朗普：我们正派出无敌舰队 金正恩在做错事',url:'http://doc.sina.cn/?id=comos:fyeifqx5508472'"><span class="bds_more">分享</span></span></div></div><div style="display:none; margin-top:10px;" class="feed-card-comment-w" data-id="feedCardComment_comos-fyeifqx5508472_w"><div class="feed-card-comment-top" data-id="feedCardCommentTop_comos-fyeifqx5508472"><em>◆</em><span>◆</span></div><div class="feed-card-comment-c" data-id="feedCardComment_comos-fyeifqx5508472_c"></div><a href="javascript:;" class="feed-card-comment-close" onclick="__SinaFeedCard__.hideComment(this, 'comos-fyeifqx5508472'); return false;"><span>╱╲</span> 收起</a></div></div> <div class="feed-card-item"><h2 suda-uatrack="key=index_feed&amp;value=news_click:-2000:3:0" class="feed-card-icon feed-card-icon-video  undefined"><a href="http://video.sina.com.cn/p/news/o/doc/2017-04-08/171765974013.html?cre=newspagepc&amp;mod=f&amp;loc=4&amp;r=9&amp;doct=0&amp;rfunc=78" target="_blank">习近平访美24小时回顾</a></h2><div class="feed-card-c feed-card-c1 feed-card-clearfix" id="videoPlayerC-1491643040"><div class="feed-card-img" style="width:130px; height:87px;"><a href="javascript:;" suda-uatrack="key=index_feed&amp;value=video_play:-2000:3:0" target="_blank" onclick="__SinaFeedCard__.playVideo(1491643040, 141953237, 1); return false;"><img src="http://s.img.mix.sina.com.cn/auto/resize?img=http://p.ivideo.sina.com.cn/video/251/120/793/251120793_432_243.jpg&amp;size=130_87" alt="习近平访美24小时回顾" style="width:130px; height:87px;"><i class="feed-card-icon feed-card-icon-svideo"></i></a></div><div class="feed-card-txt"><a href="http://video.sina.com.cn/p/news/o/doc/2017-04-08/171765974013.html?cre=newspagepc&amp;mod=f&amp;loc=4&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-summary" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:3:0" target="_blank"></a><a href="http://video.sina.com.cn/p/news/o/doc/2017-04-08/171765974013.html?cre=newspagepc&amp;mod=f&amp;loc=4&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-detail" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:3:0" target="_blank">[详细]</a></div></div><div class="feed-card-video-player-w" style="display:none;" id="videoPlayerV-1491643040"><div class="feed-card-video-player-close" suda-uatrack="key=index_feed&amp;value=close_video_play:-2000:3:0" onclick="__SinaFeedCard__.stopVideo(1491643040);">收起视频</div><div class="feed-card-video-player-c"><div class="feed-card-video-player" id="videoPlayerVC-1491643040"></div></div></div><div class="feed-card-a feed-card-clearfix"><div class="feed-card-time">4月8日 17:17</div><div class="feed-card-tags"><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/访美" target="_blank">访美</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习特会" target="_blank">习特会</a></div><div class="feed-card-actions"><a href="javascript:;" onclick="__SinaFeedCard__.showComment(this, 'sh','comos-fyeayzu7229495','0', 3, '0', 'http://video.sina.com.cn/p/news/o/doc/2017-04-08/171765974013.html?cre=newspagepc&amp;mod=f&amp;loc=4&amp;r=9&amp;doct=0&amp;rfunc=78'); return false;" class="feed-card-comment" suda-uatrack="key=index_feed&amp;value=news_comment_click:3:0" target="_blank">评论(72)</a><span class="feed-card-spliter">|</span><span id="bdshare" class="bdshare_t bds_tools get-codes-bdshare feed-card-share" data="text:'习近平访美24小时回顾',url:'http://doc.sina.cn/?id=comos:fyeayzu7229495',pic:'http://s.img.mix.sina.com.cn/auto/resize?img=http://p.ivideo.sina.com.cn/video/251/120/793/251120793_432_243.jpg&amp;size=130_87'"><span class="bds_more">分享</span></span></div></div><div style="display:none; margin-top:10px;" class="feed-card-comment-w" data-id="feedCardComment_comos-fyeayzu7229495_w"><div class="feed-card-comment-top" data-id="feedCardCommentTop_comos-fyeayzu7229495"><em>◆</em><span>◆</span></div><div class="feed-card-comment-c" data-id="feedCardComment_comos-fyeayzu7229495_c"></div><a href="javascript:;" class="feed-card-comment-close" onclick="__SinaFeedCard__.hideComment(this, 'comos-fyeayzu7229495'); return false;"><span>╱╲</span> 收起</a></div></div> <div class="feed-card-item"><h2 suda-uatrack="key=index_feed&amp;value=news_click:-2000:4:0" class="undefined"><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5573038.shtml?cre=newspagepc&amp;mod=f&amp;loc=5&amp;r=9&amp;doct=0&amp;rfunc=78" target="_blank">发改委:下一步将从四个方面建设好雄安新区</a></h2><div class="feed-card-c"><div class="feed-card-txt"><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5573038.shtml?cre=newspagepc&amp;mod=f&amp;loc=5&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-summary" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:4:0" target="_blank"> 国家发展改革委于2017年4月13日上午9：30，在中配楼三层大会议室召开新闻发布会，发布宏观经济运行情况并回应热点问题，并回答记者提问。</a><a href="http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5573038.shtml?cre=newspagepc&amp;mod=f&amp;loc=5&amp;r=9&amp;doct=0&amp;rfunc=78" class="feed-card-txt-detail" rel="nofollow" suda-uatrack="key=index_feed&amp;value=news_click:-2000:4:0" target="_blank">[详细]</a></div></div><div class="feed-card-a feed-card-clearfix"><div class="feed-card-time">4月13日 10:15</div><div class="feed-card-tags"><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/发改委" target="_blank">发改委</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a><a suda-uatrack="key=index_feed&amp;value=news_label_click" href="http://tags.news.sina.com.cn/能源" target="_blank">能源</a></div><div class="feed-card-actions"><a href="javascript:;" onclick="__SinaFeedCard__.showComment(this, 'gn','comos-fyeifqx5573038','0', 4, '1', 'http://news.sina.com.cn/o/2017-04-13/doc-ifyeifqx5573038.shtml?cre=newspagepc&amp;mod=f&amp;loc=5&amp;r=9&amp;doct=0&amp;rfunc=78'); return false;" class="feed-card-comment" suda-uatrack="key=index_feed&amp;value=news_comment_click:4:0" target="_blank">评论(3)</a><span class="feed-card-spliter">|</span><span id="bdshare" class="bdshare_t bds_tools get-codes-bdshare feed-card-share" data="text:'发改委:下一步将从四个方面建设好雄安新区',url:'http://doc.sina.cn/?id=comos:fyeifqx5573038'"><span class="bds_more">分享</span></span></div></div><div style="display:none; margin-top:10px;" class="feed-card-comment-w" data-id="feedCardComment_comos-fyeifqx5573038_w"><div class="feed-card-comment-top" data-id="feedCardCommentTop_comos-fyeifqx5573038"><em>◆</em><span>◆</span></div><div class="feed-card-comment-c" data-id="feedCardComment_comos-fyeifqx5573038_c"></div><a href="javascript:;" class="feed-card-comment-close" onclick="__SinaFeedCard__.hideComment(this, 'comos-fyeifqx5573038'); return false;"><span>╱╲</span> 收起</a></div></div></div><div class="feed-card-loading feed-card-loading0" style="display: none;"><img src="http://i1.sinaimg.cn/home/main/ipadwww14/04/loading.gif" height="30" width="30"></div><div class="feed-card-page" style="display: none;"></div></div></div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+                        <!-- 热点商讯 begin -->
+                        <div class="Ad_02 adNone" id="PublicRelation11">
+                            <div id="ztsh">
+                                <div class="zhitou_sheng">
+                                    <h2><strong>聚焦</strong></h2>
+                                    <dl>
+                                        <ins class="sinaads" data-ad-pdps="jujiaoceshi2"></ins>
+                                        <script>(sinaads = window.sinaads || []).push({});</script>
+                                    </dl>
+                                    <dl>
+                                        <dd>
+
+                                        </dd>
+                                        <dd>
+
+                                        </dd>
+                                        <dd>
+
+                                        </dd>
+                                        <dd>
+
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <style type="text/css">
+                            .zhitou_sheng{width:640px;border:1px #e5e5e5 solid;padding-bottom:14px; font-family:'宋体';margin:10px auto 0;overflow:hidden;}
+                            .zhitou_sheng h2{height:37px;line-height:37px;border-bottom:1px dashed #e5e5e5;}
+                            .zhitou_sheng h2 strong{font-size:16px;float:left;padding-left:8px; font-family:'微软雅黑'; color:#333;}
+                            .zhitou_sheng h2 strong em{ font-family:'宋体';}
+                            .zhitou_sheng dl {margin: 14px auto 0;}
+                            /*.zhitou_sheng dl dt{float:left;margin-right:8px;display:inline;width:145px;height:105px;border:1px #e5e5e5 solid;position:relative}
+                            .zhitou_sheng dl dt img{ float:left; border:none;}
+                            .zhitou_sheng dl dt span{width:145px;height:20px;position:absolute;bottom:0;left:0;background:#586063;filter:alpha(opacity=50);opacity:0.5;}
+                            .zhitou_sheng dl dt em{width:145px;height:20px;font-size:12px;line-height:20px;text-align:center;z-index:5;color:#fff;position:absolute;bottom:0;left:0;}*/
+                            .zhitou_sheng dl dd{ list-style-type:none;list-style-image:none;font-size:12px;float:left;line-height:22px;margin-left:7px;width:150px;}
+                            .zhitou_sheng dl dd a{ color:#666;}
+                            .zhitou_sheng dl dd a:hover{text-decoration:underline; color:#C00;}
+                            .clear{height:0;line-height:0;font-size:0;overflow:hidden;clear:both;}
+                            .Ad_02 {height:190px; display:block;}
+                            .Ad_02 .Mblk_03 .newAddBlk .list_009_f14{padding-left:10px;}
+                            .Ad_02 .Mblk_03{float:left;}
+                            .Ad_02 .adNode{border:1px solid #E5E5E5; width:316px; margin-top:15px; height:190px;}
+                            .Ad_02 .M_Menu_01 .newAddtit2 {padding-top:4px;float:right;padding-right:10px;}
+                            .Ad_02 .M_Menu_01 .selected{border-right:1px solid #E5E5E5; padding-right:10px;}
+                            .Ad_02 .Mblk_03 .newAddBlk li { background: url("http://i0.sinaimg.cn/ent/deco/2012/0907/content/ent_zxh_0816_01v3.png") no-repeat scroll -47px -92px transparent; padding-left: 13px; height: 22px; line-height: 22px;}
+                            .Ad_02 .Mblk_03 .newAddBlk2{border-top:1px dotted #ccc; margin-top:3px;}
+                            .Ad_02 .Mblk_03 .conBlk{border-bottom:1px solid #fff; padding-top:10px;}
+                            .Ad_02 .Mblk_03 .newAddBlk .zypicBlk{padding-top:2px;padding-bottom:0px;}
+
+                            .M_Menu_01 .selected {color: #010101; font-family: "微软雅黑"; font-size: 14px; height: 32px; line-height: 32px; padding-left: 14px; float:left;}
+                            .newAddtit2 {float:left; line-height:32px; padding-left:20px; color:#626262;}
+                            .conBlk {border-bottom:1px dotted #CCCCCC; border-top:1px dotted #CCCCCC;}
+                        </style>
+                        <!-- 热点商讯 end -->
+                        <!-- 品牌聚焦 begin -->
+                        <div class="brandfocusad">
+                            <!-- 国内/国际/军事/社会正文页打通品牌聚焦通栏 Start -->
+                            <ins class="sinaads" data-ad-pdps="PDPS000000057936" style="margin-top:10px;"></ins>
+                            <script>(sinaads = window.sinaads || []).push({})</script>
+                            <!-- 国内/国际/军事/社会正文页打通品牌聚焦通栏 End -->
+                        </div>
+                        <!-- 品牌聚焦 end -->
+
+
+                        <div style="width:100%;display:inline-block;margin-top:10px;" class="ad002">
+                            <!--新闻中心正文通发页包版300*250底部按钮03(天) Start-->
+                            <ins class="sinaads" data-ad-pdps="PDPS000000058855" style="width:300px;height:250px;float:left;"></ins>
+                            <script>(sinaads = window.sinaads || []).push({})</script>
+                            <!--新闻中心正文通发页包版300*250底部按钮03(天) End-->
+
+                            <!--新闻中心正文通发页包版300*250底部按钮04(天) Start-->
+                            <ins class="sinaads" data-ad-pdps="PDPS000000058856" style="width:300px;height:250px;float:right;"></ins>
+                            <script>(sinaads = window.sinaads || []).push({})</script>
+                            <!--新闻中心正文通发页包版300*250底部按钮04(天) End-->
+                        </div>
+
+                        <div class="ad003">
+                            <!--新闻中心正文通发页包版640*90底部通栏（天）Start-->
+                            <ins class="sinaads" data-ad-pdps="PDPS000000058859" style="margin-top:10px;"></ins>
+                            <script>(sinaads = window.sinaads ||[]).push({})</script>
+                            <!--新闻中心正文通发页包版640*90底部通栏（天）End-->
+                        </div>
+
+
+
+                        <!-- 图铃下载、新浪公益、互动活动、热点推荐 begin -->
+                        <style type="text/css">
+                            #ccont02{display:none;}
+                            #ccont03{display:none;}
+                            #ccont04{display:none;}
+                            #ccont05{display:none;}
+                        </style>
+
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- Previous or next blog -->
+            <nav aria-label="...">
+                <ul class="pager">
+                    <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
+                    <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+                </ul>
+            </nav>
+        </div>
+        <!-- 评论使用 -->
+        <div class="panel-footer">
+            Comment
+            <div class="panel-body">
+                <ul class="media-list">
+                    <li class="media">
+                        <div class="media-left">
+                            <a href="#">
+                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">Media heading</h4>
+                            <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.</p>
+                            <div class="media">
+                                <div class="media-left">
+                                    <a href="#">
+                                        <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2MwMTQ4NiB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYzAxNDg2Ij48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
+                                    </a>
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">Nested media heading</h4>
+                                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
+                                    <!-- Nested media object -->
+                                    <div class="media">
+                                        <div class="media-left">
+                                            <a href="#">
+                                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
+                                            </a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h4 class="media-heading">Nested media heading</h4>
+                                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+            </div>
+        </div>
+
+
+
+    </div>
+
+{% endblock content %}
+
+{% block sidebar %}
+    <div>
+        {{ tools.sider_menu_navigation('Blog') }}
+    </div>
+
+{% endblock sidebar %}
+
+{% block footer %}{% endblock footer %}

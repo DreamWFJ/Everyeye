@@ -35,11 +35,10 @@
                                 Order
                             </span>
                             <select class="form-control">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
+                                <option>ID</option>
+                                <option>Username</option>
+                                <option>Email</option>
+                                <option>Comment Count</option>
                             </select>
                         </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
@@ -84,11 +83,9 @@
                     <th>ID</th>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>Telephone</th>
-                    <th>Password</th>
-                    <th>Actived</th>
-                    <th>Register Time</th>
-                    <th>Details</th>
+                    <th>Comment Count</th>
+                    <th>Last Comment Time</th>
+                    <th>Permit Comment</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -100,21 +97,16 @@
                     <td scope="row">1</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td><a href="#">13</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a> </td>
-                    <td><div class="btn-group" role="group" aria-label="...">
-                        <a href="email"><span class="fa fa-envelope-o"></span> </a>
-                        <a href="#"><span class="fa fa-edit"></span></a>
-                        <a href="#"><span class="fa fa-user"></span></a>
-                        <a href="#"><span class="fa fa-refresh"></span></a>
-                        {{ tools.user_role_dialog('user_id', 'bind user role', 'content unknow') }}
-                        <a href="#"><span class="fa fa-lock"></span></a>
-                        <a href="#"><span class="fa fa-unlock"></span></a>
-
-                    </div></td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -123,12 +115,16 @@
                     <td scope="row">2</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-remove-sign"></span></td>
+                    <td><a href="#">13</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a> </td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-remove-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -137,12 +133,16 @@
                     <td scope="row">3</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-remove-sign"></span></td>
+                    <td><a href="#">13</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a> </td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -151,12 +151,16 @@
                     <td scope="row">4</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-remove-sign"></span></td>
+                    <td><a href="#">13</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a></td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -165,12 +169,16 @@
                     <td scope="row">5</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
+                    <td><a href="#">10</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a> </td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -179,12 +187,16 @@
                     <td scope="row">6</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
+                    <td><a href="#">11</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a></td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td scope="row">
@@ -193,12 +205,16 @@
                     <td scope="row">7</td>
                     <td>Mark</td>
                     <td>mark@163.com</td>
-                    <td>13641361488</td>
-                    <td>******</td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
+                    <td><a href="#">5</a> </td>
                     <td>2014-11-24 13:16:44</td>
-                    <td><a href="user-profile" target="_blank">show</a></td>
-                    <td>{{ tools.drop_down_menu() }}</td>
+                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <a href="#"><span class="fa fa-remove"></span></a>
+                            <a href="#"><span class="fa fa-lock"></span></a>
+                            <a href="#"><span class="fa fa-unlock"></span></a>
+                        </div>
+                    </td>
                 </tr>
                 </tbody>
             </table>
