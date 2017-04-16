@@ -1,6 +1,7 @@
 {% import 'resources/__macro__.html' as tools %}
 {% extends "resources/user_frame.html" %}
 {% block script %}
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/post.css') }}" crossorigin="anonymous">
     <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function() {
@@ -56,13 +57,7 @@
         <div class="panel-body">
             <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
                 <div class="overlay-container">
-                    <img src="images/blog-1.jpg" alt="">
-                    <div class="overlay">
-                        <div class="overlay-links">
-                            <a href="blog-post.html"><i class="fa fa-link"></i></a>
-                            <a href="images/blog-1.jpg" class="popup-img-single" title="image title"><i class="fa fa-search-plus"></i></a>
-                        </div>
-                    </div>
+                    <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
                 </div>
                 <div class="blogpost-body">
                     <div class="post-info">
@@ -71,8 +66,10 @@
                     </div>
                     <div class="blogpost-content">
                         <header>
-                            <h2 class="title"><a href="blog-post.html">Blogpost with image</a></h2>
-                            <div class="submitted"><i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a></div>
+                            <h2 class="title"><a href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">Blogpost with image</a></h2>
+                            <div class="submitted">
+                                <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                            </div>
                         </header>
                         <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
                     </div>
@@ -82,8 +79,81 @@
                         <li><i class="fa fa-comment-o pr-5"></i> <a href="#">22 comments</a> |</li>
                         <li><i class="fa fa-tags pr-5"></i> <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a> </li>
                     </ul>
-                    <a class="pull-right link" href="blog-post.html"><span>Read more</span></a>
+                    <a class="pull-right link" href="article/186ccc46-4450-4020-9a75-44c7c0d14e83"><span>Read more</span></a>
                 </footer>
+            </article>
+
+            <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+                <div class="blogpost-body">
+                    <div class="post-info">
+                        <span class="day">12</span>
+                        <span class="month">Sept 2014</span>
+                    </div>
+                    <div class="blogpost-content">
+                        <header>
+                            <h2 class="title"><a href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">Blogpost with image</a></h2>
+                            <ul class="links pull-right">
+                                <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
+                                <li>&nbsp;</li>
+                                <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
+                                <li>&nbsp;</li>
+                            </ul>
+                            <div class="submitted">
+                                <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                            </div>
+                        </header>
+                        <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
+                        <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                    </div>
+                </div>
+                <footer class="clearfix">
+                    <ul class="links pull-left">
+                        <li><i class="fa fa-tags pr-5"></i>
+                            <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
+                        </li>
+                    </ul>
+                    <a class="pull-right link" href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">
+                        <span class="glyphicon glyphicon-link"></span>
+                        <span>Read more</span>
+                    </a>
+                </footer>
+
+            </article>
+
+            <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+                <div class="blogpost-body">
+                    <div class="post-info">
+                        <span class="day">12</span>
+                        <span class="month">Sept 2014</span>
+                    </div>
+                    <div class="blogpost-content">
+                        <header>
+                            <h2 class="title"><a href="blog-post.html">Blogpost with image</a></h2>
+                            <ul class="links pull-right">
+                                <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
+                                <li>&nbsp;</li>
+                                <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
+                                <li>&nbsp;</li>
+                            </ul>
+                            <div class="submitted">
+                                <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                            </div>
+                        </header>
+                        <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                    </div>
+                </div>
+                <footer class="clearfix">
+                    <ul class="links pull-left">
+                        <li><i class="fa fa-tags pr-5"></i>
+                            <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
+                        </li>
+                    </ul>
+                    <a class="pull-right link" href="blog-post.html">
+                        <span class="glyphicon glyphicon-link"></span>
+                        <span>Read more</span>
+                    </a>
+                </footer>
+
             </article>
             <!-- 缩略图 -->
             <div class="row">

@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <title>{% block title %}Title{% endblock title %}</title>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" crossorigin="anonymous">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-theme.min.css') }}" crossorigin="anonymous">
     <!-- Latest font awesome -->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/fonts/fontawesome-webfont.svg" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/font-awesome.min.css') }}" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/fonts/fontawesome-webfont.svg') }}" crossorigin="anonymous">
 
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename = 'js/jquery.min.js') }}" crossorigin="anonymous"></script>
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename = 'js/bootstrap.min.js') }}" crossorigin="anonymous"></script>
 
     {% block css %}{% endblock css %}
     {% block script %}{% endblock script %}
