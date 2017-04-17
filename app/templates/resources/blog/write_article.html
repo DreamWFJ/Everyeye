@@ -1,0 +1,183 @@
+{% import 'resources/__macro__.html' as tools %}
+{% extends "resources/user_frame.html" %}
+{% block script %}
+<!-- bootstrap summernote edit tool css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/summernote.css') }}" crossorigin="anonymous">
+<!-- bootstrap summernote edit tool js -->
+<script src="{{ url_for('static', filename = 'js/summernote.min.js') }}" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename = 'lang/summernote-zh-CN.min.js') }}" crossorigin="anonymous"></script>
+
+<script src="{{ url_for('static', filename = 'js/markdown.min.js') }}" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename = 'js/marked.min.js') }}" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename = 'js/to-marked.min.js') }}" crossorigin="anonymous"></script>
+
+<!-- bootstrap markdown edit tool css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-markdown.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap markdown edit tool js -->
+<script src="{{ url_for('static', filename = 'js/bootstrap-markdown.min.js') }}" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.selectpicker').selectpicker({
+            style: 'btn-info',
+            liveSearch: true,
+            size: 4
+        });
+        $('#summernote_edit_tool').summernote(
+                {
+                    height: 300,                 // set editor height
+                    minHeight: null,             // set minimum height of editor
+                    maxHeight: null,             // set maximum height of editor
+                    focus: true                  // set focus to editable area after initializing summernote
+                }
+        );
+        $('#bootstrap_markdown_edit_tool').markdown(
+                {
+                    height: 360,                 // set editor height
+                    autofocus: true,                  // set focus to editable area after initializing summernote
+                    onPreview: function(e) {
+                        var previewContent = e.getContent();
+                        if (e.isDirty()) {
+                            previewContent = e.parseContent();
+                        } else if (previewContent.length > 0) {
+                            previewContent = e.setContent(previewContent);
+                        }
+
+                        return previewContent;
+                    }
+                }
+        );
+
+    });
+</script>
+{% endblock script %}
+{% block title %}Blog{% endblock title %}
+{% block content %}
+<!-- 面板 -->
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+        <div class="page-header">
+            <h1>Write Article</h1>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="inputArticleTitle" class="col-sm-2 control-label">Title</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="inputArticleTitle" placeholder="Article Title">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputArticleSource" class="col-sm-2 control-label">Source</label>
+                <div class="col-sm-10">
+                    <div class="btn-group" data-toggle="buttons" id="inputArticleSource">
+                        <label class="btn btn-primary active">
+                            <input type="radio" name="options" id="source_original" autocomplete="off" checked> Original
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="source_quote" autocomplete="off"> Quote
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="source_other" autocomplete="off"> Other
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="selectCategory" class="col-sm-2 control-label">Category</label>
+                <div class="col-sm-10">
+                    <select class="selectpicker" id="selectCategory">
+                        <option>Mustard</option>
+                        <option>Ketchup</option>
+                        <option>Relish</option>
+                    </select>
+                    &nbsp;
+                    <a class="link" href="#"><span class="fa fa-plus"></span></a>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputArticleSource" class="col-sm-2 control-label">Content</label>
+                <div class="col-sm-10">
+                    <!-- tabs -->
+                    <div class="tabs-x align-center tabs-above tab-bordered">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#normal_edit_tool" data-toggle="tab">Normal</a></li>
+                            <li><a href="#markdown_edit_tool" data-toggle="tab">Markdown</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="normal_edit_tool">
+                                <div id="summernote_edit_tool"></div>
+                            </div>
+                            <div class="tab-pane" id="markdown_edit_tool">
+                                <textarea name="content" id="bootstrap_markdown_edit_tool"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputKeyword" class="col-sm-2 control-label">Keyword</label>
+                <div class="col-sm-10">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Maximum Input Five Keyword, Split with a semicolon" id="inputKeyword">
+                            <span class="input-group-addon">
+                                <a class="link" href="#"><span class="fa fa-plus"></span></a>
+                            </span>
+
+                        </div><!-- /input-group -->
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="inputReferenceLinks" class="col-sm-2 control-label">Reference links</label>
+                <div class="col-sm-10">
+                    <textarea rows="6" style="width: 65%" id="inputReferenceLinks" placeholder="Input reference links, Split with a newline"></textarea>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"> Disable User
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="cancel" class="btn btn-default">cancel</button>
+                    <button type="preview" class="btn btn-default">preview</button>
+                    <button type="submit" class="btn btn-default">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- 评论使用 -->
+    <div class="panel-footer">
+        Comment
+    </div>
+
+
+
+</div>
+
+{% endblock content %}
+
+{% block sidebar %}
+<div>
+    {{ tools.blog_sider_manage_menu_navigation('WriteArticle') }}
+</div>
+
+{% endblock sidebar %}
+
+{% block footer %}{% endblock footer %}

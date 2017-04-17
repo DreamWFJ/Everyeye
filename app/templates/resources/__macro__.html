@@ -1,146 +1,146 @@
 <!-- 分页, 注意下面的小技巧，当为第一页的时候，将a标签换为span标签， ul中添加pagination-sm等可以改变大小 -->
 {#
-    使用例子
-    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
-    {{ tools.page_navigation(10, 2, 'http://test.com/page', 'smail') }}
-    {{ tools.page_navigation(10, 10, 'http://test.com/page', 'large') }}
+使用例子
+{{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+{{ tools.page_navigation(10, 2, 'http://test.com/page', 'smail') }}
+{{ tools.page_navigation(10, 10, 'http://test.com/page', 'large') }}
 #}
 {% macro page_navigation(total, current, url, page_size=10, standard='default') %}
-    <nav aria-label="Page navigation">
-        {% if standard == 'default' %}
-            <ul class="pagination">
+<nav aria-label="Page navigation">
+    {% if standard == 'default' %}
+    <ul class="pagination">
         {% elif standard == 'large' %}
-            <ul class="pagination pagination-lg">
-        {% elif standard == 'smail' %}
+        <ul class="pagination pagination-lg">
+            {% elif standard == 'smail' %}
             <ul class="pagination pagination-sm">
-        {% endif %}
-        {% if current == 1 %}
-            <li class="disabled">
+                {% endif %}
+                {% if current == 1 %}
+                <li class="disabled">
                 <span href="#" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </span>
-            </li>
-            <li class="active"><span>1 <span class="sr-only">(current)</span></span></li>
-            {% for i in range(2, total + 1) %}
+                </li>
+                <li class="active"><span>1 <span class="sr-only">(current)</span></span></li>
+                {% for i in range(2, total + 1) %}
                 <li><a href="#">{{i}}</a></li>
-            {% endfor %}
-            <li>
-                <a href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        {% elif current < total %}
-            <li>
-                <a href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            {% for i in range(1, total + 1) %}
+                {% endfor %}
+                <li>
+                    <a href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% elif current < total %}
+                <li>
+                    <a href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% for i in range(1, total + 1) %}
                 {% if current == i %}
-                    <li class="active"><span>{{i}}<span class="sr-only">(current)</span></span></li>
+                <li class="active"><span>{{i}}<span class="sr-only">(current)</span></span></li>
                 {% else %}
-                    <li><a href="#">{{i}}</a></li>
-                {% endif %}
-            {% endfor %}
-            <li>
-                <a href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        {% else %}
-            <li>
-                <a href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            {% for i in range(1, total) %}
                 <li><a href="#">{{i}}</a></li>
-            {% endfor %}
-            <li class="active"><span>{{total}} <span class="sr-only">(current)</span></span></li>
-            <li class="disabled">
+                {% endif %}
+                {% endfor %}
+                <li>
+                    <a href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li>
+                    <a href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% for i in range(1, total) %}
+                <li><a href="#">{{i}}</a></li>
+                {% endfor %}
+                <li class="active"><span>{{total}} <span class="sr-only">(current)</span></span></li>
+                <li class="disabled">
                 <span href="#" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </span>
-            </li>
+                </li>
 
-        {% endif %}
-        <li class="pull-right"><span>total: {{ total * page_size }}</span></li>
-        </ul>
+                {% endif %}
+                <li class="pull-right"><span>total: {{ total * page_size }}</span></li>
+            </ul>
 
-    </nav>
+</nav>
 {% endmacro %}
 
 <!-- 侧边菜单导航 -->
 {#
-    {% set navigation = [{'href':'index.html', 'caption':'Index'},
-    {'href':'blog.html', 'caption':'Blog'},
-    {'href':'work.html', 'caption':'Work'},
-    {'href':'about.html', 'caption':'About'}] %}
-    {{ tools.menu_navigation(navigation, 'Work') }}
+{% set navigation = [{'href':'index.html', 'caption':'Index'},
+{'href':'blog.html', 'caption':'Blog'},
+{'href':'work.html', 'caption':'Work'},
+{'href':'about.html', 'caption':'About'}] %}
+{{ tools.menu_navigation(navigation, 'Work') }}
 #}
 {% set navigation = [{'href':'index.html', 'caption':'Index'},
-                    {'href':'log', 'caption':'log'},
-                    {'href':'email', 'caption':'Email'},
-                    {'href':'blog', 'caption':'Blog'},
-                    {'href':'comment', 'caption':'Comment'}] %}
+{'href':'log', 'caption':'log'},
+{'href':'email', 'caption':'Email'},
+{'href':'blog', 'caption':'Blog'},
+{'href':'comment', 'caption':'Comment'}] %}
 {% macro sider_menu_navigation(current) %}
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default">
-            <ul class="nav nav-pills nav-stacked">
-                {% for item in navigation %}
-                    {% if current == item.caption %}<li class="active">{% else %}<li>{% endif %}
-                <a href="{{ item.href }}">{{ item.caption }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="panel panel-default">
-            <ul class="nav nav-tabs">
-                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                <li role="presentation" class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Dropdown <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                        <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
-                        <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="home">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="profile">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="messages">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="life">...</div>
-                <div role="tabpanel" class="tab-pane" id="happly">...</div>
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div class="panel panel-default">
+        <ul class="nav nav-pills nav-stacked">
+            {% for item in navigation %}
+            {% if current == item.caption %}<li class="active">{% else %}<li>{% endif %}
+            <a href="{{ item.href }}">{{ item.caption }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="panel panel-default">
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+            <li role="presentation" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                    Dropdown <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                    <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
+                    <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
+                    <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
+                </ul>
             </div>
+            <div role="tabpanel" class="tab-pane" id="profile">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
+                    <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="messages">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="life">...</div>
+            <div role="tabpanel" class="tab-pane" id="happly">...</div>
         </div>
+    </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">Keyword Cloud</div>
-            <div class="panel-body">
-                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
-                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
-                </canvas>
+    <div class="panel panel-default">
+        <div class="panel-heading">Keyword Cloud</div>
+        <div class="panel-body">
+            <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                <p>Anything in here will be replaced on browsers that support the canvas element</p>
+            </canvas>
 
             <div id="ExtendCloudTag" style="display: none">
                 <ul>
@@ -151,463 +151,486 @@
                     <li><a href="/vinegar">Vinegar</a></li>
                 </ul>
             </div>
-                </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 <!-- 表格 -->
 {% macro table(headers, datas) %}
-    <!-- 面板 -->
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
-        <div class="panel-body">
-            <p>panel content</p>
-        </div>
-
-        <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Username</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="panel-footer">panel footer</div>
+<!-- 面板 -->
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Panel heading</div>
+    <div class="panel-body">
+        <p>panel content</p>
     </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">panel footer</div>
+</div>
 {% endmacro %}
 
 
 
 <!-- 弹出框 -->
 {% macro modal_dialog(unique_id, button_name, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#{{ unique_id }}">
-        {{ button_name }}
-    </button>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    {{ modal_body }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#{{ unique_id }}">
+    {{ button_name }}
+</button>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                {{ modal_body }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 {% macro user_role_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-id-card"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" disabled class="form-control" id="inputUsername" placeholder="Username">
-                            </div>
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-id-card"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" disabled class="form-control" id="inputUsername" placeholder="Username">
                         </div>
-                        <div class="form-group">
-                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="inputRoleName">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputRoleName">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 
 {% macro role_user_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-user"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" disabled class="form-control" id="inputRoleName" placeholder="Role Name">
-                            </div>
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-user"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" disabled class="form-control" id="inputRoleName" placeholder="Role Name">
                         </div>
-                        <div class="form-group">
-                            <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="inputUsername">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputUsername">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 {% macro role_resource_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-tree"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
-                            <div class="col-sm-8">
-                                <input type="text" disabled class="form-control" id="inputUsername" placeholder="Username">
-                            </div>
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-tree"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="inputUsername" class="col-sm-3 control-label">User Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" disabled class="form-control" id="inputUsername" placeholder="Username">
                         </div>
-                        <div class="form-group">
-                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="inputRoleName">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputRoleName">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 <!-- 权限资源 -->
 {% macro build_right_resource_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-tree"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal">
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-tree"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
 
-                        <div class="form-group">
-                            <label for="inputRightName" class="col-sm-3 control-label">Right Name</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="inputRightName">
-                                    <option>None</option>
-                                    <option>Create</option>
-                                    <option>Update</option>
-                                    <option>Show</option>
-                                    <option>Delete</option>
-                                </select>
-                            </div>
+                    <div class="form-group">
+                        <label for="inputRightName" class="col-sm-3 control-label">Right Name</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputRightName">
+                                <option>None</option>
+                                <option>Create</option>
+                                <option>Update</option>
+                                <option>Show</option>
+                                <option>Delete</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="inputResourceName" class="col-sm-3 control-label">Resource Name</label>
-                            <div class="col-sm-8">
-                                <select class="form-control" id="inputResourceName">
-                                    <option>User</option>
-                                    <option>Role</option>
-                                    <option>Right</option>
-                                    <option>Resource</option>
-                                    <option>Log</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputResourceName" class="col-sm-3 control-label">Resource Name</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="inputResourceName">
+                                <option>User</option>
+                                <option>Role</option>
+                                <option>Right</option>
+                                <option>Resource</option>
+                                <option>Log</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="inputWeight" class="col-sm-3 control-label">Weight</label>
-                            <div class="col-sm-8">
-                                <input type="number" class="form-control" id="inputWeight" placeholder="Weight">
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputWeight" class="col-sm-3 control-label">Weight</label>
+                        <div class="col-sm-8">
+                            <input type="number" class="form-control" id="inputWeight" placeholder="Weight">
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 <!-- 权限资源 -->
 {% macro right_resource_list_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-list"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}注意这里面有个查询过滤，默认对当前权限或者资源进行过滤</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="panel panel-default">
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-list"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}注意这里面有个查询过滤，默认对当前权限或者资源进行过滤</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default">
 
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th>
-                                        <input type="checkbox" value="option1" >
-                                    </th>
-                                    <th>ID</th>
-                                    <th>Right Name</th>
-                                    <th>Resource Name</th>
-                                    <th>Weight</th>
-                                    <th>Time</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">1</td>
-                                    <td>Update</td>
-                                    <td>User</td>
-                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
-                                    <td>2014-11-24 13:16:44</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">2</td>
-                                    <td>Update</td>
-                                    <td>User</td>
-                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
-                                    <td>2014-11-24 13:16:44</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">3</td>
-                                    <td>Update</td>
-                                    <td>User</td>
-                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
-                                    <td>2014-11-24 13:16:44</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">4</td>
-                                    <td>Create</td>
-                                    <td>User</td>
-                                    <td><span class="fa fa-resistance">&nbsp;0x08</span></td>
-                                    <td>2014-11-24 13:16:44</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" value="option1" >
+                                </th>
+                                <th>ID</th>
+                                <th>Right Name</th>
+                                <th>Resource Name</th>
+                                <th>Weight</th>
+                                <th>Time</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">1</td>
+                                <td>Update</td>
+                                <td>User</td>
+                                <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                <td>2014-11-24 13:16:44</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">2</td>
+                                <td>Update</td>
+                                <td>User</td>
+                                <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                <td>2014-11-24 13:16:44</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">3</td>
+                                <td>Update</td>
+                                <td>User</td>
+                                <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                <td>2014-11-24 13:16:44</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">4</td>
+                                <td>Create</td>
+                                <td>User</td>
+                                <td><span class="fa fa-resistance">&nbsp;0x08</span></td>
+                                <td>2014-11-24 13:16:44</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Delete Selected</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Delete Selected</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 
 {% macro role_users_dialog(unique_id, modal_title, modal_body) %}
-    <!-- Button trigger modal -->
-    <a href="#{{ unique_id }}" data-toggle="modal" title="role has been relation with users"><span class="fa fa-users"></span></a>
-    <!-- Modal -->
-    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="panel panel-default">
+<!-- Button trigger modal -->
+<a href="#{{ unique_id }}" data-toggle="modal" title="role has been relation with users"><span class="fa fa-users"></span></a>
+<!-- Modal -->
+<div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default">
 
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th>
-                                        <input type="checkbox" value="option1" >
-                                    </th>
-                                    <th>ID</th>
-                                    <th>User Name</th>
-                                    <th>Time</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">1</td>
-                                    <td>User</td>
-                                    <td>2014-11-24 13:16:44</td>
-                                    <td>
-                                        <div class="btn-group" role="group" aria-label="...">
-                                            <a href="#"><span class="fa fa-eye-slash"></span> </a>
-                                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">2</td>
-                                    <td>Administrator</td>
-                                    <td>2014-11-24 13:16:44</td>
-                                    <td>
-                                        <div class="btn-group" role="group" aria-label="...">
-                                            <a href="#"><span class="fa fa-eye"></span> </a>
-                                            <a href="#"><span class="glyphicon glyphicon-ok-sign"></span></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">3</td>
-                                    <td>Anonymous</td>
-                                    <td>2014-11-24 13:16:44</td>
-                                    <td>
-                                        <div class="btn-group" role="group" aria-label="...">
-                                            <a href="#"><span class="fa fa-eye"></span> </a>
-                                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
-                                    </td>
-                                    <td scope="row">4</td>
-                                    <td>Other</td>
-                                    <td>2014-11-24 13:16:44</td>
-                                    <td>
-                                        <div class="btn-group" role="group" aria-label="...">
-                                            <a href="#"><span class="fa fa-eye"></span> </a>
-                                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" value="option1" >
+                                </th>
+                                <th>ID</th>
+                                <th>User Name</th>
+                                <th>Time</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">1</td>
+                                <td>User</td>
+                                <td>2014-11-24 13:16:44</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <a href="#"><span class="fa fa-eye-slash"></span> </a>
+                                        <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">2</td>
+                                <td>Administrator</td>
+                                <td>2014-11-24 13:16:44</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <a href="#"><span class="fa fa-eye"></span> </a>
+                                        <a href="#"><span class="glyphicon glyphicon-ok-sign"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">3</td>
+                                <td>Anonymous</td>
+                                <td>2014-11-24 13:16:44</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <a href="#"><span class="fa fa-eye"></span> </a>
+                                        <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                </td>
+                                <td scope="row">4</td>
+                                <td>Other</td>
+                                <td>2014-11-24 13:16:44</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="...">
+                                        <a href="#"><span class="fa fa-eye"></span> </a>
+                                        <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Delete Selected</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Delete Selected</button>
             </div>
         </div>
     </div>
+</div>
 {% endmacro %}
 
 {% macro drop_down_menu() %}
-    <div class="dropdown">
-        <a class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            <span class="fa fa-cog"></span>
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
+<div class="dropdown">
+    <a class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <span class="fa fa-cog"></span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+        <li role="separator" class="divider"></li>
+        <li><a href="#">Separated link</a></li>
+    </ul>
+</div>
+{% endmacro %}
+
+{% set blog_navigation = [{'href':'index.html', 'caption':'Index'},
+{'href':'log', 'caption':'log'},
+{'href':'email', 'caption':'Email'},
+{'href':'write_article', 'caption':'WriteArticle'},
+{'href':'history_article', 'caption':'HistoryArticle'},
+{'href':'category', 'caption':'Category'},
+{'href':'keyword', 'caption':'Keyword'},
+{'href':'article', 'caption':'Article'},
+{'href':'comment', 'caption':'Comment'}] %}
+
+{% macro blog_sider_manage_menu_navigation(current) %}
+<div class="panel-group" id="blog_manage_accordion" role="tablist" aria-multiselectable="true">
+    <div class="panel panel-default">
+        <ul class="nav nav-pills nav-stacked">
+            {% for item in blog_navigation %}
+            {% if current == item.caption %}<li class="active">{% else %}<li>{% endif %}
+            <a href="{{ item.href }}">{{ item.caption }}</a></li>
+            {% endfor %}
         </ul>
     </div>
+</div>
 {% endmacro %}
