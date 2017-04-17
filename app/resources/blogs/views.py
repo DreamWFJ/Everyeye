@@ -24,11 +24,14 @@ def someone_article(article_id):
 @main.route('/article')
 @login_required
 def article():
-    print "request article id: <%s>"%id
     return render_template('resources/blog/index.html')
 
 @main.route('/write_article')
 @login_required
 def write_article():
-    print "request article id: <%s>"%id
     return render_template('resources/blog/write_article.html')
+
+@main.route('/category')
+@login_required
+def category():
+    return render_template('resources/blog/category.html')
