@@ -84,9 +84,10 @@
                                 {{ current_user.name }}<span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Profile</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
+                                <li><a href="{{ url_for('manage.user_profile') }}">Profile</a></li>
+                                <li><a href="{{ url_for('.article') }}">Article</a></li>
+                                <li><a href="{{ url_for('manage.email') }}">Email</a></li>
+                                <li><a href="#">Message</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="#">Sign Out</a></li>
                             </ul>

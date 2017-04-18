@@ -26,6 +26,11 @@ def someone_article(article_id):
 def article():
     return render_template('resources/blog/index.html')
 
+@main.route('/manage_article')
+@login_required
+def manage_article():
+    return render_template('resources/blog/manage_article.html')
+
 @main.route('/write_article')
 @login_required
 def write_article():
@@ -35,3 +40,8 @@ def write_article():
 @login_required
 def category():
     return render_template('resources/blog/category.html')
+
+@main.route('/keyword')
+@login_required
+def keyword():
+    return render_template('resources/blog/keyword.html')
