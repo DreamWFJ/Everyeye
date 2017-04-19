@@ -1,0 +1,11 @@
+{% from 'macro/__frame__.html' import base_menu_navigation %}
+
+{% set article_navigation = [{'href':'article', 'caption':'Article'},
+                    {'href':'write_article', 'caption':'Write Article'},
+                    {'href':'category', 'caption':'Category'},
+                    {'href':'keyword', 'caption':'Keyword'},
+                    {'href':'comment', 'caption':'Comment'}] %}
+
+{% macro article_menu_navigation(current_active_item) %}
+    {{base_menu_navigation('Article Manage', article_navigation, current_active_item)}}
+{% endmacro %}

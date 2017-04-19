@@ -6,7 +6,7 @@
 # CreateTime : 2017-04-05 10:39
 # ===================================
 from datetime import datetime
-from flask import render_template
+from flask import render_template, request
 from . import resource_blueprint as main
 
 
@@ -14,3 +14,8 @@ from . import resource_blueprint as main
 def index():
     ct = datetime.utcnow()
     return render_template('index.html', current_time=ct)
+
+@main.route('/search', methods=['POST'])
+def search():
+    print request.form
+    return render_template('search.html')
