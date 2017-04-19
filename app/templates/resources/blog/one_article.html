@@ -1,54 +1,16 @@
-{% import 'resources/__macro__.html' as tools %}
-{% extends "resources/user_frame.html" %}
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% extends "framework.html" %}
 {% block script %}
-    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            var pre_set_color = {
-                0:   'red',
-                0.5: 'orange',
-                1:   'rgba(0,0,0,0.1)'
-            };
-            var counter = 0;
-            var tag_option = {
-                interval: 20,
-                textFont: 'Arial, Helvetica, sans-serif',
-                textColour: '#337ab7',
-                textHeight: 25,
-                outlineMethod: 'colour',
-                outlineColour: 'red',
-                outlineThickness: 1,
-                maxSpeed: 0.04,
-                minSpeed: 0.01,
-                minBrightness: 0.1,
-                depth: 0.92,
-                outlineOffset: 0,
-                shadowOffset: [1,1],
-                stretchX: 0.7,
-                pulsateTo: 0.2,
-                pulsateTime: 0.75,
-                initial: [0.1,-0.1],
-                decel: 0.98,
-                reverse: true,
-                wheelZoom: false,
-                hideTags: false,
-                shuffleTags: true,
-                shadow: '#ccf',
-                shadowBlur: 3,
-                weight: true,
-                weightFrom: 'data-weight',
-                weightGradient: pre_set_color,
-                clickToFront: 600,
-                weightMode:'both',
-                fadeIn: 800
-            };
-            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
         });
     </script>
 {% endblock script %}
-{% block title %}Blog{% endblock title %}
+{% block title %}Category{% endblock title %}
+{% block search %}
+    {{frame_search('article')}}
+{% endblock search %}
 {% block content %}
-    <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
         <div class="panel-heading">
@@ -104,9 +66,9 @@
                     <a href="javascript:;" suda-uatrack="key=index_news_content&amp;value=comment_click"></a>
                   </span>
                     </div>
-            <span class="time-source" id="navtimeSource">2017年04月15日05:55		<span>
-        <span data-sudaclick="media_name"><a href="http://news.xinhuanet.com/politics/2017-04/14/c_1120810439.htm" target="_blank" rel="nofollow">新华网</a></span></span>
-            </span>
+                    <span class="time-source" id="navtimeSource">2017年04月15日05:55		<span>
+                    <span data-sudaclick="media_name"><a href="http://news.xinhuanet.com/politics/2017-04/14/c_1120810439.htm" target="_blank" rel="nofollow">新华网</a></span></span>
+                    </span>
                 </div>
                 <style type="text/css">
                     #navtimeSource{font-size: 18px;}
@@ -207,7 +169,6 @@
 
                 </div>
             </div>
-
             <!-- Previous or next blog -->
             <nav aria-label="...">
                 <ul class="pager">
@@ -257,21 +218,73 @@
                         </div>
                     </li>
                 </ul>
-                {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+                {{ page_navigation(10, 1, 'http://test.com/page') }}
             </div>
         </div>
-
-
-
     </div>
-
 {% endblock content %}
 
 {% block sidebar %}
-    <div>
-        {{ tools.sider_menu_navigation('Blog') }}
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        Dropdown <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                        <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
+                        <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
+                        <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="profile">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
+                        <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="messages">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
+                        <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="life">...</div>
+                <div role="tabpanel" class="tab-pane" id="happly">...</div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Keyword Cloud</div>
+            <div class="panel-body">
+                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
+                </canvas>
+
+                <div id="ExtendCloudTag" style="display: none">
+                    <ul>
+                        <li><a href="http://www.google.com" target="_blank">Google</a></li>
+                        <li><a href="/fish">Fish</a></li>
+                        <li><a href="/chips">Chips</a></li>
+                        <li><a href="/salt">Salt</a></li>
+                        <li><a href="/vinegar">Vinegar</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-
 {% endblock sidebar %}
-
-{% block footer %}{% endblock footer %}

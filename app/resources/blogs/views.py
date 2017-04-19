@@ -13,11 +13,11 @@ from flask import render_template, request
 from .. import resource_blueprint as main
 
 
-@main.route('/article/<uuid:article_id>')
+@main.route('/<string:username>/article/<uuid:article_id>')
 @login_required
-def someone_article(article_id):
+def one_article(username, article_id):
     print "request article id: <%s>"%id
-    return render_template('resources/blog/post.html')
+    return render_template('resources/blog/one_article.html')
 
 @main.route('/<string:username>')
 @login_required

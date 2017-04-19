@@ -3,8 +3,7 @@
 {% set article_navigation = [{'href':'article', 'caption':'Article'},
                     {'href':'write_article', 'caption':'Write Article'},
                     {'href':'category', 'caption':'Category'},
-                    {'href':'keyword', 'caption':'Keyword'},
-                    {'href':'comment', 'caption':'Comment'}] %}
+                    {'href':'keyword', 'caption':'Keyword'}] %}
 
 {% macro article_menu_navigation(current_active_item) %}
     {{base_menu_navigation('Article Manage', article_navigation, current_active_item)}}

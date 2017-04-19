@@ -67,7 +67,7 @@
                 </div>
                 <div class="blogpost-content">
                     <header>
-                        <h2 class="title"><a href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">Blogpost with image</a></h2>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
                         <div class="submitted">
                             <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
                         </div>
@@ -80,7 +80,7 @@
                     <li><i class="fa fa-comment-o pr-5"></i> <a href="#">22 comments</a> |</li>
                     <li><i class="fa fa-tags pr-5"></i> <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a> </li>
                 </ul>
-                <a class="pull-right link" href="article/186ccc46-4450-4020-9a75-44c7c0d14e83"><span>Read more</span></a>
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}"><span>Read more</span></a>
             </footer>
         </article>
 
@@ -92,7 +92,7 @@
                 </div>
                 <div class="blogpost-content">
                     <header>
-                        <h2 class="title"><a href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">Blogpost with image</a></h2>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
                         <ul class="links pull-right">
                             <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
                             <li>&nbsp;</li>
@@ -113,7 +113,7 @@
                         <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
                     </li>
                 </ul>
-                <a class="pull-right link" href="article/186ccc46-4450-4020-9a75-44c7c0d14e83">
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">
                     <span class="glyphicon glyphicon-link"></span>
                     <span>Read more</span>
                 </a>
@@ -129,7 +129,7 @@
                 </div>
                 <div class="blogpost-content">
                     <header>
-                        <h2 class="title"><a href="blog-post.html">Blogpost with image</a></h2>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
                         <ul class="links pull-right">
                             <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
                             <li>&nbsp;</li>
@@ -149,7 +149,7 @@
                         <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
                     </li>
                 </ul>
-                <a class="pull-right link" href="blog-post.html">
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">
                     <span class="glyphicon glyphicon-link"></span>
                     <span>Read more</span>
                 </a>
