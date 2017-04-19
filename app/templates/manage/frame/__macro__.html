@@ -85,7 +85,10 @@
                     {'href':'resource', 'caption':'Resource'},
                     {'href':'log', 'caption':'log'},
                     {'href':'email', 'caption':'Email'},
-                    {'href':'audit_log', 'caption':'AuditLog'}] %}
+                    {'href':'blog', 'caption':'Blog'},
+                    {'href':'comment', 'caption':'Comment'},
+                    {'href':'language-rule', 'caption':'LanguageRule'},
+                    {'href':'audit-log', 'caption':'AuditLog'}] %}
 {% macro sider_menu_navigation(current) %}
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
         <div class="panel panel-default">
@@ -295,6 +298,146 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- 权限资源 -->
+{% macro build_right_resource_dialog(unique_id, modal_title, modal_body) %}
+    <!-- Button trigger modal -->
+    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-tree"></span></a>
+    <!-- Modal -->
+    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="inputRightName" class="col-sm-3 control-label">Right Name</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="inputRightName">
+                                    <option>None</option>
+                                    <option>Create</option>
+                                    <option>Update</option>
+                                    <option>Show</option>
+                                    <option>Delete</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputResourceName" class="col-sm-3 control-label">Resource Name</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="inputResourceName">
+                                    <option>User</option>
+                                    <option>Role</option>
+                                    <option>Right</option>
+                                    <option>Resource</option>
+                                    <option>Log</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputWeight" class="col-sm-3 control-label">Weight</label>
+                            <div class="col-sm-8">
+                                <input type="number" class="form-control" id="inputWeight" placeholder="Weight">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- 权限资源 -->
+{% macro right_resource_list_dialog(unique_id, modal_title, modal_body) %}
+    <!-- Button trigger modal -->
+    <a href="#{{ unique_id }}" data-toggle="modal"><span class="fa fa-list"></span></a>
+    <!-- Modal -->
+    <div class="modal fade" id="{{ unique_id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">{{ modal_title }}注意这里面有个查询过滤，默认对当前权限或者资源进行过滤</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="panel panel-default">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" value="option1" >
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Right Name</th>
+                                    <th>Resource Name</th>
+                                    <th>Weight</th>
+                                    <th>Time</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                    </td>
+                                    <td scope="row">1</td>
+                                    <td>Update</td>
+                                    <td>User</td>
+                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                    <td>2014-11-24 13:16:44</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                    </td>
+                                    <td scope="row">2</td>
+                                    <td>Update</td>
+                                    <td>User</td>
+                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                    <td>2014-11-24 13:16:44</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                    </td>
+                                    <td scope="row">3</td>
+                                    <td>Update</td>
+                                    <td>User</td>
+                                    <td><span class="fa fa-resistance">&nbsp;0x03</span></td>
+                                    <td>2014-11-24 13:16:44</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="blankCheckbox" value="option1" aria-label="...">
+                                    </td>
+                                    <td scope="row">4</td>
+                                    <td>Create</td>
+                                    <td>User</td>
+                                    <td><span class="fa fa-resistance">&nbsp;0x08</span></td>
+                                    <td>2014-11-24 13:16:44</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Delete Selected</button>
                 </div>
             </div>
         </div>

@@ -1,27 +1,11 @@
-{% extends "base.html" %}
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% import 'macro/__article__.html' as article %}
+{% extends "framework.html" %}
 
 {% block title %}message{% endblock %}
-{% block head %}
-{{ super() }}
+{% block css %}
 <style type="text/css">
-    *{
-        margin: 0;
-        padding: 0;
-    }
-    body{
-        font: italic 20px Georgia, serif;
-        letter-spacing: normal;
-        background-color: #f0f0f0;
-    }
-    #content{
-        width: 750px;
-        padding: 40px;
-        margin: 0 auto;
-        background-color: #fff;
-        border-left: 30px solid #1D81B6;
-        border-right: 1px solid #ddd;
-        box-shadow: 0px 0px 16px #aaa;
-    }
+
     #table1{
         font: bold 16px/1.4em "Trebuchet MS", sans-serif;
     }
@@ -66,7 +50,7 @@
     }
 </style>
 {% endblock %}
-{% block page_content %}
+{% block content %}
 <table id="table1">
     <thead>
     <tr>

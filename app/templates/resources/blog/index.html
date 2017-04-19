@@ -1,0 +1,236 @@
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% import 'macro/__article__.html' as article %}
+{% extends "framework.html" %}
+{% block script %}
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/post.css') }}" crossorigin="anonymous">
+<script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var pre_set_color = {
+            0:   'red',
+            0.5: 'orange',
+            1:   'rgba(0,0,0,0.1)'
+        };
+        var counter = 0;
+        var tag_option = {
+            interval: 20,
+            textFont: 'Arial, Helvetica, sans-serif',
+            textColour: '#337ab7',
+            textHeight: 25,
+            outlineMethod: 'colour',
+            outlineColour: 'red',
+            outlineThickness: 1,
+            maxSpeed: 0.04,
+            minSpeed: 0.01,
+            minBrightness: 0.1,
+            depth: 0.92,
+            outlineOffset: 0,
+            shadowOffset: [1,1],
+            stretchX: 0.7,
+            pulsateTo: 0.2,
+            pulsateTime: 0.75,
+            initial: [0.1,-0.1],
+            decel: 0.98,
+            reverse: true,
+            wheelZoom: false,
+            hideTags: false,
+            shuffleTags: true,
+            shadow: '#ccf',
+            shadowBlur: 3,
+            weight: true,
+            weightFrom: 'data-weight',
+            weightGradient: pre_set_color,
+            clickToFront: 600,
+            weightMode:'both',
+            fadeIn: 800
+        };
+        $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
+    });
+</script>
+{% endblock script %}
+{% block title %}Blog{% endblock title %}
+{% block content %}
+<!-- 面板 -->
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+        <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+            <div class="overlay-container">
+                <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
+            </div>
+            <div class="blogpost-body">
+                <div class="post-info">
+                    <span class="day">12</span>
+                    <span class="month">Sept 2014</span>
+                </div>
+                <div class="blogpost-content">
+                    <header>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
+                        <div class="submitted">
+                            <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                        </div>
+                    </header>
+                    <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                </div>
+            </div>
+            <footer class="clearfix">
+                <ul class="links pull-left">
+                    <li><i class="fa fa-comment-o pr-5"></i> <a href="#">22 comments</a> |</li>
+                    <li><i class="fa fa-tags pr-5"></i> <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a> </li>
+                </ul>
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}"><span>Read more</span></a>
+            </footer>
+        </article>
+
+        <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+            <div class="blogpost-body">
+                <div class="post-info">
+                    <span class="day">12</span>
+                    <span class="month">Sept 2014</span>
+                </div>
+                <div class="blogpost-content">
+                    <header>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
+                        <ul class="links pull-right">
+                            <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
+                            <li>&nbsp;</li>
+                            <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
+                            <li>&nbsp;</li>
+                        </ul>
+                        <div class="submitted">
+                            <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                        </div>
+                    </header>
+                    <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
+                    <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                </div>
+            </div>
+            <footer class="clearfix">
+                <ul class="links pull-left">
+                    <li><i class="fa fa-tags pr-5"></i>
+                        <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
+                    </li>
+                </ul>
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">
+                    <span class="glyphicon glyphicon-link"></span>
+                    <span>Read more</span>
+                </a>
+            </footer>
+
+        </article>
+
+        <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+            <div class="blogpost-body">
+                <div class="post-info">
+                    <span class="day">12</span>
+                    <span class="month">Sept 2014</span>
+                </div>
+                <div class="blogpost-content">
+                    <header>
+                        <h2 class="title"><a href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">Blogpost with image</a></h2>
+                        <ul class="links pull-right">
+                            <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
+                            <li>&nbsp;</li>
+                            <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
+                            <li>&nbsp;</li>
+                        </ul>
+                        <div class="submitted">
+                            <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                        </div>
+                    </header>
+                    <p>Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.Mauris dolor sapien, malesuada at interdum ut, hendrerit eget lorem. Nunc interdum mi neque, et  sollicitudin purus fermentum ut. Suspendisse faucibus nibh odio, a vehicula eros pharetra in. Maecenas  ullamcorper commodo rutrum. In iaculis lectus vel augue eleifend dignissim. Aenean viverra semper sollicitudin.</p>
+                </div>
+            </div>
+            <footer class="clearfix">
+                <ul class="links pull-left">
+                    <li><i class="fa fa-tags pr-5"></i>
+                        <a href="#">tag 1</a>, <a href="#">tag 2</a>, <a href="#">long tag 3</a>
+                    </li>
+                </ul>
+                <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id='186ccc46-4450-4020-9a75-44c7c0d14e83') }}">
+                    <span class="glyphicon glyphicon-link"></span>
+                    <span>Read more</span>
+                </a>
+            </footer>
+
+        </article>
+
+
+    </div>
+    <!-- 评论使用 -->
+    <div class="panel-footer">
+    </div>
+
+
+
+</div>
+
+{% endblock content %}
+
+{% block sidebar %}
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div class="panel panel-default">
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+            <li role="presentation" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                    Dropdown <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                    <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
+                    <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
+                    <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="profile">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
+                    <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="messages">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
+                    <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="life">...</div>
+            <div role="tabpanel" class="tab-pane" id="happly">...</div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Keyword Cloud</div>
+        <div class="panel-body">
+            <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                <p>Anything in here will be replaced on browsers that support the canvas element</p>
+            </canvas>
+
+            <div id="ExtendCloudTag" style="display: none">
+                <ul>
+                    <li><a href="http://www.google.com" target="_blank">Google</a></li>
+                    <li><a href="/fish">Fish</a></li>
+                    <li><a href="/chips">Chips</a></li>
+                    <li><a href="/salt">Salt</a></li>
+                    <li><a href="/vinegar">Vinegar</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock sidebar %}
