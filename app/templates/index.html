@@ -1,11 +1,24 @@
-{% extends "base.html" %}
+{% from 'macro/__frame__.html' import frame_search %}
+{% extends "framework.html" %}
+{% block script %}
+    <script type="text/javascript">
+        $(document).ready(function() {});
+    </script>
+{% endblock script %}
+{% block title %}Index{% endblock title %}
+{% block search %}
+    {{frame_search('index')}}
+{% endblock search %}
 {% block content %}
-<p>The local date and time is {{ moment(current_time).format('LLL') }}.</p>
-<p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
-Hello,
-{% if current_user.is_authenticated %}
-{{ current_user.name }}
-{% else %}
-Stranger
-{% endif %}!
-{% endblock %}
+    <p>The local date and time is {{ moment(current_time).format('LLL') }}.</p>
+    <p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
+    Hello,
+    {% if current_user.is_authenticated %}
+        {{ current_user.name }}
+    {% else %}
+        Stranger
+    {% endif %}!
+{% endblock content %}
+
+{% block sidebar %}
+{% endblock sidebar %}

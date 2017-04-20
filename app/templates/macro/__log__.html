@@ -1,0 +1,8 @@
+{% from 'macro/__frame__.html' import base_menu_navigation %}
+
+{% set log_navigation = [{'href':'action-log', 'caption':'Action Log'},
+                    {'href':'audit-log', 'caption':'Audit Log'}] %}
+
+{% macro log_menu_navigation(current_active_item) %}
+    {{base_menu_navigation('Log Manage', article_navigation, current_active_item)}}
+{% endmacro %}

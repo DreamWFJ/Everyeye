@@ -1,6 +1,17 @@
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% from 'macro/__admin__.html' import admin_message_menu_navigation %}
 {% import 'manage/frame/__macro__.html' as tools %}
-{% extends "manage/frame.html" %}
-{% block title %}Role{% endblock title %}
+{% extends "framework.html" %}
+{% block script %}
+<script type="text/javascript">
+    $(document).ready(function() {});
+</script>
+{% endblock script %}
+{% block title %}Messaging{% endblock title %}
+{% block search %}
+    {{frame_search('messaging')}}
+{% endblock search %}
+
 {% block content %}
     <!-- 面板 -->
     <div class="panel panel-default">
@@ -11,8 +22,8 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-search"></span></span>
-                            <input type="text" class="form-control" placeholder="KeyWords" aria-describedby="basic-addon1">
+                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-id-card"></span></span>
+                            <input type="text" class="form-control" placeholder="Role Name" aria-describedby="basic-addon1">
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -22,7 +33,7 @@
                             </span>
                             <select class="form-control">
                                 <option>ID</option>
-                                <option>Name</option>
+                                <option>Action</option>
                                 <option>Enabled</option>
                                 <option>Time</option>
                             </select>
@@ -34,7 +45,16 @@
                 <div class="row">
 
                     <div class="col-lg-6">
-                        
+                        <div class="input-group">
+                            <div class="form-control">
+                                <label class="radio-inline">
+                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
+                                </label>
+                            </div>
+                        </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
                     <div class="col-lg-6">
                         <div class="pull-right">
@@ -55,12 +75,10 @@
                         <input type="checkbox" value="option1" >
                     </th>
                     <th>ID</th>
-                    <th>User Name</th>
-                    <th>Login City</th>
-                    <th>Login Address</th>
-                    <th>IP</th>
-                    <th>Login Time</th>
-                    <th>Last Request Time</th>
+                    <th>Subject</th>
+                    <th>Content</th>
+                    <th>To</th>
+                    <th>Time</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,14 +86,12 @@
                     <td>
                         <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
                     </td>
-
                     <td scope="row">1</td>
                     <td>test</td>
-                    <td>Chen Du</td>
-                    <td>Tian Fu address, 18 number</td>
-                    <td>192.168.1.125</td>
+                    <td>alter password</td>
+                    <td><a href="#">Show</a></td>
+                    <td>All User</td>
                     <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-25 13:19:55</td>
                 </tr>
                 <tr>
                     <td>
@@ -83,11 +99,10 @@
                     </td>
                     <td scope="row">2</td>
                     <td>test</td>
-                    <td>Chen Du</td>
-                    <td>Tian Fu address, 18 number</td>
-                    <td>192.168.1.125</td>
+                    <td>alter password</td>
+                    <td><a href="#">Show</a></td>
+                    <td>All User</td>
                     <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-25 13:19:55</td>
                 </tr>
                 <tr>
                     <td>
@@ -95,11 +110,10 @@
                     </td>
                     <td scope="row">3</td>
                     <td>test</td>
-                    <td>Chen Du</td>
-                    <td>Tian Fu address, 18 number</td>
-                    <td>192.168.1.125</td>
+                    <td>alter password</td>
+                    <td><a href="#">Show</a></td>
+                    <td>All User</td>
                     <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-25 13:19:55</td>
                 </tr>
                 <tr>
                     <td>
@@ -107,23 +121,10 @@
                     </td>
                     <td scope="row">4</td>
                     <td>test</td>
-                    <td>Chen Du</td>
-                    <td>Tian Fu address, 18 number</td>
-                    <td>192.168.1.125</td>
+                    <td>alter password</td>
+                    <td><a href="#">Show</a></td>
+                    <td>All User</td>
                     <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-25 13:19:55</td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_5" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">5</td>
-                    <td>test</td>
-                    <td>Chen Du</td>
-                    <td>Tian Fu address, 18 number</td>
-                    <td>192.168.1.125</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-25 13:19:55</td>
                 </tr>
                 </tbody>
             </table>
@@ -133,7 +134,6 @@
 {% endblock content %}
 
 {% block sidebar %}
-    {{ tools.sider_menu_navigation('AuditLog') }}
+    {{ admin_message_menu_navigation('Messaging') }}
 {% endblock sidebar %}
 
-{% block footer %}{% endblock footer %}

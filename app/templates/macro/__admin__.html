@@ -20,16 +20,15 @@
 {% endmacro %}
 
 
-{% set admin_log_navigation = [{'href':'log', 'caption':'Log'},
+{% set admin_log_navigation = [{'href':'action-log', 'caption':'Action Log'},
 {'href':'audit-log', 'caption':'Audit Log'}] %}
 
 {% macro admin_log_menu_navigation(current_active_item) %}
 {{base_menu_navigation('Admin Log Manage', admin_log_navigation, current_active_item)}}
 {% endmacro %}
 
-{% set admin_message_navigation = [{'href':'message', 'caption':'Message'},
-{'href':'send-message', 'caption':'Send Message'},
-{'href':'send-email', 'caption':'Send Email'}] %}
+{% set admin_message_navigation = [{'href':'messaging', 'caption':'Messaging'},
+{'href':'send-message', 'caption':'Send Message'}] %}
 
 {% macro admin_message_menu_navigation(current_active_item) %}
 {{base_menu_navigation('Admin Article Manage', admin_message_navigation, current_active_item)}}
