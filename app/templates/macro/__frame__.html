@@ -67,7 +67,7 @@
 
 <!--框架搜索-->
 {% macro frame_search(path) %}
-<form class="navbar-form navbar-left" method="post" action="{{url_for('.search', path=path)}}">
+<form class="navbar-form navbar-left" method="post" action="{{url_for('resource.search', path=path)}}">
     <div class="form-group">
         <input type="text" class="form-control" name="search_content" placeholder="Search">
     </div>

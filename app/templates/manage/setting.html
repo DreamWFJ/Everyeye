@@ -1,0 +1,22 @@
+{% import 'manage/frame/__macro__.html' as tools %}
+{% extends "manage/frame.html" %}
+{% block title %}User Profile{% endblock title %}
+{% block sidebar %}
+<div>
+    <div></div>
+    <a><img src="{{ url_for('static', filename='img/head_portrait/test.png' )}}" width="230" height="230"></a>
+</div>
+<div style="position: static;">
+    <h1>
+        <span>{{current_user.name}}</span>
+    </h1>
+</div>
+<a href="/account" class="btn btn-block mb-3">Edit Head Portrait</a>
+
+{% endblock sidebar %}
+
+{% block content %}
+<!-- 面板 -->
+{% endblock content %}
+
+{% block footer %}{% endblock footer %}

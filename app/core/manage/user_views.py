@@ -16,19 +16,7 @@ from . import manage_blueprint as manage
 @manage.route('/user')
 def user():
     users = User.query.all()
-    return render_template('manage/user.html', users=users)
-
-@manage.route('/role')
-def role():
-    return render_template('manage/role.html')
-
-@manage.route('/right')
-def right():
-    return render_template('manage/right.html')
-
-@manage.route('/resource')
-def resource():
-    return render_template('manage/resource.html')
+    return render_template('manage/admin/user.html', users=users)
 
 @manage.route('/log')
 def log():
@@ -44,15 +32,11 @@ def test1():
 
 @manage.route('/frame')
 def frame():
-    return render_template('manage/frame.html')\
+    return render_template('manage/frame.html')
 
 @manage.route('/profile')
 def profile():
-    return render_template('manage/profile.html')
-
-@manage.route('/user-profile')
-def user_profile():
-    return render_template('manage/user_profile.html')\
+    return render_template('manage/admin/profile.html')
 
 @manage.route('/email')
 def email():
@@ -67,9 +51,6 @@ def audit_log():
 def blog():
     return render_template('manage/blog.html')
 
-@manage.route('/comment')
-def comment():
-    return render_template('manage/comment.html')
 
 @manage.route('/language-rule')
 def language_rule():
