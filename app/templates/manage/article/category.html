@@ -4,215 +4,315 @@
 {% extends "framework.html" %}
 {% block script %}
 <script type="text/javascript">
-    $(document).ready(function() {});
+    $(document).ready(function () {
+
+    });
 </script>
 {% endblock script %}
 {% block title %}Category{% endblock title %}
 {% block search %}
-    {{frame_search('category')}}
+{{frame_search('category')}}
 {% endblock search %}
 
 {% block content %}
-    <!-- 面板 -->
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
-        <div class="panel-body">
-            <form class="form">
-                <div class="tabs-x align-center tabs-above tab-bordered">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#panel_for_search" data-toggle="tab">Search</a></li>
-                        <li><a href="#panel_for_add" data-toggle="tab">Add</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="panel_for_search">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-folder-open"></span></span>
-                                        <input type="text" class="form-control" placeholder="Category" aria-describedby="basic-category">
-                                    </div>
+<!-- 面板 -->
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Panel heading</div>
+    <div class="panel-body">
+        <div class="tabs-x align-center tabs-above tab-bordered">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#panel_for_search" data-toggle="tab">Search</a></li>
+                <li><a href="#panel_for_add" data-toggle="tab">Add</a></li>
+                <li><a href="#panel_for_action" data-toggle="tab">Action</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="panel_for_search">
+                    <form class="form">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1"><span
+                                            class="glyphicon glyphicon-folder-open"></span></span>
+                                    <input type="text" class="form-control" placeholder="Category"
+                                           aria-describedby="basic-category">
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="input-group">
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="input-group">
                                         <span class="input-group-addon">
                                             Order
                                         </span>
-                                        <select class="form-control">
-                                            <option>Category</option>
-                                            <option>Article Count</option>
-                                        </select>
-                                    </div><!-- /input-group -->
-                                </div><!-- /.col-lg-6 -->
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="pull-right">
-                                        <button type="submit" class="btn btn-default">Search</button>
-                                    </div>
-                                </div>
-
-                            </div>
+                                    <select class="form-control">
+                                        <option>Category</option>
+                                        <option>Article Count</option>
+                                    </select>
+                                </div><!-- /input-group -->
+                            </div><!-- /.col-lg-6 -->
                         </div>
-                        <div class="tab-pane" id="panel_for_add">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-folder-open"></span></span>
-                                        <input type="text" class="form-control" placeholder="Category" aria-describedby="basic-category">
-                                    </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-6">
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-default">Search</button>
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="pull-right">
-                                        <button type="submit" class="btn btn-default">Add</button>
-                                    </div>
-                                </div><!-- /.col-lg-6 -->
                             </div>
 
                         </div>
-                    </div>
+                    </form>
                 </div>
-
-            </form>
-        </div>
-        <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" value="option1" >
-                    </th>
-                    <th>ID</th>
-                    <th>Category</th>
-                    <th>Article Count</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">1</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
+                <div class="tab-pane" id="panel_for_add">
+                    <form class="form">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1"><span
+                                            class="glyphicon glyphicon-folder-open"></span></span>
+                                    <input type="text" class="form-control" placeholder="Category"
+                                           aria-describedby="basic-category">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-default">Add</button>
+                                </div>
+                            </div><!-- /.col-lg-6 -->
                         </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_2" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">2</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
+                    </form>
+                </div>
+                <div class="tab-pane" id="panel_for_action">
+                    <form class="form">
+                        <div class="row">
+                            <div class="col-lg-6">
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-default">Delete</button>
+                                    <button type="submit" class="btn btn-default">Enable</button>
+                                    <button type="submit" class="btn btn-default">Disable</button>
+                                </div>
+                            </div><!-- /.col-lg-6 -->
                         </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_3" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">3</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_4" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">4</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_5" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">5</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_6" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">6</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_7" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">7</td>
-                    <td>Mark</td>
-                    <td>13</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-remove"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+    <!-- Table -->
+    <div class="bs-bars pull-left">
+        <div id="toolbar">
+            <button id="remove" class="btn btn-danger" disabled="">
+                <i class="glyphicon glyphicon-remove"></i> Delete
+            </button>
+        </div>
+    </div>
+    <div class="columns columns-right btn-group pull-right">
+        <button class="btn btn-default" type="button" name="paginationSwitch" aria-label="pagination Switch"
+                title="Hide/Show pagination"><i class="glyphicon glyphicon-collapse-down icon-chevron-down"></i>
+        </button>
+        <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh"><i
+                class="glyphicon glyphicon-refresh icon-refresh"></i></button>
+        <button class="btn btn-default" type="button" name="toggle" aria-label="toggle" title="Toggle"><i
+                class="glyphicon glyphicon-list-alt icon-list-alt"></i></button>
+        <div class="keep-open btn-group" title="Columns">
+            <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown">
+                <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+                <li role="menuitem"><label>
+                    <input data-field="id" value="1" checked="checked" type="checkbox"> Item ID</label></li>
+                <li role="menuitem">
+                    <label>
+                        <input data-field="name" value="2" checked="checked" type="checkbox"> Item Name</label>
+                </li>
+                <li role="menuitem">
+                    <label><input data-field="price" value="3" checked="checked" type="checkbox"> Item
+                        Price</label></li>
+                <li role="menuitem"><label>
+                    <input data-field="operate" value="4" checked="checked" type="checkbox"> Item
+                    Operate</label></li>
+            </ul>
+        </div>
+        <div class="export btn-group">
+            <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data"
+                    data-toggle="dropdown" type="button"><i class="glyphicon glyphicon-export icon-share"></i>
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+                <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="pull-right search"><input class="form-control" placeholder="Search" type="text"></div>
+
+    <table class="table table-hover"  style="margin-top: 0px;">
+        <thead>
+        <tr>
+            <th>
+                <input type="checkbox" value="option1">
+            </th>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Article Count</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="info">
+            <td>
+                <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
+            </td>
+            <td scope="row">1</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_2" value="option1" aria-label="...">
+            </td>
+            <td scope="row">2</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_3" value="option1" aria-label="...">
+            </td>
+            <td scope="row">3</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_4" value="option1" aria-label="...">
+            </td>
+            <td scope="row">4</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_5" value="option1" aria-label="...">
+            </td>
+            <td scope="row">5</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_6" value="option1" aria-label="...">
+            </td>
+            <td scope="row">6</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td scope="row">
+                <input type="checkbox" id="blankCheckbox_7" value="option1" aria-label="...">
+            </td>
+            <td scope="row">7</td>
+            <td>Mark</td>
+            <td>13</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="...">
+                    <a href="#"><span class="fa fa-remove"></span></a>
+                    <a href="#"><span class="fa fa-lock"></span></a>
+                    <a href="#"><span class="fa fa-unlock"></span></a>
+
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+        <div class="pull-left pagination-detail">
+            <span
+                    class="pagination-info">Showing 1 to 10 of 800 rows</span>
+            <span class="page-list">
+                <span class="btn-group dropup">
+            <button type="button" class="btn btn-default dropdown-toggle"
+                    data-toggle="dropdown"><span class="page-size">10</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li role="menuitem" class="active"><a href="#">10</a></li>
+                <li role="menuitem"><a href="#">25</a></li>
+                <li role="menuitem"><a href="#">50</a></li>
+                <li role="menuitem"><a href="#">100</a></li>
+                <li role="menuitem"><a href="#">All</a></li>
+            </ul></span> rows per page</span>
+        </div>
+        <div class="pull-right pagination">
+            <ul class="pagination">
+                <li class="page-pre"><a href="#">‹</a></li>
+                <li class="page-number active"><a href="#">1</a></li>
+                <li class="page-number"><a href="#">2</a></li>
+                <li class="page-number"><a href="#">3</a></li>
+                <li class="page-number"><a href="#">4</a></li>
+                <li class="page-number"><a href="#">5</a></li>
+                <li class="page-last-separator disabled"><a href="#">...</a></li>
+                <li class="page-last"><a href="#">80</a></li>
+                <li class="page-next"><a href="#">›</a></li>
+            </ul>
+        </div>
+</div>
+{{ tools.page_navigation(10, 1, 'http://test.com/page') }}
 {% endblock content %}
 
 {% block sidebar %}
-    {{ admin_article_menu_navigation('Category') }}
+{{ admin_article_menu_navigation('Category') }}
 {% endblock sidebar %}
 
