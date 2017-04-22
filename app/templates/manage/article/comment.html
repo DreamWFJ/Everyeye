@@ -3,9 +3,9 @@
 {% import 'manage/frame/__macro__.html' as tools %}
 {% extends "framework.html" %}
 {% block script %}
-<script type="text/javascript">
-    $(document).ready(function() {});
-</script>
+    <script type="text/javascript">
+        $(document).ready(function() {});
+    </script>
 {% endblock script %}
 {% block title %}Comment{% endblock title %}
 {% block search %}
@@ -18,70 +18,57 @@
         <!-- Default panel contents -->
         <div class="panel-heading">Panel heading</div>
         <div class="panel-body">
-            <form class="form">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-user"></span></span>
-                            <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
-                        </div>
-
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <span class="fa fa-envelope-o"></span>
-                            </span>
-                            <input type="text" class="form-control" placeholder="Email">
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
+            <div class="bs-bars pull-left">
+                <div id="toolbar">
+                    <button id="remove" class="btn btn-danger" disabled="">
+                        <i class="glyphicon glyphicon-remove"></i> Delete
+                    </button>
                 </div>
-                <br>
-
-                <div class="row">
-
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                Order
-                            </span>
-                            <select class="form-control">
-                                <option>ID</option>
-                                <option>Username</option>
-                                <option>Email</option>
-                                <option>Comment Count</option>
-                            </select>
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <div class="form-control">
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
-                                </label>
-                            </div>
-
-
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                </div><!-- /.row -->
-                <br>
-
-
-                <div class="row">
-                    <div class="col-lg-6">
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="pull-right">
-                            <button type="submit" class="btn btn-default">Search</button>
-                        </div>
-                    </div>
-
+            </div>
+            <div class="columns columns-right btn-group pull-right">
+                <button class="btn btn-default" type="button" name="add_comment" aria-label="add Comment" title="add Comment">
+                    <i class="glyphicon glyphicon-plus"></i>
+                </button>
+                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                </button>
+                <button class="btn btn-default" type="button" name="toggle" aria-label="toggle" title="Toggle">
+                    <i class="glyphicon glyphicon-list-alt icon-list-alt"></i>
+                </button>
+                <div class="keep-open btn-group" title="Order">
+                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" class="active"><a href="#">Item ID</a></li>
+                        <li role="menuitem"><a href="#">Item Name</a></li>
+                        <li role="menuitem"><a href="#">Item Price</a></li>
+                        <li role="menuitem"><a href="#">Item Operate</a></li>
+                    </ul>
                 </div>
-            </form>
+                <div class="export btn-group">
+                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                        <i class="glyphicon glyphicon-export icon-share"></i>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pull-right search">
+                <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">
+                    <span class="fa fa-search"></span>
+                </span>
+                    <input class="form-control" placeholder="Search" type="text">
+                </div>
+            </div>
         </div>
         <!-- Table -->
         <div class="table-responsive">
@@ -230,8 +217,38 @@
                 </tbody>
             </table>
         </div>
+        <div class="pull-left pagination-detail">
+            <span class="pagination-info">Showing 1 to 10 of 800 rows</span>
+            <span class="page-list">
+                <span class="btn-group dropup">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="page-size">10</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" class="active"><a href="#">10</a></li>
+                        <li role="menuitem"><a href="#">25</a></li>
+                        <li role="menuitem"><a href="#">50</a></li>
+                        <li role="menuitem"><a href="#">100</a></li>
+                        <li role="menuitem"><a href="#">All</a></li>
+                    </ul>
+                </span> rows per page
+            </span>
+        </div>
+        <div class="pull-right pagination">
+            <ul class="pagination">
+                <li class="page-pre"><a href="#">‹</a></li>
+                <li class="page-number active"><a href="#">1</a></li>
+                <li class="page-number"><a href="#">2</a></li>
+                <li class="page-number"><a href="#">3</a></li>
+                <li class="page-number"><a href="#">4</a></li>
+                <li class="page-number"><a href="#">5</a></li>
+                <li class="page-last-separator disabled"><a href="#">...</a></li>
+                <li class="page-last"><a href="#">80</a></li>
+                <li class="page-next"><a href="#">›</a></li>
+            </ul>
+        </div>
     </div>
-    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
 {% endblock content %}
 
 {% block sidebar %}
