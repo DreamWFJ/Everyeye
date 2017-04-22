@@ -1,13 +1,74 @@
-{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% from 'macro/__frame__.html' import frame_search, menu_paging %}
 {% from 'macro/__admin__.html' import admin_menu_navigation %}
 {% import 'manage/frame/__macro__.html' as tools %}
 {% extends "framework.html" %}
 {% block script %}
-<script type="text/javascript">
-    $(document).ready(function() {
+    <!-- bootstrap validator css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap validator js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+    <!-- bootstrap-switch css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap-switch js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker({
+                style: 'btn-default',
+                liveSearch: true,
+                size: 4
+            });
+            $("#check_all_box").on('ifChanged',
+                    function(event){
+                        var checkbox = $("input[name='check_box[]']");
+                        if(this.checked){
+                            checkbox.iCheck('check');
+                            $("button#remove").attr('disabled', false);
+                        }else{
+                            checkbox.iCheck('uncheck');
+                            $("button#remove").attr('disabled', true);
+                        }
+                    }
+            );
+            // 单选和取消 checkbox时，对相关按钮的禁用和启用
+            $("input[name='check_box[]']").on('ifChanged', function(e, d){
+                var checkbox = $(this);
+                if(this.checked){
+                    checkbox.parents('tr').addClass('info');
+                    $("button#remove").attr('disabled', false);
+                }else{
+                    checkbox.parents('tr').removeClass('info');
+                    $("button#remove").attr('disabled', true);
+                }
+            });
+            // 设置checkbox的初始化选项
+            $("input:checkbox").iCheck({
+                checkboxClass: 'icheckbox_minimal',
+                radioClass: 'iradio_minimal',
+                increaseArea: '20%', // optional
+                handle: 'checkbox'
+            });
 
-    });
-</script>
+            // 点击事件，获取选中的数据
+            $("button#remove").click(function(){
+                $("tbody tr").find("input:checkbox").each(function(){
+                    if (this.checked){
+                        console.log(this.value);
+                    }
+                });
+            });
+
+            // 初始化添加角色中设置默认角色的switch
+            $("[name='default_role']").bootstrapSwitch({
+                onText: 'Yes',
+                offText: 'No'
+            });
+            $("[name='role_status']").bootstrapSwitch({
+                onText: 'Enabled',
+                offText: 'Disabled'
+            });
+        });
+    </script>
 {% endblock script %}
 {% block title %}Role{% endblock title %}
 {% block search %}
@@ -15,58 +76,68 @@
 {% endblock search %}
 
 {% block content %}
-    <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
         <div class="panel-heading">Panel heading</div>
         <div class="panel-body">
-            <form class="form">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-id-card"></span></span>
-                            <input type="text" class="form-control" placeholder="Role Name" aria-describedby="basic-addon1">
-                        </div>
+            <!-- 将所有按钮放在一行 -->
+            <div class="input-group-btn">
+                <div class="bs-bars pull-left">
+                    <div id="toolbar">
+                        <button id="remove" class="btn btn-danger" disabled="">
+                            <i class="glyphicon glyphicon-remove"></i> Delete
+                        </button>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                Order
-                            </span>
-                            <select class="form-control">
-                                <option>ID</option>
-                                <option>Name</option>
-                                <option>Enabled</option>
-                                <option>Time</option>
-                            </select>
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
                 </div>
-                <br>
+                <div class="columns columns-right btn-group pull-right">
+                    <!-- 添加目录的对话框 -->
+                    <button type="button" class="btn btn-default" data-toggle="modal" aria-label="Add" title="Add" data-target="#add_role">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button>
 
-                <div class="row">
 
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <div class="form-control">
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
-                                </label>
-                            </div>
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                    <div class="col-lg-6">
-                        <div class="pull-right">
-                            <button type="submit" class="btn btn-default">Search</button>
-                        </div>
-                    </div><!-- /.col-lg-6 -->
-                </div><!-- /.row -->
-                <br>
+                    <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                        <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                    </button>
+                    <button class="btn btn-default" type="button" name="toggle" aria-label="toggle" title="Toggle">
+                        <i class="glyphicon glyphicon-list-alt icon-list-alt"></i>
+                    </button>
+                    <div class="keep-open btn-group" title="Order">
+                        <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" class="active"><a href="#">Item ID</a></li>
+                            <li role="menuitem"><a href="#">Item Name</a></li>
+                            <li role="menuitem"><a href="#">Item Price</a></li>
+                            <li role="menuitem"><a href="#">Item Operate</a></li>
+                        </ul>
+                    </div>
+                    <div class="export btn-group">
+                        <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                            <i class="glyphicon glyphicon-export icon-share"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                            <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                            <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                            <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                            <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                            <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pull-right search">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <span class="fa fa-search"></span>
+                    </span>
+                        <input class="form-control" placeholder="Search" type="text">
+                    </div>
+                </div>
+            </div>
 
-            </form>
         </div>
         <!-- Table -->
         <div class="table-responsive">
@@ -74,98 +145,181 @@
                 <thead>
                 <tr>
                     <th>
-                        <input type="checkbox" value="option1" >
+                        <input type="checkbox" id="check_all_box" name='check_box[]'>
                     </th>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Default</th>
                     <th>Enabled</th>
                     <th>Time</th>
+                    <th>Users</th>
+                    <th>Resources</th>
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                     <td>
-                        <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
+                        <input type="checkbox" name="check_box[]" value="1">
                     </td>
                     <td scope="row">1</td>
                     <td>User</td>
                     <td><span class="fa fa-eye"></span></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
+                    <td><span class="fa fa-unlock"></span></td>
                     <td>2014-11-24 13:16:44</td>
+                    <td><a href="#" title="Associated Users"><span class="glyphicon glyphicon-link"></span></a></td>
+                    <td><a href="#" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
                     <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-eye-slash"></span> </a>
-                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                            {{ tools.role_resource_dialog('role_id', 'bind user role', 'content unknow') }}
-                            {{ tools.role_users_dialog("role_users_1", 'Role bind Users', 'content unknow') }}
-                            {{ tools.role_user_dialog("role_user_1", 'Role bind User', 'content unknow') }}
+                        <div class="btn-group" role="group" aria-label="Action">
+                            <a href="#" title="Cancel Default Role"><span class="fa fa-eye-slash"></span> </a>
+                            <a href="#bind_role_user" data-toggle="modal" title="Bind Role's User"><span class="fa fa-user"></span></a>
+                            <a href="#bind_role_resource" data-toggle="modal" title="Bind Role's Resource"><span class="fa fa-tree"></span></a>
+                            <a href="#" data-toggle="modal" title="Disable Role"><span class="fa fa-lock"></span></a>
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_2" value="option1" aria-label="...">
+                    <td scope="row">
+                        <input type="checkbox" name="check_box[]" value="2">
                     </td>
                     <td scope="row">2</td>
-                    <td>Administrator</td>
-                    <td></td>
-                    <td><span class="glyphicon glyphicon-remove-sign"></span></td>
+                    <td>User</td>
+                    <td><span class="fa fa-eye-slash"></span></td>
+                    <td><span class="fa fa-lock"></span> </td>
                     <td>2014-11-24 13:16:44</td>
+                    <td><a href="#"><span class="glyphicon glyphicon-link"></span></a></td>
+                    <td><a href="#"><span class="glyphicon glyphicon-link"></span></a></td>
                     <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-eye"></span> </a>
-                            <a href="#"><span class="glyphicon glyphicon-ok-sign"></span></a>
-                            {{ tools.role_resource_dialog('role_id', 'bind user role', 'content unknow') }}
-                            {{ tools.role_users_dialog('role_users_2', 'bind user role', 'content unknow') }}
-                            {{ tools.role_user_dialog('role_user_2', 'Role bind User', 'content unknow') }}
+                        <div class="btn-group" role="group" aria-label="Action">
+                            <a href="#" title="Set Default Role"><span class="fa fa-eye"></span> </a>
+                            <a href="#bind_role_user" data-toggle="modal" title="Bind Role's User"><span class="fa fa-user"></span></a>
+                            <a href="#bind_role_resource" data-toggle="modal" title="Bind Role's Resource"><span class="fa fa-tree"></span></a>
+                            <a href="#" data-toggle="modal" title="Enable Role"><span class="fa fa-unlock"></span></a>
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_3" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">3</td>
-                    <td>Anonymous</td>
-                    <td></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-eye"></span> </a>
-                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                            {{ tools.role_resource_dialog('role_id', 'bind user role', 'content unknow') }}
-                            {{ tools.role_users_dialog('role_users_3', 'bind user role', 'content unknow') }}
-                            {{ tools.role_user_dialog('role_user_3', 'Role bind User', 'content unknow') }}
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_4" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">4</td>
-                    <td>Other</td>
-                    <td></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span></td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-eye"></span> </a>
-                            <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                            {{ tools.role_resource_dialog('role_id', 'bind user role', 'content unknow') }}
-                            {{ tools.role_users_dialog('role_users_4', 'bind user role', 'content unknow') }}
-                            {{ tools.role_user_dialog('role_user_4', 'Role bind User', 'content unknow') }}
-                        </div>
-                    </td>
-                </tr>
+
                 </tbody>
             </table>
         </div>
+        {{ menu_paging(10, 1, 'http://test.com/page') }}
     </div>
-    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+    <!-- 添加角色的具体实现模块 -->
+    <div class="modal fade" id="add_role" tabindex="-1" role="dialog" aria-labelledby="AddRole">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form class="form-horizontal">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Add Role</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Role Name" aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="inputDefaultRole">Default Role</label>
+                            <div class="col-sm-9">
+                                <input id="inputDefaultRole" name="default_role" type="checkbox" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="inputRoleStatus">Role Status</label>
+                            <div class="col-sm-9">
+                                <input id="inputRoleStatus" name="role_status" checked type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- 角色绑定用户模块 -->
+    <div class="modal fade" id="bind_role_user" tabindex="-1" role="dialog" aria-labelledby="Bind Role's User">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Bind Role's User</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled class="form-control" id="inputRoleName" placeholder="Role Name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectUsername" class="col-sm-3 control-label">User Name</label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker" multiple data-actions-box="true" id="selectUsername" name="Username">
+                                    <option data-icon="glyphicon-heart" value="Mustard">Mustard</option>
+                                    <option data-icon="fa fa-leaf" value="Ketchup">Ketchup</option>
+                                    <option value="control">control</option>
+                                    <option value="Username">Username</option>
+                                    <option value="Relish">Relish</option>
+                                    <option value="RoleName">RoleName</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 角色绑定资源模块 -->
+    <div class="modal fade" id="bind_role_resource" tabindex="-1" role="dialog" aria-labelledby="Bind Role's Resource">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Change User's Resource</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputRoleName" class="col-sm-3 control-label">Role Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" disabled class="form-control" id="inputRoleName" placeholder="Role Name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectResource" class="col-sm-3 control-label">Resource Name</label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker" multiple data-actions-box="true" id="selectResource" name="Resource">
+                                    <option data-icon="glyphicon-heart" value="Mustard">Mustard</option>
+                                    <option data-icon="fa fa-leaf" value="Ketchup">Ketchup</option>
+                                    <option value="control">control</option>
+                                    <option value="Username">Username</option>
+                                    <option value="Relish">Relish</option>
+                                    <option value="RoleName">RoleName</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block sidebar %}
