@@ -34,7 +34,9 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-
+            $(".disabled").click(function (event) {
+                event.preventDefault();
+            });
         });
 
     </script>
@@ -44,95 +46,95 @@
 </head>
 <body>
 {% block body %}
-<!--- navbar-inverse, navbar-static-top, navbar-fixed-top, navbar-fixed-bottom --->
-<header class="navbar navbar-default navbar-static-top">
-    <!--- container-fluid 导航条扩展 --->
+    <!--- navbar-inverse, navbar-static-top, navbar-fixed-top, navbar-fixed-bottom --->
+    <header class="navbar navbar-default navbar-static-top">
+        <!--- container-fluid 导航条扩展 --->
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#base-frame-navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <!--- 这里放置logo --->
+                    <img alt="Brand" src="#">
+                </a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <nav class="collapse navbar-collapse" id="base-frame-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{url_for('resource.index')}}">Index <span class="sr-only">(current)</span></a></li>
+                    <li><a href="blog">Blog</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('manage.user') }}">User</a></li>
+                            <li><a href="{{ url_for('manage.role') }}">Role</a></li>
+                            <li><a href="{{ url_for('manage.right') }}">Right</a></li>
+                            <li><a href="{{ url_for('manage.resource') }}">Resource</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('manage.article') }}">Article</a></li>
+                            <li><a href="{{ url_for('manage.comment') }}">Comment</a></li>
+                            <li><a href="{{ url_for('manage.keyword') }}">Keyword</a></li>
+                            <li><a href="{{ url_for('manage.category') }}">Category</a></li>
+                            <li><a href="{{ url_for('manage.sensitive_word') }}">Sensitive Word</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('manage.action_log') }}">Action Log</a></li>
+                            <li><a href="{{ url_for('manage.audit_log') }}">Audit Log</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('manage.messaging') }}">Message</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% block search %}{% endblock search %}
+
+                <ul class="nav navbar-nav navbar-right">
+                    {% if current_user.is_authenticated %}
+                        <!-- 为了增加图标大小相对于它们的容器, 使用 fa-lg (33% 递增), fa-2x, fa-3x, fa-4x, 或 fa-5x classes.  -->
+                        <li><a href="{{ url_for('resource.messaging', username=current_user.name)}}"><i class="fa fa-envelope-o fa-lg"></i><span class="badge">42</span></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                {{ current_user.name }}<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('resource.profile', username=current_user.name) }}">Profile</a></li>
+                                <li><a href="{{ url_for('resource.article', username=current_user.name)}}">Article</a></li>
+                                <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
+                                <li><a href="{{ url_for('resource.setting', username=current_user.name) }}">Setting</a></li>
+                                <li><a href="{{ url_for('resource.action_log', username=current_user.name) }}">Action Log</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.register') }}">Sign In</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </nav><!-- /.navbar-collapse -->
+        </div>
+    </header>
+
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#base-frame-navbar-collapse" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">
-                <!--- 这里放置logo --->
-                <img alt="Brand" src="#">
-            </a>
-        </div>
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <nav class="collapse navbar-collapse" id="base-frame-navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="{{url_for('resource.index')}}">Index <span class="sr-only">(current)</span></a></li>
-                <li><a href="blog">Blog</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('manage.user') }}">User</a></li>
-                        <li><a href="{{ url_for('manage.role') }}">Role</a></li>
-                        <li><a href="{{ url_for('manage.right') }}">Right</a></li>
-                        <li><a href="{{ url_for('manage.resource') }}">Resource</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="{{ url_for('manage.article') }}">Article</a></li>
-                        <li><a href="{{ url_for('manage.comment') }}">Comment</a></li>
-                        <li><a href="{{ url_for('manage.keyword') }}">Keyword</a></li>
-                        <li><a href="{{ url_for('manage.category') }}">Category</a></li>
-                        <li><a href="{{ url_for('manage.sensitive_word') }}">Sensitive Word</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="{{ url_for('manage.action_log') }}">Action Log</a></li>
-                        <li><a href="{{ url_for('manage.audit_log') }}">Audit Log</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="{{ url_for('manage.messaging') }}">Message</a></li>
-                    </ul>
-                </li>
-            </ul>
-            {% block search %}{% endblock search %}
+        <div class="row">
+            <div class="col-md-3">
+                {% block sidebar %}{% endblock sidebar %}
+            </div>
+            <div class="col-md-9">
+                {% block content %}
+                    <!-- 页头 -->
+                    {% block breadcrumb %}{% endblock breadcrumb %}
+                    {% block main_content %}{% endblock main_content %}
+                    {% block others %}{% endblock others %}
 
-            <ul class="nav navbar-nav navbar-right">
-                {% if current_user.is_authenticated %}
-                <!-- 为了增加图标大小相对于它们的容器, 使用 fa-lg (33% 递增), fa-2x, fa-3x, fa-4x, 或 fa-5x classes.  -->
-                <li><a href="{{ url_for('resource.messaging', username=current_user.name)}}"><i class="fa fa-envelope-o fa-lg"></i><span class="badge">42</span></a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        {{ current_user.name }}<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('resource.profile', username=current_user.name) }}">Profile</a></li>
-                        <li><a href="{{ url_for('resource.article', username=current_user.name)}}">Article</a></li>
-                        <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
-                        <li><a href="{{ url_for('resource.setting', username=current_user.name) }}">Setting</a></li>
-                        <li><a href="{{ url_for('resource.action_log', username=current_user.name) }}">Action Log</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li><a href="{{ url_for('auth.register') }}">Sign In</a></li>
-                <li><a href="{{ url_for('auth.login') }}">Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </nav><!-- /.navbar-collapse -->
+                {% endblock content %}
+            </div>
+
+        </div>
     </div>
-</header>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-3">
-            {% block sidebar %}{% endblock sidebar %}
-        </div>
-        <div class="col-md-9">
-            {% block content %}
-            <!-- 页头 -->
-            {% block breadcrumb %}{% endblock breadcrumb %}
-            {% block main_content %}{% endblock main_content %}
-            {% block others %}{% endblock others %}
-
-            {% endblock content %}
-        </div>
-
-    </div>
-</div>
-{% block footer %}{% endblock footer %}
+    {% block footer %}{% endblock footer %}
 
 {% endblock body %}
 

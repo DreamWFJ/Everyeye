@@ -62,8 +62,8 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     # 角色名称
     name = db.Column(db.String(64), unique = True)
-    # 角色状态，表示是否开启
-    status = db.Column(db.Boolean, default = True, index = True)
+    # 角色状态，表示是锁定
+    status = db.Column(db.Boolean, default = False, index = True)
     # 默认角色选项
     default = db.Column(db.Boolean, default=False, index=True)
 
