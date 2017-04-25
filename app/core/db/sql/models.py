@@ -14,7 +14,7 @@ from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import and_
+from sqlalchemy import and_, within_group
 
 class DatabaseError(Exception):
     pass
@@ -83,7 +83,7 @@ class Role(db.Model):
 
 
     @staticmethod
-    def insert_roles(rolename, role_resource=None, default=None):
+    def insert_roles(rolename, status=False, role_resource=None, default=None):
         role = Role(name = rolename)
         if role_resource:
             role.resources.append(role_resource)
@@ -112,6 +112,12 @@ class Role(db.Model):
 
         return role
 
+    @staticmethod
+    def delete_role(name):
+        role = Role.query.filter_by(name = name).first()
+        if role:
+            db.session.delete(role)
+            db.session.commit()
 
 # 资源表
 class Resource(db.Model):
@@ -141,6 +147,16 @@ class Resource(db.Model):
         db.session.add(resource)
         db.session.commit()
         return resource
+
+    @staticmethod
+    def delete_resources(name):
+        """
+        注意：这里需要关注资源绑定的权限，角色关系
+        """
+        resource = Resource.query.filter_by(name = name).first()
+        if resource:
+            db.session.delete(resource)
+            db.session.commit()
 
     def __repr__(self):
         return '<Resource %r>' % self.name
@@ -186,6 +202,13 @@ class Right(db.Model):
         db.session.commit()
 
         return right
+
+    @staticmethod
+    def delete_right(name):
+        right = Right.query.filter_by(name = name).first()
+        if right:
+            db.session.delete(right)
+            db.session.commit()
 
     def __repr__(self):
         return '<Right %r>' % self.name
@@ -408,6 +431,22 @@ class User(UserMixin, db.Model):
         db.session.add(user)
         db.session.commit()
         return user
+
+    @staticmethod
+    def delete_user(name):
+        user = User.query.filter_by(name = name).first()
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+
+    @staticmethod
+    def delete_user_by_ids(ids):
+        users = User.query.filter(User.id.in_(ids))
+        print list(users)
+        if users:
+            for user in users:
+                db.session.delete(user)
+            db.session.commit()
 
     def update_user(self, name, real_name, email, role_id, status, confirmed, about_me):
         self.name = name

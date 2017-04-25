@@ -69,7 +69,7 @@ def bind_user_role():
 @manage.route('/user/edit-status')
 def edit_user_status():
     print request.args
-    flash('Edit "%s" status success'%request.form.get('username'))
+    flash('Edit "%s" status to "%s" success'%(request.args.get('user_id'), request.args.get('status')))
     return redirect(url_for('manage.user'))
 
 
@@ -82,9 +82,10 @@ def profile():
 @manage.route('/user/delete', methods=['POST'])
 def delete_user():
     print request.form
-    user_ids = request.form.get('user_ids')
-    print user_ids.split(',')
-    flash('delete user id "%s" success'%request.form.get('user_ids'))
+    ids = request.form.get('ids')
+    print ids.split(',')
+    User.delete_user_by_ids(ids.split(','))
+    flash('delete ids "%s" success'%request.form.get('ids'))
     return redirect(url_for('manage.user'))
 
 @manage.route('/user/send-email', methods=['POST'])
