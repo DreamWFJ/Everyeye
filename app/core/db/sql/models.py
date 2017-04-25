@@ -14,7 +14,7 @@ from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import and_, within_group
+from sqlalchemy import and_
 
 class DatabaseError(Exception):
     pass
@@ -119,6 +119,14 @@ class Role(db.Model):
             db.session.delete(role)
             db.session.commit()
 
+    @staticmethod
+    def delete_role_by_ids(ids):
+        roles = Role.query.filter(Role.id.in_(ids))
+        if roles:
+            for role in roles:
+                db.session.delete(role)
+            db.session.commit()
+
 # 资源表
 class Resource(db.Model):
     __tablename__ = 'resources'
@@ -156,6 +164,14 @@ class Resource(db.Model):
         resource = Resource.query.filter_by(name = name).first()
         if resource:
             db.session.delete(resource)
+            db.session.commit()
+
+    @staticmethod
+    def delete_resource_by_ids(ids):
+        resources = Resource.query.filter(Resource.id.in_(ids))
+        if resources:
+            for resource in resources:
+                db.session.delete(resource)
             db.session.commit()
 
     def __repr__(self):
@@ -208,6 +224,14 @@ class Right(db.Model):
         right = Right.query.filter_by(name = name).first()
         if right:
             db.session.delete(right)
+            db.session.commit()
+
+    @staticmethod
+    def delete_right_by_ids(ids):
+        rights = Right.query.filter(Right.id.in_(ids))
+        if rights:
+            for right in rights:
+                db.session.delete(right)
             db.session.commit()
 
     def __repr__(self):

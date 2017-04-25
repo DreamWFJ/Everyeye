@@ -3,7 +3,10 @@
 {% set admin_navigation = [{'href':'user', 'caption':'User'},
 {'href':'role', 'caption':'Role'},
 {'href':'right', 'caption':'Right'},
-{'href':'resource', 'caption':'Resource'}] %}
+{'href':'resource', 'caption':'Resource'},
+{'href':'user-role', 'caption':'User Role'},
+{'href':'role-right', 'caption':'Role Right'},
+{'href':'right-resource', 'caption':'Right Resource'}] %}
 
 {% macro admin_menu_navigation(current_active_item) %}
 {{base_menu_navigation('Admin', admin_navigation, current_active_item)}}

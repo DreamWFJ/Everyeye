@@ -59,8 +59,8 @@ def delete_role():
     print request.form
     ids = request.form.get('ids')
     print ids.split(',')
-    flash('delete ids "%s" success'%request.form.get('ids'))
-    return redirect(url_for('manage.role'))
+    Role.delete_role_by_ids(ids.split(','))
+    return "Delete ids '%s' success"%ids
 
 @manage.route('/role/bind-user', methods=['POST'])
 def bind_role_user():

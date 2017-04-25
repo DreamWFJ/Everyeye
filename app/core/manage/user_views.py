@@ -8,7 +8,7 @@ FileName:       user_views.py
 CreateTime:     2017-04-04 20:11
 """
 
-from app.core.db.sql.models import User
+from app.core.db.sql.models import User, Role
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
@@ -73,8 +73,8 @@ def edit_user_status():
     return redirect(url_for('manage.user'))
 
 
-@manage.route('/profile')
-def profile():
+@manage.route('/user-profile')
+def user_profile():
     return render_template('manage/admin/profile.html')
 
 
@@ -85,8 +85,7 @@ def delete_user():
     ids = request.form.get('ids')
     print ids.split(',')
     User.delete_user_by_ids(ids.split(','))
-    flash('delete ids "%s" success'%request.form.get('ids'))
-    return redirect(url_for('manage.user'))
+    return "Delete ids '%s' success"%ids
 
 @manage.route('/user/send-email', methods=['POST'])
 def send_user_email():

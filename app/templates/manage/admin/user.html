@@ -439,7 +439,7 @@
 
                 <td>{{ user.role_id }}</td>
                 <td>{{ user.create_at|string|truncate(19, True, end='') }}</td>
-                <td><a href="user-profile" title="Show User's Profile" target="_blank"><span class="fa fa-user-md"></span></a> </td>
+                <td><a href="{{ url_for('manage.user_profile')}}" title="Show User's Profile" target="_blank"><span class="fa fa-user-md"></span></a> </td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Action">
                         <a href="javascript:;" onclick="send_email('{{user.name}}','{{user.email}}')" title="Send Email"><span class="fa fa-envelope-o"></span> </a>

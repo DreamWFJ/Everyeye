@@ -1,0 +1,279 @@
+{% from 'macro/__frame__.html' import frame_search, menu_paging %}
+{% from 'macro/__admin__.html' import admin_menu_navigation %}
+{% extends "framework.html" %}
+{% block script %}
+<!-- bootstrap validator css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap validator js -->
+<script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+<!-- bootstrap-switch css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap-switch js -->
+<script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        // checkbox全选和取消
+        $("#check_all_box").on('ifChanged',
+                function(event){
+                    var checkbox = $("input[name='check_box[]']");
+                    if(this.checked){
+                        checkbox.iCheck('check');
+                        $("button#remove").attr('disabled', false);
+                    }else{
+                        checkbox.iCheck('uncheck');
+                        $("button#remove").attr('disabled', true);
+                    }
+                }
+        );
+        // 单选和取消 checkbox时，对相关按钮的禁用和启用
+        $("input[name='check_box[]']").on('ifChanged', function(e, d){
+            var checkbox = $(this);
+            if(this.checked){
+                checkbox.parents('tr').addClass('info');
+                $("button#remove").attr('disabled', false);
+            }else{
+                checkbox.parents('tr').removeClass('info');
+                $("button#remove").attr('disabled', true);
+            }
+        });
+        // 设置checkbox的初始化选项
+        $("input:checkbox").iCheck({
+            checkboxClass: 'icheckbox_minimal',
+            radioClass: 'iradio_minimal',
+            increaseArea: '20%', // optional
+            handle: 'checkbox'
+        });
+
+
+
+        $("[name='order-table']").children('li').click(function(){
+            $(this).addClass('active');
+            console.log(this);
+        });
+
+        // 初始化添加角色中设置默认角色的switch
+        $("[name='default_role']").bootstrapSwitch({
+            onText: 'Yes',
+            offText: 'No'
+        });
+        $("[name='role_status']").bootstrapSwitch({
+            onText: 'Lock',
+            offText: 'Unlock'
+        });
+        // 表格校验
+        $('#addRoleForm').bootstrapValidator({
+            message: 'This value is not valid',
+            container: 'tooltip',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                role_name: {
+                    message: 'The role name is not valid',
+                    validators: {
+                        notEmpty: {
+                            message: 'The role name is required and cannot be empty'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: 'The role name must be more than 6 and less than 30 characters long'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9_\.]+$/,
+                            message: 'The role name can only consist of alphabetical, number, dot and underscore'
+                        }
+                    }
+                }
+            }
+        });
+        $('#bindRoleUserForm')
+                .find('[name="user_ids"]')
+                .selectpicker()
+                .change(function(e) {
+                    /* Revalidate the color when it is changed */
+                    $('#bindRoleUserForm').bootstrapValidator('revalidateField', 'user_ids');
+                })
+                .end()
+                .bootstrapValidator({
+                    framework: 'bootstrap',
+                    excluded: ':disabled',
+                    message: 'This value is not valid',
+                    container: 'tooltip',
+                    feedbackIcons: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        user_ids: {
+                            container: 'popover',
+                            validators: {
+                                callback: {
+                                    message: 'Please choose 1-4 user name you use for binding',
+                                    callback: function(value, validator, $field) {
+                                        // Get the selected options
+                                        var options = validator.getFieldElements('user_ids').val();
+                                        return (options != null && options.length >= 1 && options.length <= 4);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+        $('#bindRoleResourceForm')
+                .find('[name="resource_ids"]')
+                .selectpicker()
+                .change(function(e) {
+                    /* Revalidate the color when it is changed */
+                    $('#bindRoleResourceForm').bootstrapValidator('revalidateField', 'resource_ids');
+                })
+                .end()
+                .bootstrapValidator({
+                    message: 'This value is not valid',
+                    container: 'tooltip',
+                    feedbackIcons: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        resource_ids: {
+                            container: 'popover',
+                            validators: {
+                                notEmpty: {
+                                    message: 'The resource name is required and cannot be empty'
+                                },
+                                callback: {
+                                    message: 'Please choose 1-4 resource name you use for binding',
+                                    callback: function(value, validator, $field) {
+                                        // Get the selected options
+                                        var options = validator.getFieldElements('resource_ids').val();
+                                        return (options != null && options.length >= 1 && options.length <= 4);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+    });
+    // 绑定角色用户对话框
+    function bind_role_user(name, id){
+        $("#inputBindRoleName").val(name);
+        $("#bind_role_user").modal('show');
+    }
+
+    // 绑定角色资源对话框
+    function bind_role_resource(name, id){
+        $("#inputBindRoleResourceRoleName").val(name);
+        $("#bind_role_resource").modal('show');
+    }
+
+
+</script>
+{% endblock script %}
+{% block title %}Role{% endblock title %}
+{% block search %}
+{{frame_search('user_role')}}
+{% endblock search %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Panel heading</div>
+    <div class="panel-body">
+        <!-- 将所有按钮放在一行 -->
+        <div class="input-group-btn">
+            <div class="bs-bars pull-left">
+                <div id="toolbar">
+                    <button id="remove" data-ajax-url="{{url_for('manage.delete_user_role')}}" class="btn btn-danger" disabled="">
+                        <i class="glyphicon glyphicon-remove"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div class="columns columns-right btn-group pull-right">
+                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                </button>
+                <div class="keep-open btn-group" title="Order">
+                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" name="order-table">
+                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc">ID</a></li>
+                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=username&order_direction=asc">User Name</a></li>
+                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=rolename&order_direction=asc">Role Name</a></li>
+                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=create_at&order_direction=asc">Create Time</a></li>
+                    </ul>
+                </div>
+                <div class="export btn-group">
+                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                        <i class="glyphicon glyphicon-export icon-share"></i>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pull-right search">
+                <form id="TableSearchForm" action="{{ url_for('manage.user_role_search')}}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc" method="post">
+                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" id="check_all_box" name='check_box[]'>
+                </th>
+                <th>ID</th>
+                <th>User Name</th>
+                <th>Role Name</th>
+                <th>Users</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user_role in user_role_lists %}
+            <tr>
+                <td>
+                    <input type="checkbox" name="check_box[]" value="{{ user_role.id }}">
+                </td>
+                <td>{{ user_role.id }}</td>
+                <td>{{ user_role.user_name }}</td>
+                <td>{{ user_role.role_name }}</td>
+                <td>{{ user_role.users }}</td>
+                <td>{{ user_role.create_at|string|truncate(19, True, end='') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ menu_paging(page_size, page, query_size, current_url) }}
+</div>
+{% endblock content %}
+
+{% block sidebar %}
+{{ admin_menu_navigation('User Role') }}
+{% endblock sidebar %}
+

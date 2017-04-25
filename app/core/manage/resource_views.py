@@ -55,10 +55,10 @@ def resource_search():
 @manage.route('/resource/delete', methods=['POST'])
 def delete_resource():
     print request.form
-    resource_ids = request.form.get('resource_ids')
-    print resource_ids.split(',')
-    flash('delete resource id "%s" success'%request.form.get('resource_ids'))
-    return redirect(url_for('manage.resource'))
+    ids = request.form.get('ids')
+    print ids.split(',')
+    Resource.delete_resource_by_ids(ids.split(','))
+    return "Delete ids '%s' success"%ids
 
 @manage.route('/resource/bind-right', methods=['POST'])
 def bind_resource_right():

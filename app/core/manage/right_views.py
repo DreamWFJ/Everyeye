@@ -58,8 +58,8 @@ def delete_right():
     print request.form
     ids = request.form.get('ids')
     print ids.split(',')
-    flash('delete right ids "%s" success'%request.form.get('ids'))
-    return redirect(url_for('manage.right'))
+    Right.delete_right_by_ids(ids.split(','))
+    return "Delete ids '%s' success"%ids
 
 @manage.route('/right/bind-resource', methods=['POST'])
 def bind_right_resource():

@@ -4,14 +4,19 @@ Used to manage users, roles, permissions, resource information, etc
 ## Intrduction REST API
 ### 功能：实现用户，角色，用户组，权限，资源的管理
 ### 需求：
-    具有 REST API
-    具有客户端命令行操作
-    所有操作进行权限控制
-    提供OpenID、SSO、OAuth2.0 接口
-    使用redis进行缓存session
-    后端数据存储支持插件式管理：sqlite3, mysql 和 mongodb
-    邮件消息订阅（不同层级的错误信息，具有优美的html海报和详细的错误附件）
-    支持批量导入用户，分别支持excel, json 和txt格式
+    - 一期
+        - 具有 REST API
+        - 具有客户端命令行操作
+        - 所有操作进行权限控制
+        - 提供OpenID、SSO、OAuth2.0 接口
+        - 使用redis进行缓存session
+        - 后端数据存储支持插件式管理：sqlite3, mysql 和 mongodb
+        - 邮件消息订阅（不同层级的错误信息，具有优美的html海报和详细的错误附件）
+        - 支持批量导入用户，分别支持excel, json 和txt格式
+    - 二期
+        - 支持bug列表，用户可以提交系统bug与改进建议
+        - 支持系统package下载，一键安装
+        - 权限控制，通过后台禁用某项权限，前台页面以及url访问返回404
 
 ### URL地址规范
     0. http://www.domain.com/article  展示总的文章
