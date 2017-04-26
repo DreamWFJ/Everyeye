@@ -99,24 +99,24 @@
                 validating: 'glyphicon glyphicon-refresh'
             },
             fields: {
-                username: {
-                    message: 'The username is not valid',
+                name: {
+                    message: 'The user name is not valid',
                     validators: {
                         notEmpty: {
-                            message: 'The username is required and cannot be empty'
+                            message: 'The user name is required and cannot be empty'
                         },
                         stringLength: {
                             min: 6,
                             max: 30,
-                            message: 'The username must be more than 6 and less than 30 characters long'
+                            message: 'The user name must be more than 6 and less than 30 characters long'
                         },
                         regexp: {
                             regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                            message: 'The user name can only consist of alphabetical, number, dot and underscore'
                         },
                         different: {
                             field: 'password',
-                            message: 'The username and password cannot be the same as each other'
+                            message: 'The user name and password cannot be the same as each other'
                         }
                     }
                 },
@@ -135,8 +135,8 @@
                             message: 'The password is required and cannot be empty'
                         },
                         different: {
-                            field: 'username',
-                            message: 'The password cannot be the same as username'
+                            field: 'name',
+                            message: 'The password cannot be the same as user name'
                         }
                     }
                 },
@@ -145,10 +145,6 @@
                     validators: {
                         notEmpty: {
                             message: 'The password is required and cannot be empty'
-                        },
-                        different: {
-                            field: 'username',
-                            message: 'The password cannot be the same as username'
                         }
                     }
                 },
@@ -186,24 +182,24 @@
                 validating: 'glyphicon glyphicon-refresh'
             },
             fields: {
-                username: {
-                    message: 'The username is not valid',
+                name: {
+                    message: 'The user name is not valid',
                     validators: {
                         notEmpty: {
-                            message: 'The username is required and cannot be empty'
+                            message: 'The user name is required and cannot be empty'
                         },
                         stringLength: {
                             min: 6,
                             max: 30,
-                            message: 'The username must be more than 6 and less than 30 characters long'
+                            message: 'The user name must be more than 6 and less than 30 characters long'
                         },
                         regexp: {
                             regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
+                            message: 'The user name can only consist of alphabetical, number, dot and underscore'
                         },
                         different: {
                             field: 'password',
-                            message: 'The username and password cannot be the same as each other'
+                            message: 'The user name and password cannot be the same as each other'
                         }
                     }
                 },
@@ -225,8 +221,8 @@
                             message: 'The password is required and cannot be empty'
                         },
                         different: {
-                            field: 'username',
-                            message: 'The password cannot be the same as username'
+                            field: 'name',
+                            message: 'The password cannot be the same as user name'
                         },
                         identical: {
                             field: 'confirmPassword',
@@ -247,46 +243,41 @@
                 }
             }
         });
-        $('#bindUserRoleForm').bootstrapValidator({
-            message: 'This value is not valid',
-            container: 'tooltip',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                username: {
-                    message: 'The username is not valid',
-                    validators: {
-                        notEmpty: {
-                            message: 'The username is required and cannot be empty'
-                        },
-                        stringLength: {
-                            min: 6,
-                            max: 30,
-                            message: 'The username must be more than 6 and less than 30 characters long'
-                        },
-                        regexp: {
-                            regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The username can only consist of alphabetical, number, dot and underscore'
-                        },
-                        different: {
-                            field: 'password',
-                            message: 'The username and password cannot be the same as each other'
+        $('#bindUserRoleForm')
+                .find('[name="role_id"]')
+                .selectpicker()
+                .change(function(e) {
+                    /* Revalidate the color when it is changed */
+                    $('#bindUserRoleForm').bootstrapValidator('revalidateField', 'role_id');
+                })
+                .end()
+                .bootstrapValidator({
+                    message: 'This value is not valid',
+                    container: 'tooltip',
+                    feedbackIcons: {
+                        valid: 'glyphicon glyphicon-ok',
+                        invalid: 'glyphicon glyphicon-remove',
+                        validating: 'glyphicon glyphicon-refresh'
+                    },
+                    fields: {
+                        role_id: {
+                            container: 'popover',
+                            validators: {
+                                notEmpty: {
+                                    message: 'The role name is required and cannot be empty'
+                                },
+                                callback: {
+                                    message: 'Please choose only 1 role name you use for binding',
+                                    callback: function(value, validator, $field) {
+                                        // Get the selected options
+                                        var options = validator.getFieldElements('role_id').val();
+                                        return (options != null && options.length == 1);
+                                    }
+                                }
+                            }
                         }
                     }
-                },
-                role_name: {
-                    container: 'popover',
-                    validators: {
-                        notEmpty: {
-                            message: 'The role name is required and cannot be empty'
-                        }
-                    }
-                }
-            }
-        });
+                });
     });
     // 发送邮件对话框
     function send_email(name, email){
@@ -477,7 +468,7 @@
                         <div class="col-lg-12">
                             <div class="input-group">
                                 <span class="input-group-addon"><span class="fa fa-user">&nbsp;Name</span></span>
-                                <input type="text" class="form-control" placeholder="Username" name="username">
+                                <input type="text" class="form-control" placeholder="Username" name="name">
                             </div>
                         </div>
                     </div>
@@ -531,17 +522,17 @@
                     <div class="form-group">
                         <label for="inputBindUserRoleUsername" class="col-sm-3 control-label">User Name</label>
                         <div class="col-sm-8">
-                            <input type="text" disabled class="form-control" id="inputBindUserRoleUsername" name="username" placeholder="Username">
+                            <input type="text" disabled class="form-control" id="inputBindUserRoleUsername" name="name" placeholder="Username">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputBindUserRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <select class="form-control" id="inputBindUserRoleName" name="role_name">
-                                <option value="0">None</option>
-                                <option value="1">Administrator</option>
-                                <option value="2">User</option>
-                                <option value="3">Other</option>
+                            <select class="selectpicker" data-live-search="true" id="inputBindUserRoleName" name="role_id">
+                                <option></option>
+                                {% for role in role_list %}
+                                <option value="{{role.id}}">{{role.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -569,7 +560,7 @@
                         <div class="col-lg-12">
                             <div class="input-group">
                                 <span class="input-group-addon"><span class="fa fa-user"></span></span>
-                                <input type="text" class="form-control" placeholder="Username" id="inputEditUserName" name="username">
+                                <input type="text" class="form-control" placeholder="Username" id="inputEditUserName" name="name">
                             </div>
                         </div>
                     </div>
@@ -670,7 +661,7 @@
                         <div class="col-lg-12">
                             <div class="input-group">
                                 <span class="input-group-addon"><span class="fa fa-user"></span></span>
-                                <input type="text" class="form-control" placeholder="Username" id="inputResetPasswordUsername" name="username">
+                                <input type="text" class="form-control" placeholder="Username" id="inputResetPasswordUsername" name="name">
                             </div>
                         </div>
                     </div>

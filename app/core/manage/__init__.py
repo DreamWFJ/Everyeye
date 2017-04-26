@@ -10,5 +10,5 @@ from flask import Blueprint
 
 manage_blueprint = Blueprint('manage', __name__)
 
-from . import resource_views, role_views, right_views, user_views, article_views,log_views, message_views, user_role_views
+from . import resource_views, role_views, right_views, user_views, article_views,log_views, message_views, relationship_views
     

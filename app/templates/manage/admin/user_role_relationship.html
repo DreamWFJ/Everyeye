@@ -2,14 +2,6 @@
 {% from 'macro/__admin__.html' import admin_menu_navigation %}
 {% extends "framework.html" %}
 {% block script %}
-<!-- bootstrap validator css -->
-<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
-<!-- bootstrap validator js -->
-<script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
-<!-- bootstrap-switch css -->
-<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
-<!-- bootstrap-switch js -->
-<script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
 <script type="text/javascript">
 
     $(document).ready(function() {
@@ -52,126 +44,7 @@
             console.log(this);
         });
 
-        // 初始化添加角色中设置默认角色的switch
-        $("[name='default_role']").bootstrapSwitch({
-            onText: 'Yes',
-            offText: 'No'
-        });
-        $("[name='role_status']").bootstrapSwitch({
-            onText: 'Lock',
-            offText: 'Unlock'
-        });
-        // 表格校验
-        $('#addRoleForm').bootstrapValidator({
-            message: 'This value is not valid',
-            container: 'tooltip',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                role_name: {
-                    message: 'The role name is not valid',
-                    validators: {
-                        notEmpty: {
-                            message: 'The role name is required and cannot be empty'
-                        },
-                        stringLength: {
-                            min: 6,
-                            max: 30,
-                            message: 'The role name must be more than 6 and less than 30 characters long'
-                        },
-                        regexp: {
-                            regexp: /^[a-zA-Z0-9_\.]+$/,
-                            message: 'The role name can only consist of alphabetical, number, dot and underscore'
-                        }
-                    }
-                }
-            }
-        });
-        $('#bindRoleUserForm')
-                .find('[name="user_ids"]')
-                .selectpicker()
-                .change(function(e) {
-                    /* Revalidate the color when it is changed */
-                    $('#bindRoleUserForm').bootstrapValidator('revalidateField', 'user_ids');
-                })
-                .end()
-                .bootstrapValidator({
-                    framework: 'bootstrap',
-                    excluded: ':disabled',
-                    message: 'This value is not valid',
-                    container: 'tooltip',
-                    feedbackIcons: {
-                        valid: 'glyphicon glyphicon-ok',
-                        invalid: 'glyphicon glyphicon-remove',
-                        validating: 'glyphicon glyphicon-refresh'
-                    },
-                    fields: {
-                        user_ids: {
-                            container: 'popover',
-                            validators: {
-                                callback: {
-                                    message: 'Please choose 1-4 user name you use for binding',
-                                    callback: function(value, validator, $field) {
-                                        // Get the selected options
-                                        var options = validator.getFieldElements('user_ids').val();
-                                        return (options != null && options.length >= 1 && options.length <= 4);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-        $('#bindRoleResourceForm')
-                .find('[name="resource_ids"]')
-                .selectpicker()
-                .change(function(e) {
-                    /* Revalidate the color when it is changed */
-                    $('#bindRoleResourceForm').bootstrapValidator('revalidateField', 'resource_ids');
-                })
-                .end()
-                .bootstrapValidator({
-                    message: 'This value is not valid',
-                    container: 'tooltip',
-                    feedbackIcons: {
-                        valid: 'glyphicon glyphicon-ok',
-                        invalid: 'glyphicon glyphicon-remove',
-                        validating: 'glyphicon glyphicon-refresh'
-                    },
-                    fields: {
-                        resource_ids: {
-                            container: 'popover',
-                            validators: {
-                                notEmpty: {
-                                    message: 'The resource name is required and cannot be empty'
-                                },
-                                callback: {
-                                    message: 'Please choose 1-4 resource name you use for binding',
-                                    callback: function(value, validator, $field) {
-                                        // Get the selected options
-                                        var options = validator.getFieldElements('resource_ids').val();
-                                        return (options != null && options.length >= 1 && options.length <= 4);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
     });
-    // 绑定角色用户对话框
-    function bind_role_user(name, id){
-        $("#inputBindRoleName").val(name);
-        $("#bind_role_user").modal('show');
-    }
-
-    // 绑定角色资源对话框
-    function bind_role_resource(name, id){
-        $("#inputBindRoleResourceRoleName").val(name);
-        $("#bind_role_resource").modal('show');
-    }
-
 
 </script>
 {% endblock script %}
@@ -209,10 +82,9 @@
                         <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu" name="order-table">
-                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc">ID</a></li>
-                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=username&order_direction=asc">User Name</a></li>
-                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=rolename&order_direction=asc">Role Name</a></li>
-                        <li><a href="{{ url_for('manage.user_role') }}?page={{page}}&page_size={{page_size}}&order_name=create_at&order_direction=asc">Create Time</a></li>
+                        <li><a href="{{ url_for('manage.user_role', page=page, page_size=page_size, order_name=id, order_direction=asc) }}">ID</a></li>
+                        <li><a href="{{ url_for('manage.user_role', page=page, page_size=page_size, order_name=user_name, order_direction=asc) }}">User Name</a></li>
+                        <li><a href="{{ url_for('manage.user_role', page=page, page_size=page_size, order_name=role_name, order_direction=asc) }}">Role Name</a></li>
                     </ul>
                 </div>
                 <div class="export btn-group">
@@ -231,7 +103,7 @@
                 </div>
             </div>
             <div class="pull-right search">
-                <form id="TableSearchForm" action="{{ url_for('manage.user_role_search')}}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc" method="post">
+                <form id="TableSearchForm" action="{{ url_for('manage.user_role')}}" method="post">
                     <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
                 </form>
             </div>
@@ -249,8 +121,6 @@
                 <th>ID</th>
                 <th>User Name</th>
                 <th>Role Name</th>
-                <th>Users</th>
-                <th>Time</th>
             </tr>
             </thead>
             <tbody>
@@ -262,8 +132,6 @@
                 <td>{{ user_role.id }}</td>
                 <td>{{ user_role.user_name }}</td>
                 <td>{{ user_role.role_name }}</td>
-                <td>{{ user_role.users }}</td>
-                <td>{{ user_role.create_at|string|truncate(19, True, end='') }}</td>
             </tr>
             {% endfor %}
             </tbody>

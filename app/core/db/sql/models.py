@@ -35,6 +35,13 @@ class RolesResources(db.Model):
     role = db.relationship('Role', back_populates="resources")
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    @staticmethod
+    def delete_role_resource_by_ids(ids):
+        roles_resources = RolesResources.query.filter(RolesResources.id.in_(ids))
+        if roles_resources:
+            for role_resource in roles_resources:
+                db.session.delete(role_resource)
+            db.session.commit()
 
     def __repr__(self):
         return '<ResourcesRoles %r>' % self.__tablename__
@@ -52,6 +59,13 @@ class ResourcesRights(db.Model):
     right = db.relationship('Right', back_populates="resources")
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    @staticmethod
+    def delete_resource_right_by_ids(ids):
+        resources_rights = ResourcesRights.query.filter(ResourcesRights.id.in_(ids))
+        if resources_rights:
+            for resource_right in resources_rights:
+                db.session.delete(resource_right)
+            db.session.commit()
 
     def __repr__(self):
         return '<ResourcesRights %r>' % self.__tablename__
@@ -466,10 +480,18 @@ class User(UserMixin, db.Model):
     @staticmethod
     def delete_user_by_ids(ids):
         users = User.query.filter(User.id.in_(ids))
-        print list(users)
         if users:
             for user in users:
                 db.session.delete(user)
+            db.session.commit()
+
+    @staticmethod
+    def delete_user_role_by_ids(ids):
+        users = User.query.filter(User.id.in_(ids))
+        if users:
+            for user in users:
+                user.role_id = None
+                db.session.add(user)
             db.session.commit()
 
     def update_user(self, name, real_name, email, role_id, status, confirmed, about_me):

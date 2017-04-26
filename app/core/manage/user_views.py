@@ -13,21 +13,25 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
 
+def get_role_list():
+    role_list = Role.query.order_by(Role.id)
+    return role_list
+
 @manage.route('/user', methods=['POST','GET'])
 def user():
     if request.method == 'POST':
         print request.form
-        username = request.form.get('username')
+        name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
         repeat_password = request.form.get('repeat_password')
-        if User.query.filter_by(name=username).first():
-            flash("Error: username repeat")
+        if User.query.filter_by(name=name).first():
+            flash("Error: user name repeat")
         elif User.query.filter_by(email=email).first():
             flash("Error: email repeat")
         else:
             if password == repeat_password:
-                User.insert_users(username, email, password)
+                User.insert_users(name, email, password)
             else:
                 flash("Error: differt password")
     page = int(request.args.get('page', 1))
@@ -42,9 +46,10 @@ def user():
 
     filter_result = User.query.order_by(eval("User.%s.%s()"%(order_name, order_direction)))
     page_result = filter_result.limit(page_size).offset(offset_size)
+    # page_result = filter_result.paginate(page, page_size)
     return render_template('manage/admin/user.html', users=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('manage.user'),
+                           current_url=url_for('manage.user'), role_list=get_role_list(),
                            total=User.query.count(), query_size=filter_result.count())
 
 @manage.route('/user/reset-password', methods=['POST'])
@@ -57,13 +62,13 @@ def reset_user_password():
 @manage.route('/user/edit-info', methods=['POST'])
 def edit_user_info():
     print request.form
-    flash('Edit "%s" information success'%request.form.get('username'))
+    flash('Edit "%s" information success'%request.form.get('name'))
     return redirect(url_for('manage.user'))
 
 @manage.route('/user/bind-role', methods=['POST'])
 def bind_user_role():
     print request.form
-    flash('Bind "%s" role success'%request.form.get('username'))
+    flash('Bind user "%s" role "%s" success'%(request.form.get('name')), request.form.get('role_id'))
     return redirect(url_for('manage.user'))
 
 @manage.route('/user/edit-status')
