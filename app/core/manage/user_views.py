@@ -62,19 +62,46 @@ def reset_user_password():
 @manage.route('/user/edit-info', methods=['POST'])
 def edit_user_info():
     print request.form
+    name = request.form.get('name')
+    email = request.form.get('email')
+    telephone = request.form.get('telephone')
+    if len(telephone) == 0:
+        telephone = None
+    real_name = request.form.get('real_name')
+    if len(real_name) == 0:
+        real_name = None
+    identity_card_number = request.form.get('identity_card_number')
+    if len(identity_card_number) == 0:
+        identity_card_number = None
+    User.update_user(
+        name,
+        email=email,
+        telephone=telephone,
+        real_name=real_name,
+        identity_card_number=identity_card_number
+    )
     flash('Edit "%s" information success'%request.form.get('name'))
     return redirect(url_for('manage.user'))
 
 @manage.route('/user/bind-role', methods=['POST'])
 def bind_user_role():
-    print request.form
-    flash('Bind user "%s" role "%s" success'%(request.form.get('name')), request.form.get('role_id'))
+    username = request.form.get('name')
+    role_id = request.form.get('role_id')
+    if role_id == 'None':
+        role_id = None
+    else:
+        role_id = int(role_id)
+    User.update_role(username, role_id)
+    flash('Bind user "%s" role "%s" success'%(username, role_id))
     return redirect(url_for('manage.user'))
 
 @manage.route('/user/edit-status')
 def edit_user_status():
     print request.args
-    flash('Edit "%s" status to "%s" success'%(request.args.get('user_id'), request.args.get('status')))
+    user_id = request.args.get('user_id')
+    status = request.args.get('status')
+    User.set_user_status(user_id, bool(int(status)))
+    flash('Edit "%s" status to "%s" success'%(user_id, status))
     return redirect(url_for('manage.user'))
 
 

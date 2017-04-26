@@ -106,54 +106,43 @@
                             message: 'The user name is required and cannot be empty'
                         },
                         stringLength: {
-                            min: 6,
+                            min: 3,
                             max: 30,
-                            message: 'The user name must be more than 6 and less than 30 characters long'
+                            message: 'The user name must be more than 3 and less than 30 characters long'
                         },
                         regexp: {
                             regexp: /^[a-zA-Z0-9_\.]+$/,
                             message: 'The user name can only consist of alphabetical, number, dot and underscore'
-                        },
-                        different: {
-                            field: 'password',
-                            message: 'The user name and password cannot be the same as each other'
                         }
                     }
                 },
                 email: {
                     container: 'popover',
                     validators: {
+                        notEmpty: {
+                            message: 'The email is required and cannot be empty'
+                        },
                         emailAddress: {
                             message: 'The input is not a valid email address'
-                        }
-                    }
-                },
-                password: {
-                    container: 'popover',
-                    validators: {
-                        notEmpty: {
-                            message: 'The password is required and cannot be empty'
-                        },
-                        different: {
-                            field: 'name',
-                            message: 'The password cannot be the same as user name'
                         }
                     }
                 },
                 real_name: {
                     container: 'popover',
                     validators: {
-                        notEmpty: {
-                            message: 'The password is required and cannot be empty'
+                        stringLength: {
+                            min: 2,
+                            max: 32,
+                            message: 'The real name must be 2-32 characters long'
                         }
                     }
                 },
                 telephone: {
                     container: 'popover',
                     validators: {
-                        phone: {
-                            message: 'The input is not a valid CZ phone number',
-                            country: 'CZ'
+                        regexp: {
+                            regexp: /^1[3|4|5|8][0-9]\d{8}$/,
+                            message: 'The input is not a valid telephone number'
                         }
                     }
                 },
@@ -243,41 +232,6 @@
                 }
             }
         });
-        $('#bindUserRoleForm')
-                .find('[name="role_id"]')
-                .selectpicker()
-                .change(function(e) {
-                    /* Revalidate the color when it is changed */
-                    $('#bindUserRoleForm').bootstrapValidator('revalidateField', 'role_id');
-                })
-                .end()
-                .bootstrapValidator({
-                    message: 'This value is not valid',
-                    container: 'tooltip',
-                    feedbackIcons: {
-                        valid: 'glyphicon glyphicon-ok',
-                        invalid: 'glyphicon glyphicon-remove',
-                        validating: 'glyphicon glyphicon-refresh'
-                    },
-                    fields: {
-                        role_id: {
-                            container: 'popover',
-                            validators: {
-                                notEmpty: {
-                                    message: 'The role name is required and cannot be empty'
-                                },
-                                callback: {
-                                    message: 'Please choose only 1 role name you use for binding',
-                                    callback: function(value, validator, $field) {
-                                        // Get the selected options
-                                        var options = validator.getFieldElements('role_id').val();
-                                        return (options != null && options.length == 1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
     });
     // 发送邮件对话框
     function send_email(name, email){
@@ -288,9 +242,26 @@
     function edit_user_information(name, email, real_name, telephone, identity_card_number){
         $("#inputEditUserName").val(name);
         $("#inputEditUserEmail").val(email);
-        $("#inputEditUserRealName").val(real_name);
-        $("#inputEditUserTelephone").val(telephone);
-        $("#inputEditUserIdentityCardNumber").val(identity_card_number);
+        if(real_name == 'None'){
+            $("#inputEditUserRealName").val(null);
+        }
+        else {
+            $("#inputEditUserRealName").val(real_name);
+        }
+
+        if(telephone == 'None'){
+            $("#inputEditUserTelephone").val(null);
+        }
+        else {
+            $("#inputEditUserTelephone").val(telephone);
+        }
+
+        if(identity_card_number == 'None'){
+            $("#inputEditUserIdentityCardNumber").val(null);
+        }
+        else {
+            $("#inputEditUserIdentityCardNumber").val(identity_card_number);
+        }
         $("#edit_user_information").modal('show');
     }
 
@@ -305,7 +276,7 @@
         $("#inputBindUserRoleUsername").val(name);
         $("#inputBindUserRoleName option").each(function(){
             if(this.value == role_id){
-                this.selected = true;
+                $('.selectpicker').selectpicker('val', role_id);
             }
         });
         $("#bind_user_role").modal('show');
@@ -359,13 +330,14 @@
                         <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu" name="order-table">
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc">ID</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=name&order_direction=asc">Username</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=email&order_direction=asc">Email</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=telephone&order_direction=asc">Telephone</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=status&order_direction=asc">Status</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=role_id&order_direction=asc">Role</a></li>
-                        <li><a href="{{ url_for('manage.user') }}?page={{page}}&page_size={{page_size}}&order_name=create_at&order_direction=asc">Register Time</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='name', order_direction='asc') }}">Username</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='email', order_direction='asc') }}">Email</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='telephone', order_direction='asc') }}">Telephone</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='status', order_direction='asc') }}">Status</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='role_id', order_direction='asc') }}">Role</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='confirmed', order_direction='asc') }}">Confirmed</a></li>
+                        <li><a href="{{ url_for('manage.user', page=page, page_size=page_size, order_name='create_at', order_direction='asc') }}">Register Time</a></li>
                     </ul>
                 </div>
                 <div class="export btn-group">
@@ -405,6 +377,7 @@
                 <th>Telephone</th>
                 <th>Status</th>
                 <th>Role</th>
+                <th>Confirmed</th>
                 <th>Register Time</th>
                 <th>Details</th>
                 <th>Action</th>
@@ -429,6 +402,12 @@
                 </td>
 
                 <td>{{ user.role_id }}</td>
+                <td>{% if user.confirmed %}
+                    <span class="glyphicon glyphicon-ok"></span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-remove"></span>
+                    {% endif %}
+                </td>
                 <td>{{ user.create_at|string|truncate(19, True, end='') }}</td>
                 <td><a href="{{ url_for('manage.user_profile')}}" title="Show User's Profile" target="_blank"><span class="fa fa-user-md"></span></a> </td>
                 <td>
@@ -438,9 +417,9 @@
                         <a href="javascript:;" onclick="reset_user_password('{{user.name}}','{{user.email}}')" title="Reset User's Password"><span class="fa fa-key"></span></a>
                         <a href="javascript:;" onclick="bind_user_role('{{user.name}}','{{user.role_id}}')" title="Bind user's role"><span class="fa fa-adjust"></span></a>
                         {% if user.status %}
-                        <a href="{{ url_for('manage.edit_user_status')}}?user_id={{user.id}}&status=0" title="Disable User"><span class="fa fa-lock"></span></a>
+                        <a href="{{ url_for('manage.edit_user_status', user_id=user.id, status=0)}}" title="Disable User"><span class="fa fa-lock"></span></a>
                         {% else %}
-                        <a href="{{ url_for('manage.edit_user_status')}}?user_id={{user.id}}&status=1" title="Enable User"><span class="fa fa-unlock"></span></a>
+                        <a href="{{ url_for('manage.edit_user_status', user_id=user.id, status=1)}}" title="Enable User"><span class="fa fa-unlock"></span></a>
                         {% endif %}
 
                     </div>
@@ -466,7 +445,7 @@
 
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Username">
                                 <span class="input-group-addon"><span class="fa fa-user">&nbsp;Name</span></span>
                                 <input type="text" class="form-control" placeholder="Username" name="name">
                             </div>
@@ -475,7 +454,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Email">
                                 <span class="input-group-addon"><span class="fa fa-envelope-o">&nbsp;Email</span></span>
                                 <input type="email" class="form-control" name="email" placeholder="Email">
                             </div><!-- /input-group -->
@@ -484,7 +463,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Password">
                                 <span class="input-group-addon"><span class="fa fa-key"></span>&nbsp;Password</span>
                                 <input class="form-control" placeholder="******" name="password" type="password">
                             </div>
@@ -493,7 +472,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Repeat-Password">
                                 <span class="input-group-addon"><span class="fa fa-key">&nbsp;Repeat-Password</span></span>
                                 <input class="form-control" placeholder="******" name="repeat_password" type="password">
                             </div>
@@ -519,17 +498,17 @@
                 </div>
                 <div class="modal-body">
 
-                    <div class="form-group">
+                    <div class="form-group" data-toggle="tooltip" title="Username">
                         <label for="inputBindUserRoleUsername" class="col-sm-3 control-label">User Name</label>
                         <div class="col-sm-8">
-                            <input type="text" disabled class="form-control" id="inputBindUserRoleUsername" name="name" placeholder="Username">
+                            <input type="text" readonly class="form-control" id="inputBindUserRoleUsername" name="name" placeholder="Username">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-toggle="tooltip" title="Role Name">
                         <label for="inputBindUserRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" data-live-search="true" id="inputBindUserRoleName" name="role_id">
-                                <option></option>
+                            <select class="selectpicker" data-live-search="true" data-header="Select a role" id="inputBindUserRoleName" name="role_id">
+                                <option>None</option>
                                 {% for role in role_list %}
                                 <option value="{{role.id}}">{{role.name}}</option>
                                 {% endfor %}
@@ -558,7 +537,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="User's Name">
                                 <span class="input-group-addon"><span class="fa fa-user"></span></span>
                                 <input type="text" class="form-control" placeholder="Username" id="inputEditUserName" name="name">
                             </div>
@@ -567,7 +546,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Input User's Email">
                                 <span class="input-group-addon"><span class="fa fa-envelope-o"></span></span>
                                 <input type="email" class="form-control" placeholder="Email" id="inputEditUserEmail" name="email">
                             </div><!-- /input-group -->
@@ -576,7 +555,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Input User's Real Name">
                                 <span class="input-group-addon"><span class="fa fa-user-md"></span></span>
                                 <input type="text" class="form-control" id="inputEditUserRealName" placeholder="RealName" name="real_name">
                             </div><!-- /input-group -->
@@ -585,7 +564,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Input User's Telephone">
                                 <span class="input-group-addon"><span class="fa fa-phone"></span></span>
                                 <input type="text" class="form-control" id="inputEditUserTelephone" placeholder="Telephone" name="telephone">
                             </div><!-- /input-group -->
@@ -594,7 +573,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Input User's Identity Card Number">
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span></span>
                                 <input type="text" class="form-control" id="inputEditUserIdentityCardNumber" name="identity_card_number" placeholder="Identity Card Number">
                             </div><!-- /input-group -->
@@ -620,19 +599,19 @@
                     <h4 class="modal-title">Send Email</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" data-toggle="tooltip" title="Email To">
                         <label for="inputEmailTo" class="col-sm-2 control-label">Email To</label>
                         <div class="col-sm-10">
                             <input type="email" class="form-control" readonly id="inputEmailTo" name="email_to" placeholder="email_to_address@test.com">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-toggle="tooltip" title="Email Subject">
                         <label for="inputEmailSubject" class="col-sm-2 control-label">Subject</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="inputEmailSubject" name="email_subject" placeholder="Subject">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" data-toggle="tooltip" title="Email Content">
                         <label for="inputContent" class="col-sm-2 control-label">Content</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" id="inputContent" name="email_content" rows="3"></textarea>
@@ -659,7 +638,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Confirmed Username">
                                 <span class="input-group-addon"><span class="fa fa-user"></span></span>
                                 <input type="text" class="form-control" placeholder="Username" id="inputResetPasswordUsername" name="name">
                             </div>
@@ -668,7 +647,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="input-group">
+                            <div class="input-group" data-toggle="tooltip" title="Confirmed Email">
                                 <span class="input-group-addon"><span class="fa fa-envelope-o"></span></span>
                                 <input type="text" class="form-control" placeholder="Email" id="inputResetPasswordEmail" name="email">
                             </div><!-- /input-group -->

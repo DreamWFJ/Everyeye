@@ -472,6 +472,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def delete_user(name):
+        # 删除用户通过名称
         user = User.query.filter_by(name = name).first()
         if user:
             db.session.delete(user)
@@ -479,6 +480,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def delete_user_by_ids(ids):
+        # 删除用户通过ID
         users = User.query.filter(User.id.in_(ids))
         if users:
             for user in users:
@@ -487,6 +489,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def delete_user_role_by_ids(ids):
+        # 删除用户角色关系通过ID
         users = User.query.filter(User.id.in_(ids))
         if users:
             for user in users:
@@ -494,16 +497,49 @@ class User(UserMixin, db.Model):
                 db.session.add(user)
             db.session.commit()
 
-    def update_user(self, name, real_name, email, role_id, status, confirmed, about_me):
-        self.name = name
-        self.real_name = real_name
-        self.email = email
-        self.status = status
-        self.role_id = role_id
-        self.confirmed = confirmed
-        self.about_me = about_me
-        db.session.add(self)
-        db.session.commit()
+    @staticmethod
+    def set_user_status(user_id, status):
+        # 设置用户是否被锁定
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            user.status = status
+            db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def update_role(username, role_id):
+        # 改变用户角色
+        user = User.query.filter_by(name=username).first()
+        print user
+        print role_id, type(role_id)
+        if user:
+            user.role_id = role_id
+            db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def update_user(name, real_name=None, email=None, role_id=None, status=None, confirmed=None, about_me=None, identity_card_number=None, telephone=None):
+        user = User.query.filter_by(name=name).first()
+        if user:
+            user.name = name
+            if real_name:
+                user.real_name = real_name
+            if email:
+                user.email = email
+            if status:
+                user.status = status
+            if role_id:
+                user.role_id = role_id
+            if confirmed:
+                user.confirmed = confirmed
+            if about_me:
+                user.about_me = about_me
+            if identity_card_number:
+                user.identity_card_number = identity_card_number
+            if telephone:
+                user.telephone = telephone
+            db.session.add(user)
+            db.session.commit()
 
     def generate_reset_password_token(self, expiration = 3600):
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
