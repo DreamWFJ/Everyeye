@@ -14,3 +14,6 @@ flask-testing>=0.6.2
 flask-pagedown>=0.2.2
 flask-bootstrap>=3.3.7
 flask-moment>=0.5.1
+flask-mail>=0.9.1
+flask-login>=0.4.0
+flask-wtf>=0.14.2
