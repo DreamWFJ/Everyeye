@@ -19,3 +19,11 @@ def index():
 def search():
     print request.form
     return render_template('search.html')
+
+@main.route('/<string:username>/setting/')
+def setting(username):
+    return render_template('resources/setting.html')
+
+@main.route('/<string:username>/profile')
+def profile(username):
+    return render_template('resources/profile.html')

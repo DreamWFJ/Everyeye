@@ -35,11 +35,40 @@ class RolesResources(db.Model):
     role = db.relationship('Role', back_populates="resources")
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    @staticmethod
+    def delete_role_resource_by_ids(ids):
+        roles_resources = RolesResources.query.filter(RolesResources.id.in_(ids))
+        if roles_resources:
+            for role_resource in roles_resources:
+                db.session.delete(role_resource)
+            db.session.commit()
 
     def __repr__(self):
-        return '<ResourcesRoles %r>' % self.name
+        return '<ResourcesRoles %r>' % self.__tablename__
 
+# 建立资源与权限的多对多关系
+# resources_rights = db.Table('resources_rights',
+#                   db.Column('resource_id', db.String(36), db.ForeignKey('resources.id')),
+#                   db.Column('right_id', db.String(36), db.ForeignKey('rights.id')))
+class ResourcesRights(db.Model):
+    __tablename__ = 'resources_rights'
+    id = db.Column(db.Integer, primary_key = True)
+    resource_id = db.Column(db.Integer, db.ForeignKey('resources.id'))
+    right_id = db.Column(db.Integer, db.ForeignKey('rights.id'))
+    resource = db.relationship('Resource', back_populates="rights")
+    right = db.relationship('Right', back_populates="resources")
+    create_at = db.Column(db.DateTime, default = datetime.now)
 
+    @staticmethod
+    def delete_resource_right_by_ids(ids):
+        resources_rights = ResourcesRights.query.filter(ResourcesRights.id.in_(ids))
+        if resources_rights:
+            for resource_right in resources_rights:
+                db.session.delete(resource_right)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<ResourcesRights %r>' % self.__tablename__
 
 # 角色表
 class Role(db.Model):
@@ -47,8 +76,8 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     # 角色名称
     name = db.Column(db.String(64), unique = True)
-    # 是否开启
-    enabled = db.Column(db.Boolean, default = True, index = True)
+    # 角色状态，表示是锁定
+    status = db.Column(db.Boolean, default = False, index = True)
     # 默认角色选项
     default = db.Column(db.Boolean, default=False, index=True)
 
@@ -60,7 +89,7 @@ class Role(db.Model):
     resources = db.relationship("RolesResources", back_populates="role",
                                 primaryjoin="RolesResources.role_id==Role.id")
     # 与用户的一对多关系
-    # users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
+    users = db.relationship('User', backref = 'roles', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.now)
 
     def __repr__(self):
@@ -68,7 +97,7 @@ class Role(db.Model):
 
 
     @staticmethod
-    def insert_roles(rolename, role_resource=None, default=None):
+    def insert_roles(rolename, status=False, role_resource=None, default=None):
         role = Role(name = rolename)
         if role_resource:
             role.resources.append(role_resource)
@@ -78,6 +107,31 @@ class Role(db.Model):
         db.session.commit()
 
         return role
+
+    @staticmethod
+    def set_status(role_id, status):
+        # 设置角色是否被锁定
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            role.status = status
+            db.session.add(role)
+            db.session.commit()
+
+    @staticmethod
+    def set_default(role_id, status):
+        # 设置默认角色
+        roles = Role.query.filter_by(default = status).all()
+        print list(roles)
+        if roles:
+            for role in roles:
+                role.default = not status
+                db.session.add(role)
+            db.session.commit()
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            role.default = status
+            db.session.add(role)
+            db.session.commit()
 
     @staticmethod
     def add_resource(rolename, resourcename, weight):
@@ -97,86 +151,226 @@ class Role(db.Model):
 
         return role
 
+    @staticmethod
+    def add_role_user_by_ids(name, user_ids):
+        # 删除用户角色关系通过ID
+        role = Role.query.filter_by(name = name).first()
+        users = User.query.filter(User.id.in_(user_ids)).all()
+        if users and role:
+            for user in users:
+                user.role_id = role.id
+                db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def add_role_resource_by_id(name, resource_id, weight):
+        role = Role.query.filter_by(name = name).first()
+        resource = Resource.query.filter_by(id=resource_id).first()
+        if role and resource:
+            # 这里需要判断资源的权重是否大于等于关联关系中添加的权重
+            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight,
+                                                             RolesResources.resource_id==resource_id,
+                                                             RolesResources.role_id==role.id)).first()
+            if not role_resource:
+                role_resource = RolesResources(right_weight=weight)
+                role_resource.resource = resource
+                role.resources.append(role_resource)
+                db.session.add_all([role_resource, role])
+                db.session.commit()
+
+    @staticmethod
+    def delete_role(name):
+        role = Role.query.filter_by(name = name).first()
+        if role:
+            db.session.delete(role)
+            db.session.commit()
+
+    @staticmethod
+    def delete_role_by_ids(ids):
+        roles = Role.query.filter(Role.id.in_(ids))
+        if roles:
+            for role in roles:
+                db.session.delete(role)
+            db.session.commit()
 
 # 资源表
 class Resource(db.Model):
     __tablename__ = 'resources'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique = True)
-    right_weight = db.Column(db.Integer)
-    enabled = db.Column(db.Boolean, default=True, index=True)
+    weight = db.Column(db.Integer)
+    # 资源是否启用的状态，默认为启用True
+    status = db.Column(db.Boolean, default=True, index=True)
     extra = db.Column(db.PickleType)
     description = db.Column(db.Text())
     create_at = db.Column(db.DateTime, default = datetime.now)
-    # resources_roles = db.relationship('ResourcesRoles', backref = 'resources', lazy='dynamic')
+    # rights = db.relationship('Right',
+    #                            secondary=resources_rights,
+    #                            backref = db.backref('resources', lazy='dynamic'))
     roles = db.relationship('RolesResources', back_populates = 'resource',
                             primaryjoin="RolesResources.resource_id==Resource.id")
 
+    rights = db.relationship("ResourcesRights", back_populates="resource",
+                                primaryjoin="ResourcesRights.resource_id==Resource.id")
+
     @staticmethod
-    def insert_resources(name, right_weight, enabled=True):
+    def insert_resources(name, weight, status=True):
         resource = Resource(name=name)
-        resource.right_weight = right_weight
-        resource.enabled = enabled
+        resource.weight = weight
+        resource.status = status
         db.session.add(resource)
         db.session.commit()
         return resource
 
+    @staticmethod
+    def set_status(resource_id, status):
+        # 设置资源是否被锁定
+        resource = Resource.query.filter_by(id=resource_id).first()
+        if resource:
+            resource.status = status
+            db.session.add(resource)
+            db.session.commit()
+
+    @staticmethod
+    def delete_resources(name):
+        """
+        注意：这里需要关注资源绑定的权限，角色关系
+        """
+        resource = Resource.query.filter_by(name = name).first()
+        if resource:
+            db.session.delete(resource)
+            db.session.commit()
+
+    @staticmethod
+    def delete_resource_by_ids(ids):
+        resources = Resource.query.filter(Resource.id.in_(ids))
+        if resources:
+            for resource in resources:
+                db.session.delete(resource)
+            db.session.commit()
+
+    @staticmethod
+    def add_resource_right_by_ids(name, right_ids):
+        # 添加权限资源通过ID
+        resource = Resource.query.filter_by(name = name).first()
+        rights = Right.query.filter(Right.id.in_(right_ids)).all()
+        if resource and rights:
+            for right in rights:
+                resource_right = ResourcesRights.query.filter(and_(
+                    ResourcesRights.right_id == right.id,
+                    ResourcesRights.resource_id == resource.id
+                )).first()
+                if not resource_right:
+                    resource_right = ResourcesRights()
+                    resource_right.right = right
+                    resource.rights.append(resource_right)
+                    db.session.add_all([resource_right, right])
+            db.session.commit()
+
+    @staticmethod
+    def add_resource_role_by_ids(name, role_ids, weight):
+        # 添加权限资源通过ID
+        resource = Resource.query.filter_by(name = name).first()
+        roles = Role.query.filter(Role.id.in_(role_ids)).all()
+        if resource and roles:
+            for role in roles:
+                role_resource = RolesResources.query.filter(and_(
+                    RolesResources.role_id == role.id,
+                    RolesResources.resource_id == resource.id
+                )).first()
+                if not role_resource:
+                    role_resource = RolesResources(resource=resource, right_weight=weight)
+                    role_resource.role = role
+                    db.session.add(role_resource)
+            db.session.commit()
+
+
     def __repr__(self):
         return '<Resource %r>' % self.name
-
-
-
-
-
-# resources_roles = db.Table('resources_roles',
-#                      db.Column('resource_id', db.Integer, db.ForeignKey('resources.id')),
-#                      # 权重，单独为某个角色附加资源时，对资源的操作权限
-#                      db.Column('right_weight', db.Integer),
-#                      db.Column('role_id', db.Integer, db.ForeignKey('roles.id')))
-
-
-# 建立资源与权限的多对多关系
-# class ResourcesRights(db.Model):
-#     __tablename__ = 'resources_rights'
-#     id = db.Column(db.Integer, primary_key = True)
-#     resource_id = db.Column(db.Integer, db.ForeignKey('resources.id')),
-#     right_id = db.Column(db.Integer, db.ForeignKey('rights.id')),
-#     create_at = db.Column(db.DateTime, default = datetime.now)
-#
-#     def __repr__(self):
-#         return '<ResourcesRights %r>' % self.name
-
-resources_rights = db.Table('resources_rights',
-                  db.Column('resource_id', db.String(36), db.ForeignKey('resources.id')),
-                  db.Column('right_id', db.String(36), db.ForeignKey('rights.id')))
-
-
-
-
-
 
 class Right(db.Model):
     __tablename__ = 'rights'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique = True)
+    status = db.Column(db.Boolean, default=True, index=True)
     weight = db.Column(db.Integer, unique = True)
     create_at = db.Column(db.DateTime(), default = datetime.now)
     # 与资源的多对多关系
-    resources = db.relationship('Resource',
-                               secondary=resources_rights,
-                               backref = db.backref('rights', lazy='dynamic'))
+    resources = db.relationship("ResourcesRights", back_populates="right",
+                                primaryjoin="ResourcesRights.right_id==Right.id")
+    # resources = db.relationship('Resource',
+    #                            secondary=resources_rights,
+    #                            backref = db.backref('rights', lazy='dynamic'))
 
     @staticmethod
-    def insert_rights(name, weight, resources):
-        print resources
+    def insert_rights(name, weight, status=True):
         right = Right.query.filter_by(name = name).first()
         if right is None:
             right = Right(name = name)
         right.weight = weight
-        if resources:
-            right.resources = resources
+        right.status = status
         db.session.add(right)
         db.session.commit()
+
+    @staticmethod
+    def set_status(right_id, status):
+        # 设置权限是否被锁定
+        right = Right.query.filter_by(id=right_id).first()
+        if right:
+            right.status = status
+            db.session.add(right)
+            db.session.commit()
+
+    @staticmethod
+    def add_resource(rightname, resourcename):
+        right = Right.query.filter_by(name = rightname).first()
+        if right is None:
+            raise NotFoundData('right name <%s> not existed.'%rightname)
+        resource = Resource.query.filter_by(name=resourcename).first()
+        if resource is None:
+            raise NotFoundData('resource name <%s> not existed.'%resourcename)
+        resource_right = ResourcesRights()
+        resource_right.resource = resource
+        right.resources.append(resource_right)
+        db.session.add(resource)
+        db.session.add(resource_right)
+        db.session.add(right)
+        db.session.commit()
+
+        return right
+
+    @staticmethod
+    def delete_right(name):
+        right = Right.query.filter_by(name = name).first()
+        if right:
+            db.session.delete(right)
+            db.session.commit()
+
+    @staticmethod
+    def delete_right_by_ids(ids):
+        rights = Right.query.filter(Right.id.in_(ids))
+        if rights:
+            for right in rights:
+                db.session.delete(right)
+            db.session.commit()
+
+    @staticmethod
+    def add_right_resource_by_ids(name, resource_ids):
+        # 添加权限资源通过ID
+        right = Right.query.filter_by(name = name).first()
+        resources = Resource.query.filter(Resource.id.in_(resource_ids)).all()
+        if right and resources:
+            for resource in resources:
+                resource_right = ResourcesRights.query.filter(and_(
+                    ResourcesRights.right_id == right.id,
+                    ResourcesRights.resource_id == resource.id
+                )).first()
+                if not resource_right:
+                    resource_right = ResourcesRights()
+                    resource_right.resource = resource
+                    right.resources.append(resource_right)
+                    db.session.add_all([resource_right, right])
+            db.session.commit()
 
     def __repr__(self):
         return '<Right %r>' % self.name
@@ -315,15 +509,18 @@ class User(UserMixin, db.Model):
     real_name = db.Column(db.String(64))
     # 邮件地址
     email = db.Column(db.String(64), unique = True, index = True, nullable=True)
+    # 手机号码
+    telephone = db.Column(db.String(16), unique = True, index = True)
     password_hash = db.Column(db.String(128), nullable=True)
     # 是否激活用户，默认激活，管理员可以禁止该用户登录，通过设置该选项 --------------- 注意---------------
-    enabled = db.Column(db.Boolean, default = True)
+    status = db.Column(db.Boolean, default = True)
     # 邮件是否确认
     confirmed = db.Column(db.Boolean, default=False)
     # 角色ID
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     # 个人标识符哈希值
     avatar_hash = db.Column(db.String(32))
+    identity_card_number = db.Column(db.String(32))
     # 其他信息
     extra = db.Column(db.PickleType())
     # 用户创建时间
@@ -368,12 +565,15 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, addresses=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
+    def insert_users(username, email, password, status=True, telephone=None, addresses=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
         user = User()
         user.name = username
         user.email = email
+        if telephone:
+            user.telephone = telephone
+        user.status = status
         if addresses:
             user.addresses = addresses
         if logs:
@@ -394,16 +594,75 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return user
 
-    def update_user(self, name, real_name, email, role_id, enabled, confirmed, about_me):
-        self.name = name
-        self.real_name = real_name
-        self.email = email
-        self.enabled = enabled
-        self.role_id = role_id
-        self.confirmed = confirmed
-        self.about_me = about_me
-        db.session.add(self)
-        db.session.commit()
+    @staticmethod
+    def delete_user(name):
+        # 删除用户通过名称
+        user = User.query.filter_by(name = name).first()
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+
+    @staticmethod
+    def delete_user_by_ids(ids):
+        # 删除用户通过ID
+        users = User.query.filter(User.id.in_(ids))
+        if users:
+            for user in users:
+                db.session.delete(user)
+            db.session.commit()
+
+    @staticmethod
+    def delete_user_role_by_ids(ids):
+        # 删除用户角色关系通过ID
+        users = User.query.filter(User.id.in_(ids))
+        if users:
+            for user in users:
+                user.role_id = None
+                db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def set_status(user_id, status):
+        # 设置用户是否被锁定
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            user.status = status
+            db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def update_role(username, role_id):
+        # 改变用户角色
+        user = User.query.filter_by(name=username).first()
+        if user:
+            user.role_id = role_id
+            db.session.add(user)
+            db.session.commit()
+
+
+    @staticmethod
+    def update_user(name, real_name=None, email=None, role_id=None, status=None, confirmed=None, about_me=None, identity_card_number=None, telephone=None):
+        user = User.query.filter_by(name=name).first()
+        if user:
+            user.name = name
+            if real_name:
+                user.real_name = real_name
+            if email:
+                user.email = email
+            if status:
+                user.status = status
+            if role_id:
+                user.role_id = role_id
+            if confirmed:
+                user.confirmed = confirmed
+            if about_me:
+                user.about_me = about_me
+            if identity_card_number:
+                user.identity_card_number = identity_card_number
+            if telephone:
+                user.telephone = telephone
+            db.session.add(user)
+            db.session.commit()
 
     def generate_reset_password_token(self, expiration = 3600):
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expiration)
@@ -599,15 +858,25 @@ class InitData(object):
         username = 'Administrator'
         email = 'admin@163.com'
         password = 'this_is_a_test_account'
+        telephone = '13641361488'
         address = self.create_address()
         log = self.create_log()
         log1 = self.create_log()
         message = self.create_message()
         audit_log = self.create_audit_log()
-        return User.insert_users(username, email, password,
+        return User.insert_users(username, email, password, telephone=telephone,
                                  addresses=[address], logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
-        User.insert_users('wfj', 'wfj@163.com', 'test', confirmed=True)
+        User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
+        User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)
+        User.insert_users('jj', 'jj@163.com', 'test', status=True, confirmed=True)
+        User.insert_users('da', 'da@163.com', 'test', status=False, confirmed=True)
+        User.insert_users('fafa', 'fafa@163.com', 'test', status=True, confirmed=True)
+        User.insert_users('ww', 'ww@163.com', 'test', status=False, confirmed=True)
+        User.insert_users('efa', 'efa@163.com', 'test', status=True, confirmed=True)
+        User.insert_users('aaa', 'aaa@163.com', 'test', status=False, confirmed=True)
+        User.insert_users('ccc', 'ccc@163.com', 'test', status=False, confirmed=True)
+        User.insert_users('bbb', 'bbb@163.com', 'test', status=True, confirmed=True)
         return User.insert_users('test', 'test@163.com', 'test')
 
     def create_rights(self):
@@ -618,10 +887,27 @@ class InitData(object):
             'Update': 0x04,
             'Delete': 0x08
         }
-        res = list()
-        for _k, _v in rights.iteritems():
-            res.append(Right.insert_rights(_k, _v, list(self.resources.itervalues())))
-        return res
+        none = Right.insert_rights('None', 0x00)
+        show = Right.insert_rights('Show', 0x01)
+        create = Right.insert_rights('Create', 0x02)
+        update = Right.insert_rights('Update', 0x04)
+        delete = Right.insert_rights('Delete', 0x08)
+        Right.add_resource('Show', 'user')
+        Right.add_resource('Show', 'role')
+        Right.add_resource('Show', 'right')
+        Right.add_resource('Show', 'resource')
+        Right.add_resource('Create', 'user')
+        Right.add_resource('Create', 'role')
+        Right.add_resource('Create', 'right')
+        Right.add_resource('Create', 'resource')
+        Right.add_resource('Update', 'user')
+        Right.add_resource('Update', 'role')
+        Right.add_resource('Update', 'right')
+        Right.add_resource('Update', 'resource')
+        Right.add_resource('Delete', 'user')
+        Right.add_resource('Delete', 'role')
+        Right.add_resource('Delete', 'right')
+        Right.add_resource('Delete', 'resource')
 
 
     def create_resources(self):

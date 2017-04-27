@@ -1,0 +1,145 @@
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% from 'macro/__admin__.html' import admin_log_menu_navigation %}
+{% import 'manage/frame/__macro__.html' as tools %}
+{% extends "framework.html" %}
+{% block script %}
+<script type="text/javascript">
+    $(document).ready(function() {});
+</script>
+{% endblock script %}
+{% block title %}Audit Log{% endblock title %}
+{% block search %}
+    {{frame_search('audit_log')}}
+{% endblock search %}
+
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <div class="panel-body">
+            <form class="form">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-id-card"></span></span>
+                            <input type="text" class="form-control" placeholder="Role Name" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                Order
+                            </span>
+                            <select class="form-control">
+                                <option>ID</option>
+                                <option>Action</option>
+                                <option>Enabled</option>
+                                <option>Time</option>
+                            </select>
+                        </div><!-- /input-group -->
+                    </div><!-- /.col-lg-6 -->
+                </div>
+                <br>
+
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <div class="form-control">
+                                <label class="radio-inline">
+                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
+                                </label>
+                            </div>
+                        </div><!-- /input-group -->
+                    </div><!-- /.col-lg-6 -->
+                    <div class="col-lg-6">
+                        <div class="pull-right">
+                            <button type="submit" class="btn btn-default">Search</button>
+                        </div>
+                    </div><!-- /.col-lg-6 -->
+                </div><!-- /.row -->
+                <br>
+
+            </form>
+        </div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" value="option1" >
+                    </th>
+                    <th>ID</th>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>IP</th>
+                    <th>Address</th>
+                    <th>Login Time</th>
+                    <th>Logout Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
+                    </td>
+                    <td scope="row">1</td>
+                    <td>test</td>
+                    <td>test@163.com</td>
+                    <td>15.123.22.56</td>
+                    <td>Address 16 number, Beijin </td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td>2014-11-24 13:16:44</td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="blankCheckbox_2" value="option1" aria-label="...">
+                    </td>
+                    <td scope="row">2</td>
+                    <td>test</td>
+                    <td>test@163.com</td>
+                    <td>15.123.22.56</td>
+                    <td>Address 16 number, Beijin </td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td>2014-11-24 13:16:44</td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="blankCheckbox_3" value="option1" aria-label="...">
+                    </td>
+                    <td scope="row">3</td>
+                    <td>test</td>
+                    <td>test@163.com</td>
+                    <td>15.123.22.56</td>
+                    <td>Address 16 number, Beijin </td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td>2014-11-24 13:16:44</td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="blankCheckbox_4" value="option1" aria-label="...">
+                    </td>
+                    <td scope="row">4</td>
+                    <td>test</td>
+                    <td>test@163.com</td>
+                    <td>15.123.22.56</td>
+                    <td>Address 16 number, Beijin </td>
+                    <td>2014-11-24 13:16:44</td>
+                    <td>2014-11-24 13:16:44</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{ tools.page_navigation(10, 1, 'http://test.com/page') }}
+{% endblock content %}
+
+{% block sidebar %}
+    {{ admin_log_menu_navigation('Audit Log') }}
+{% endblock sidebar %}
+

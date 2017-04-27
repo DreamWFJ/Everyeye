@@ -1,0 +1,38 @@
+{% from 'macro/__frame__.html' import base_menu_navigation %}
+
+{% set admin_navigation = [{'href':'/manage/user', 'caption':'User'},
+{'href':'/manage/role', 'caption':'Role'},
+{'href':'/manage/right', 'caption':'Right'},
+{'href':'/manage/resource', 'caption':'Resource'},
+{'href':'/manage/user-role', 'caption':'User Role'},
+{'href':'/manage/role-resource', 'caption':'Role Resource'},
+{'href':'/manage/resource-right', 'caption':'Resource Right'}] %}
+
+{% macro admin_menu_navigation(current_active_item) %}
+{{base_menu_navigation('Admin', admin_navigation, current_active_item)}}
+{% endmacro %}
+
+{% set admin_article_navigation = [{'href':'article', 'caption':'Article'},
+{'href':'category', 'caption':'Category'},
+{'href':'comment', 'caption':'Comment'},
+{'href':'keyword', 'caption':'Keyword'},
+{'href':'sensitive-word', 'caption':'Sensitive Word'}] %}
+
+{% macro admin_article_menu_navigation(current_active_item) %}
+{{base_menu_navigation('Admin Article Manage', admin_article_navigation, current_active_item)}}
+{% endmacro %}
+
+
+{% set admin_log_navigation = [{'href':'action-log', 'caption':'Action Log'},
+{'href':'audit-log', 'caption':'Audit Log'}] %}
+
+{% macro admin_log_menu_navigation(current_active_item) %}
+{{base_menu_navigation('Admin Log Manage', admin_log_navigation, current_active_item)}}
+{% endmacro %}
+
+{% set admin_message_navigation = [{'href':'messaging', 'caption':'Messaging'},
+{'href':'send-message', 'caption':'Send Message'}] %}
+
+{% macro admin_message_menu_navigation(current_active_item) %}
+{{base_menu_navigation('Admin Article Manage', admin_message_navigation, current_active_item)}}
+{% endmacro %}

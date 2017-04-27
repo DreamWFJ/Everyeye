@@ -15,11 +15,11 @@ from app.core.db.sql.models import Message
 from app.utils.decorators import permission_required
 from flask_login import login_required, current_user
 
-@message.route('/<string:username>/message/')
+@message.route('/<string:username>/messaging/')
 @login_required
-def user_message(username):
+def messaging(username):
     messages = Message.query.all()
     if messages is None:
         messages = []
-    return render_template('resources/message/message.html', messages=messages)
+    return render_template('resources/message/messaging.html', messages=messages)
     

@@ -1,0 +1,393 @@
+{% from 'macro/__frame__.html' import frame_search, menu_paging %}
+{% from 'macro/__admin__.html' import admin_menu_navigation %}
+{% extends "framework.html" %}
+{% block script %}
+<!-- bootstrap validator css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap validator js -->
+<script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+<!-- bootstrap-switch css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap-switch js -->
+<script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        // checkbox全选和取消
+        $("#check_all_box").on('ifChanged',
+                function(event){
+                    var checkbox = $("input[name='check_box[]']");
+                    if(this.checked){
+                        checkbox.iCheck('check');
+                        $("button#remove").attr('disabled', false);
+                    }else{
+                        checkbox.iCheck('uncheck');
+                        $("button#remove").attr('disabled', true);
+                    }
+                }
+        );
+        // 单选和取消 checkbox时，对相关按钮的禁用和启用
+        $("input[name='check_box[]']").on('ifChanged', function(e, d){
+            var checkbox = $(this);
+            if(this.checked){
+                checkbox.parents('tr').addClass('info');
+                $("button#remove").attr('disabled', false);
+            }else{
+                checkbox.parents('tr').removeClass('info');
+                $("button#remove").attr('disabled', true);
+            }
+        });
+        // 设置checkbox的初始化选项
+        $("input:checkbox").iCheck({
+            checkboxClass: 'icheckbox_minimal',
+            radioClass: 'iradio_minimal',
+            increaseArea: '20%', // optional
+            handle: 'checkbox'
+        });
+
+
+
+        $("[name='order-table']").children('li').click(function(){
+            $(this).addClass('active');
+            console.log(this);
+        });
+
+        // 初始化添加角色中设置默认角色的switch
+        $("[name='default_role']").bootstrapSwitch({
+            onText: 'Yes',
+            offText: 'No'
+        });
+        $("[name='role_status']").bootstrapSwitch({
+            onText: 'Lock',
+            offText: 'Unlock'
+        });
+        // 表格校验
+        $('#addRoleForm').bootstrapValidator({
+            message: 'This value is not valid',
+            container: 'tooltip',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                role_name: {
+                    message: 'The role name is not valid',
+                    validators: {
+                        notEmpty: {
+                            message: 'The role name is required and cannot be empty'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: 'The role name must be more than 6 and less than 30 characters long'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9_\.]+$/,
+                            message: 'The role name can only consist of alphabetical, number, dot and underscore'
+                        }
+                    }
+                }
+            }
+        });
+        $('#bindRoleResourceForm').bootstrapValidator({
+            message: 'This value is not valid',
+            container: 'tooltip',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                right_weight: {
+                    message: 'The role name is not valid',
+                    validators: {
+                        regexp: {
+                            regexp: /^0x[0-9]+$/,
+                            message: 'The right weight can only start with 0x and end with number, such as 0x02'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    // 绑定角色用户对话框
+    function bind_role_user(name, id){
+        $("#inputBindRoleName").val(name);
+        $("#bind_role_user").modal('show');
+    }
+
+    // 绑定角色资源对话框
+    function bind_role_resource(name, right_weight){
+        $("#inputBindRoleResourceRoleName").val(name);
+        $("#bind_role_resource").modal('show');
+    }
+
+
+</script>
+{% endblock script %}
+{% block title %}Role{% endblock title %}
+{% block search %}
+{{frame_search('role')}}
+{% endblock search %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Panel heading</div>
+    <div class="panel-body">
+        <!-- 将所有按钮放在一行 -->
+        <div class="input-group-btn">
+            <div class="bs-bars pull-left">
+                <div id="toolbar">
+                    <button id="remove" data-ajax-url="{{url_for('manage.delete_role')}}" class="btn btn-danger" disabled="">
+                        <i class="glyphicon glyphicon-remove"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div class="columns columns-right btn-group pull-right">
+                <!-- 添加目录的对话框 -->
+                <button type="button" class="btn btn-default" data-toggle="modal" aria-label="Add" title="Add" data-target="#add_role">
+                    <i class="glyphicon glyphicon-plus"></i>
+                </button>
+
+
+                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                </button>
+                <button class="btn btn-default" type="button" name="toggle" aria-label="toggle" title="Toggle">
+                    <i class="glyphicon glyphicon-list-alt icon-list-alt"></i>
+                </button>
+                <div class="keep-open btn-group" title="Order">
+                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" name="order-table">
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc">ID</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=name&order_direction=asc">Username</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=email&order_direction=asc">Email</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=telephone&order_direction=asc">Telephone</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=status&order_direction=asc">Status</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=role_id&order_direction=asc">Role</a></li>
+                        <li><a href="{{ url_for('manage.role') }}?page={{page}}&page_size={{page_size}}&order_name=create_at&order_direction=asc">Register Time</a></li>
+                    </ul>
+                </div>
+                <div class="export btn-group">
+                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                        <i class="glyphicon glyphicon-export icon-share"></i>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pull-right search">
+                <form id="TableSearchForm" action="{{ url_for('manage.role_search')}}?page={{page}}&page_size={{page_size}}&order_name=id&order_direction=asc" method="post">
+                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" id="check_all_box" name='check_box[]'>
+                </th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Default</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Users</th>
+                <th>Resources</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for role in roles %}
+            <tr>
+                <td>
+                    <input type="checkbox" name="check_box[]" value="{{ role.id }}">
+                </td>
+                <td>{{ role.id }}</td>
+                <td>{{ role.name }}</td>
+                <td>
+                    {% if role.default %}
+                    <span class="fa fa-eye"></span>
+                    {% else %}
+                    <span class="fa fa-eye-slash"></span>
+                    {% endif %}
+
+                </td>
+                <td>
+                    {% if role.status %}
+                    <span class="fa fa-lock"></span>
+                    {% else %}
+                    <span class="fa fa-unlock"></span>
+                    {% endif %}
+                </td>
+                <td>{{ role.create_at|string|truncate(19, True, end='') }}</td>
+                <td><a href="{{ url_for('manage.user_role', role_id=role.id) }}" title="Associated Users"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.role_resource', role_id=role.id) }}" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Action">
+                        {% if role.default %}
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=0) }}" class="disabled" style="color:#E5E0E0;text-decoration: none;" title="Cancel Default Role" data-toggle="tooltip"><span class="fa fa-eye-slash"></span> </a>
+                        {% else %}
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=1) }}" title="Set Default Role" data-toggle="tooltip"><span class="fa fa-eye"></span> </a>
+                        {% endif %}
+                        <a href="javascript:;" onclick="bind_role_user('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's User"><span class="fa fa-user"></span></a>
+                        <a href="javascript:;" onclick="bind_role_resource('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's Resource"><span class="fa fa-tree"></span></a>
+
+                        {% if role.status %}
+                        <a href="{{ url_for('manage.edit_role_status', role_id=role.id, status=0) }}" data-toggle="tooltip" title="Enable Role"><span class="fa fa-unlock"></span></a>
+                        {% else %}
+                        <a href="{{ url_for('manage.edit_role_status', role_id=role.id, status=1) }}" data-toggle="tooltip" title="Disable Role"><span class="fa fa-lock"></span></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ menu_paging(page_size, page, query_size, current_url) }}
+</div>
+<!-- 添加角色的具体实现模块 -->
+<div class="modal fade" id="add_role" tabindex="-1" role="dialog" aria-labelledby="Add Role">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="addRoleForm" class="form-horizontal" action="{{ current_url }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Add Role</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputAddRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="inputAddRoleName" placeholder="Role Name" name="role_name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="inputAddDefaultRole">Default Role</label>
+                        <div class="col-sm-9">
+                            <input id="inputAddDefaultRole" name="default_role" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="inputAddRoleStatus">Role Status</label>
+                        <div class="col-sm-9">
+                            <input id="inputAddRoleStatus" name="role_status" checked type="checkbox" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- 角色绑定用户模块 -->
+<div class="modal fade" id="bind_role_user" tabindex="-1" role="dialog" aria-labelledby="Bind Role's User">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="bindRoleUserForm" class="form-horizontal" action="{{ url_for('manage.bind_role_user') }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Bind Role's User</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputBindRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly class="form-control" id="inputBindRoleName" name="name" placeholder="Role Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectBindRoleUsername" class="col-sm-3 control-label">User Name</label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker" multiple data-actions-box="true" data-live-search="true" data-size="6" id="selectBindRoleUsername" name="user_ids">
+                                {% for user in user_list %}
+                                <option value="{{user.id}}">{{user.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Bind</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- 角色绑定资源模块 -->
+<div class="modal fade" id="bind_role_resource" tabindex="-1" role="dialog" aria-labelledby="Bind Role's Resource">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="bindRoleResourceForm" class="form-horizontal" action="{{ url_for('manage.bind_role_resource') }}" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Bind Role's Resource</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inputBindRoleResourceRoleName" class="col-sm-3 control-label">Role Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" readonly class="form-control" id="inputBindRoleResourceRoleName" name="name" placeholder="Role Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectBindRoleResourceName" class="col-sm-3 control-label">Resource Name</label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker" data-live-search="true" data-size="6" data-header="Select a Resource" id="selectBindRoleResourceName" name="resource_id">
+                                {% for resource in resource_list %}
+                                <option value="{{resource.id}}">{{resource.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputBindRoleResourceRightWeight" class="col-sm-3 control-label">Right Weight</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputBindRoleResourceRightWeight" name="right_weight" placeholder="example: 0x01">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Bind</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block sidebar %}
+{{ admin_menu_navigation('Role') }}
+{% endblock sidebar %}
+
