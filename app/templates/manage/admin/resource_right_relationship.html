@@ -104,7 +104,7 @@
             </div>
             <div class="pull-right search">
                 <form id="TableSearchForm" action="{{ url_for('manage.resource_right')}}" method="post">
-                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" value="{{search_content}}" type="text">
                 </form>
             </div>
         </div>

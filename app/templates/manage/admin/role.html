@@ -90,75 +90,6 @@
                 }
             }
         });
-        $('#bindRoleUserForm')
-                .find('[name="user_ids"]')
-                .selectpicker()
-                .change(function(e) {
-                    /* Revalidate the color when it is changed */
-                    $('#bindRoleUserForm').bootstrapValidator('revalidateField', 'user_ids');
-                })
-                .end()
-                .bootstrapValidator({
-                    framework: 'bootstrap',
-                    excluded: ':disabled',
-                    message: 'This value is not valid',
-                    container: 'tooltip',
-                    feedbackIcons: {
-                        valid: 'glyphicon glyphicon-ok',
-                        invalid: 'glyphicon glyphicon-remove',
-                        validating: 'glyphicon glyphicon-refresh'
-                    },
-                    fields: {
-                        user_ids: {
-                            container: 'popover',
-                            validators: {
-                                callback: {
-                                    message: 'Please choose 1-4 user name you use for binding',
-                                    callback: function(value, validator, $field) {
-                                        // Get the selected options
-                                        var options = validator.getFieldElements('user_ids').val();
-                                        return (options != null && options.length >= 1 && options.length <= 4);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-        $('#bindRoleResourceForm')
-                .find('[name="resource_ids"]')
-                .selectpicker()
-                .change(function(e) {
-                    /* Revalidate the color when it is changed */
-                    $('#bindRoleResourceForm').bootstrapValidator('revalidateField', 'resource_ids');
-                })
-                .end()
-                .bootstrapValidator({
-                    message: 'This value is not valid',
-                    container: 'tooltip',
-                    feedbackIcons: {
-                        valid: 'glyphicon glyphicon-ok',
-                        invalid: 'glyphicon glyphicon-remove',
-                        validating: 'glyphicon glyphicon-refresh'
-                    },
-                    fields: {
-                        resource_ids: {
-                            container: 'popover',
-                            validators: {
-                                notEmpty: {
-                                    message: 'The resource name is required and cannot be empty'
-                                },
-                                callback: {
-                                    message: 'Please choose 1-4 resource name you use for binding',
-                                    callback: function(value, validator, $field) {
-                                        // Get the selected options
-                                        var options = validator.getFieldElements('resource_ids').val();
-                                        return (options != null && options.length >= 1 && options.length <= 4);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
     });
     // 绑定角色用户对话框
     function bind_role_user(name, id){
@@ -292,22 +223,22 @@
                     {% endif %}
                 </td>
                 <td>{{ role.create_at|string|truncate(19, True, end='') }}</td>
-                <td><a href="#" title="Associated Users"><span class="glyphicon glyphicon-link"></span></a></td>
-                <td><a href="#" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.user_role', role_id=role.id) }}" title="Associated Users"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.role_resource', role_id=role.id) }}" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Action">
                         {% if role.default %}
-                        <a href="{{ url_for('manage.set_default_role')}}?role_id={{role.id}}&status=1" title="Cancel Default Role" data-toggle="tooltip"><span class="fa fa-eye-slash"></span> </a>
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=1) }}" title="Cancel Default Role" data-toggle="tooltip"><span class="fa fa-eye-slash"></span> </a>
                         {% else %}
-                        <a href="{{ url_for('manage.set_default_role')}}?role_id={{role.id}}&status=0" title="Set Default Role" data-toggle="tooltip"><span class="fa fa-eye"></span> </a>
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=0) }}" title="Set Default Role" data-toggle="tooltip"><span class="fa fa-eye"></span> </a>
                         {% endif %}
                         <a href="javascript:;" onclick="bind_role_user('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's User"><span class="fa fa-user"></span></a>
                         <a href="javascript:;" onclick="bind_role_resource('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's Resource"><span class="fa fa-tree"></span></a>
 
                         {% if role.status %}
-                        <a href="{{ url_for('manage.edit_role_status')}}?role_id={{role.id}}&status=0" data-toggle="tooltip" title="Enable Role"><span class="fa fa-unlock"></span></a>
+                        <a href="{{ url_for('manage.edit_role_status', role_id=role.id, status=0) }}" data-toggle="tooltip" title="Enable Role"><span class="fa fa-unlock"></span></a>
                         {% else %}
-                        <a href="{{ url_for('manage.edit_role_status')}}?role_id={{role.id}}&status=1" data-toggle="tooltip" title="Disable Role"><span class="fa fa-lock"></span></a>
+                        <a href="{{ url_for('manage.edit_role_status', role_id=role.id, status=1) }}" data-toggle="tooltip" title="Disable Role"><span class="fa fa-lock"></span></a>
                         {% endif %}
                     </div>
                 </td>
@@ -371,19 +302,16 @@
                     <div class="form-group">
                         <label for="inputBindRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <input type="text" readonly class="form-control" id="inputBindRoleName" name="role_name" placeholder="Role Name">
+                            <input type="text" readonly class="form-control" id="inputBindRoleName" name="name" placeholder="Role Name">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="selectBindRoleUsername" class="col-sm-3 control-label">User Name</label>
                         <div class="col-sm-8">
                             <select class="selectpicker" multiple data-actions-box="true" id="selectBindRoleUsername" name="user_ids">
-                                <option data-icon="glyphicon-heart" value="1">Mustard</option>
-                                <option data-icon="fa fa-leaf" value="2">Ketchup</option>
-                                <option value="3">control</option>
-                                <option value="4">Username</option>
-                                <option value="5">Relish</option>
-                                <option value="6">RoleName</option>
+                                {% for user in user_list %}
+                                <option value="{{user.id}}">{{user.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -409,19 +337,16 @@
                     <div class="form-group">
                         <label for="inputBindRoleResourceRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <input type="text" readonly class="form-control" id="inputBindRoleResourceRoleName" name="role_name" placeholder="Role Name">
+                            <input type="text" readonly class="form-control" id="inputBindRoleResourceRoleName" name="name" placeholder="Role Name">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="selectBindRoleResourceName" class="col-sm-3 control-label">Resource Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" multiple data-actions-box="true" id="selectBindRoleResourceName" name="resource_ids">
-                                <option data-icon="glyphicon-heart" value="Mustard">Mustard</option>
-                                <option data-icon="fa fa-leaf" value="Ketchup">Ketchup</option>
-                                <option value="control">control</option>
-                                <option value="Username">Username</option>
-                                <option value="Relish">Relish</option>
-                                <option value="RoleName">RoleName</option>
+                            <select class="selectpicker" data-live-search="true" data-size="5" data-header="Select a Resource" id="selectBindRoleResourceName" name="resource_id">
+                                {% for resource in resource_list %}
+                                <option value="{{resource.id}}">{{resource.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>

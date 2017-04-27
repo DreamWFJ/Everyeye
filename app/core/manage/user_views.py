@@ -105,9 +105,12 @@ def edit_user_status():
     return redirect(url_for('manage.user'))
 
 
-@manage.route('/user-profile')
+@manage.route('/user/profile', methods=['GET', 'POST'])
 def user_profile():
-    return render_template('manage/admin/profile.html')
+    print request.args
+    user_id = request.args.get('user_id')
+    user = User.query.filter_by(id=user_id).first()
+    return render_template('manage/admin/profile.html', user=user)
 
 
 

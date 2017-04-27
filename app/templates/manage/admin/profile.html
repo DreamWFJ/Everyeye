@@ -16,56 +16,50 @@
     <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
+        <div class="panel-heading">{{user.name}}'s Profile</div>
         <!-- Table -->
         <div class="panel-body">
-            <form class="form-horizontal">
-                <div class="form-group">
+            <form class="form-horizontal" action="{{ url_for('manage.user_profile') }}" method="post">
+                <div class="form-group" data-toggle="tooltip" title="User's Name">
                     <label for="inputUsername" class="col-sm-2 control-label">Username</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputUsername" placeholder="Username">
+                        <input type="text" class="form-control" id="inputUsername" value="{{user.name}}">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Real Name">
                     <label for="inputRealName" class="col-sm-2 control-label">RealName</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputRealName" placeholder="RealName">
+                        <input type="text" class="form-control" id="inputRealName" {% if user.real_name %}value="{{user.real_name}}"{% endif %}>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Email">
                     <label for="inputEmail" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                        <input type="email" class="form-control" id="inputEmail" {% if user.email %}value="{{user.email}}"{% endif %}>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Telephone Number">
                     <label for="inputTelephone" class="col-sm-2 control-label">Telephone</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputTelephone" placeholder="Telephone">
+                        <input type="text" class="form-control" id="inputTelephone" {% if user.telephone %}value="{{user.telephone}}"{% endif %}>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputPassword" class="col-sm-2 control-label">Password</label>
-                    <div class="col-sm-10">
-                        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-                    </div>
-                </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's QQ Number">
                     <label for="inputQQ" class="col-sm-2 control-label">QQ</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputQQ" placeholder="QQ">
+                        <input type="email" class="form-control" id="inputQQ"  {% if user.qq %}value="{{user.qq}}"{% endif %}>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Identity Card Number">
                     <label for="inputIdentityCardNumber" class="col-sm-2 control-label">Identity Card Number</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputIdentityCardNumber" placeholder="Identity Card Number">
+                        <input type="email" class="form-control" id="inputIdentityCardNumber"  {% if user.identity_card_number %}value="{{user.identity_card_number}}"{% endif %}>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Register Time">
                     <label for="inputRegisterTime" class="col-sm-2 control-label">Register Time</label>
                     <div class="col-sm-10">
-                        <input type="datetime" class="form-control" disabled id="inputRegisterTime" placeholder="Register Time">
+                        <input type="datetime" class="form-control" disabled readonly id="inputRegisterTime" value="{{user.create_at}}">
                     </div>
                 </div>
                 <div class="form-group">
@@ -73,19 +67,19 @@
                     <div class="col-sm-10">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <div class="form-group">
+                                <div class="form-group" data-toggle="tooltip" title="User's Last Login Time">
                                     <label for="inputLastLoginTime" class="col-sm-2 control-label">Time</label>
                                     <div class="col-sm-10">
                                         <input type="text" class="form-control" disabled id="inputLastLoginTime" placeholder="Last Login Time">
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" data-toggle="tooltip" title="User's Last Login Address">
                                     <label for="inputLastLoginAddress" class="col-sm-2 control-label">Address</label>
                                     <div class="col-sm-10">
                                         <input type="text" class="form-control" disabled id="inputLastLoginAddress" placeholder="Last Login Address">
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" data-toggle="tooltip" title="User's Last Login IP">
                                     <label for="inputLastLoginIP" class="col-sm-2 control-label">IP</label>
                                     <div class="col-sm-10">
                                         <input type="text" class="form-control" disabled id="inputLastLoginIP" placeholder="Last Login IP">
@@ -96,7 +90,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's High Frequency Last Login Address Count">
                     <label class="col-sm-2 control-label">High Frequency Login Address</label>
                     <div class="col-sm-10">
                         <div class="panel panel-default">
@@ -139,20 +133,20 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Total Login Count">
                     <label for="inputTotalLoginCount" class="col-sm-2 control-label">Total Login Count</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" disabled id="inputTotalLoginCount" placeholder="Total Login Count">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="User's Total Online Time">
                     <label for="inputTotalOnlineTime" class="col-sm-2 control-label">Total Online Time</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" disabled id="inputTotalOnlineTime" placeholder="Total Online Time">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" data-toggle="tooltip" title="Disable User">
                     <div class="col-sm-offset-2 col-sm-10">
                         <div class="checkbox">
                             <label>

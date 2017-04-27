@@ -127,6 +127,36 @@ class Role(db.Model):
         return role
 
     @staticmethod
+    def add_role_user_by_ids(name, user_ids):
+        # 删除用户角色关系通过ID
+        role = Role.query.filter_by(name = name).first()
+        users = User.query.filter(User.id.in_(user_ids)).all()
+        if users and role:
+            for user in users:
+
+                user.role_id = role.id
+                db.session.add(user)
+                print user.name
+                print user.role_id
+            db.session.commit()
+
+    @staticmethod
+    def add_role_resource_by_id(name, resource_id, weight):
+        role = Role.query.filter_by(name = name).first()
+        resource = Resource.query.filter_by(id=resource_id).first()
+        if role and resource:
+            # 这里需要判断资源的权重是否大于等于关联关系中添加的权重
+            role_resource = RolesResources.query.filter(and_(right_weight=weight,
+                                                             resource_id=resource_id,
+                                                             role_id=role.id)).first()
+            if not role_resource:
+                role_resource = RolesResources(right_weight=weight)
+                role_resource.resource = resource
+                role.resources.append(role_resource)
+                db.session.add_all([role_resource, role])
+                db.session.commit()
+
+    @staticmethod
     def delete_role(name):
         role = Role.query.filter_by(name = name).first()
         if role:
@@ -510,12 +540,11 @@ class User(UserMixin, db.Model):
     def update_role(username, role_id):
         # 改变用户角色
         user = User.query.filter_by(name=username).first()
-        print user
-        print role_id, type(role_id)
         if user:
             user.role_id = role_id
             db.session.add(user)
             db.session.commit()
+
 
     @staticmethod
     def update_user(name, real_name=None, email=None, role_id=None, status=None, confirmed=None, about_me=None, identity_card_number=None, telephone=None):

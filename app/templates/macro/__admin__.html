@@ -1,12 +1,12 @@
 {% from 'macro/__frame__.html' import base_menu_navigation %}
 
-{% set admin_navigation = [{'href':'user', 'caption':'User'},
-{'href':'role', 'caption':'Role'},
-{'href':'right', 'caption':'Right'},
-{'href':'resource', 'caption':'Resource'},
-{'href':'user-role', 'caption':'User Role'},
-{'href':'role-resource', 'caption':'Role Resource'},
-{'href':'resource-right', 'caption':'Resource Right'}] %}
+{% set admin_navigation = [{'href':'/manage/user', 'caption':'User'},
+{'href':'/manage/role', 'caption':'Role'},
+{'href':'/manage/right', 'caption':'Right'},
+{'href':'/manage/resource', 'caption':'Resource'},
+{'href':'/manage/user-role', 'caption':'User Role'},
+{'href':'/manage/role-resource', 'caption':'Role Resource'},
+{'href':'/manage/resource-right', 'caption':'Resource Right'}] %}
 
 {% macro admin_menu_navigation(current_active_item) %}
 {{base_menu_navigation('Admin', admin_navigation, current_active_item)}}

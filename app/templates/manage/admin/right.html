@@ -262,7 +262,7 @@
                 </td>
 
                 <td>{{ right.create_at|string|truncate(19, True, end='') }}</td>
-                <td><a href="#" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.resource_right', right_id=right.id) }}" title="Associated Resources"><span class="glyphicon glyphicon-link"></span></a></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Action">
                         <a href="javascript:;" onclick="bind_right_resource('{{right.name}}','{{right.resource_ids}}')" data-toggle="tooltip" title="Bind Right's Resource"><span class="fa fa-tree"></span></a>

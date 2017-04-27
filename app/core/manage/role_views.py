@@ -7,9 +7,15 @@ Version:        0.1.0
 FileName:       role_views.py
 CreateTime:     2017-04-04 20:11
 """
-from app.core.db.sql.models import Role
+from app.core.db.sql.models import Role, User, Resource
 from flask import render_template, request, url_for, flash, redirect
 from . import manage_blueprint as manage
+
+def get_user_list():
+    return User.query.order_by(User.id)
+
+def get_resource_list():
+    return Resource.query.order_by(Resource.id)
 
 @manage.route('/role', methods=['POST','GET'])
 def role():
@@ -39,7 +45,7 @@ def role():
     page_result = filter_result.limit(page_size).offset(offset_size)
     return render_template('manage/admin/role.html', roles=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('manage.role'),
+                           current_url=url_for('manage.role'), user_list=get_user_list(), resource_list=get_resource_list(),
                            total=Role.query.count(), query_size=filter_result.count())
 
 
@@ -64,14 +70,21 @@ def delete_role():
 
 @manage.route('/role/bind-user', methods=['POST'])
 def bind_role_user():
-    print request.form
-    flash('Bind "%s" role success'%request.form.get('name'))
+    # print request.form
+    role_name = request.form.get('name')
+    user_ids = request.form.getlist('user_ids')
+    Role.add_role_user_by_ids(role_name, user_ids)
+    print "user_ids: ",user_ids
+    flash('Bind role "%s" user id list "%s" success'%(role_name, user_ids))
     return redirect(url_for('manage.role'))
 
 @manage.route('/role/bind-resource', methods=['POST'])
 def bind_role_resource():
     print request.form
-    flash('Bind "%s" role resource "%s" success'%(request.form.get('name'), request.form.get('resource_id')))
+    role_name = request.form.get('name')
+    resource_id = request.form.getlist('resource_id')
+    Role.add_role_resource_by_id(role_name, resource_id)
+    flash('Bind role "%s" resource id "%s" success'%(role_name, resource_id))
     return redirect(url_for('manage.role'))
 
 @manage.route('/role/set-default')

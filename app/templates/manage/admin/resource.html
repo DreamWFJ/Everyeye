@@ -303,8 +303,8 @@
                 </td>
 
                 <td>{{ resource.create_at|string|truncate(19, True, end='') }}</td>
-                <td><a href="#" title="Associated Rights"><span class="glyphicon glyphicon-link"></span></a></td>
-                <td><a href="#" title="Associated Roles"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.resource_right', resource_id=resource.id) }}" title="Associated Rights"><span class="glyphicon glyphicon-link"></span></a></td>
+                <td><a href="{{ url_for('manage.role_resource', resource_id=resource.id) }}" title="Associated Roles"><span class="glyphicon glyphicon-link"></span></a></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Action">
                         <a href="javascript:;" onclick="bind_resource_role('{{resource.name}}','{{resource.role_ids}}')" data-toggle="tooltip" title="Bind Resource's Role"><span class="glyphicon glyphicon-user"></span></a>
