@@ -1,14 +1,38 @@
-{% extends "base.html" %}
+{% from 'macro/__frame__.html' import frame_search, menu_paging %}
+{% from 'macro/__admin__.html' import admin_menu_navigation %}
+{% extends "framework.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% block title %}Flasky - Login{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock script %}
+{% block title %}Login{% endblock title %}
+{% block search %}
+    {{frame_search('resource_right')}}
+{% endblock search %}
+
 {% block page_content %}
-<div class="page-header">
-    <h1>Login</h1>
-</div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
-    <br>
-    <p>forget your password ?<a href="{{ url_for('auth.password_reset_request') }}">click here to reset</a></p>
-    <p>New user ? <a href = "{{ url_for('auth.register') }}">click here to register</a></p>
-</div>
-{% endblock %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-8">
+                <div class="page-header">
+                    <h1>Login</h1>
+                </div>
+                <div class="col-md-4">
+                    {{ wtf.quick_form(form) }}
+                    <br>
+                    <p>forget your password ?<a href="{{ url_for('auth.password_reset_request') }}">click here to reset</a></p>
+                    <p>New user ? <a href = "{{ url_for('auth.register') }}">click here to register</a></p>
+                </div>
+            </div>
+            <div class="col-md-2">
+            </div>
+        </div>
+    </div>
+
+{% endblock page_content %}
+
+

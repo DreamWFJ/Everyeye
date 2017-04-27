@@ -177,7 +177,7 @@
         </nav><!-- /.navbar-collapse -->
     </div>
 </header>
-
+{% block page_content %}
 <div class="container">
     <div class="row">
         <div class="col-md-3">
@@ -196,9 +196,10 @@
     </div>
 </div>
 {% block footer %}{% endblock footer %}
+{% endblock page_content %}
 
 {% endblock body %}
-<a id="scroll-up-btn" href="#top" style="position: fixed; z-index: 2147483647; display: block;"><i class="fa fa-2x fa-arrow-circle-up"></i></a>
+{#<a id="scroll-up-btn" href="#top" style="position: fixed; z-index: 2147483647; display: block;"><i class="fa fa-2x fa-arrow-circle-up"></i></a>#}
 
 </body>
 </html>

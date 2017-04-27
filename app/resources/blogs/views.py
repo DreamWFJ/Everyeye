@@ -11,6 +11,7 @@ CreateTime:     2017-04-15 16:17
 from flask_login import login_required
 from flask import render_template, request
 from .. import resource_blueprint as main
+from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 
 @main.route('/<string:username>/article/<uuid:article_id>')
@@ -35,18 +36,31 @@ def article(username):
 def manage_article():
     return render_template('resources/blog/manage_article.html')
 
-@main.route('/<string:username>/write_article', methods=['POST','GET'])
+
+@main.route('/<string:username>/new-article', methods=['POST','GET'])
 @login_required
-def write_article(username):
+def new_article(username):
+    # 写文章
     if request.method == 'GET':
-        return render_template('resources/blog/write_article.html')
+        return render_template('resources/blog/new_article.html', article_categorys=get_user_article_categorys(),
+                               article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources())
     elif request.method == 'POST':
         print request.form
-        return render_template('resources/blog/write_article.html')
+        title = request.form.get('title')
+        category_id = request.form.get('category_id')
+        source_id = request.form.get('source_id')
+        keywords = request.form.get('keywords')
+        enable_comment = request.form.get('enable_comment')
+        content = request.form.get('summernote_content')
+        if len(content) == 0:
+            content = request.form.get('markdown_content')
+        reference_links = request.form.getlist('reference_links_box[]')
+        return render_template('resources/blog/new_article.html')
 
 @main.route('/<string:username>/category')
 @login_required
 def category(username):
+    # 文章目录
     return render_template('resources/blog/category.html')
 
 @main.route('/<string:username>/keyword')
