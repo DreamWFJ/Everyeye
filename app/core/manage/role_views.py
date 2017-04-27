@@ -10,12 +10,7 @@ CreateTime:     2017-04-04 20:11
 from app.core.db.sql.models import Role, User, Resource
 from flask import render_template, request, url_for, flash, redirect
 from . import manage_blueprint as manage
-
-def get_user_list():
-    return User.query.order_by(User.id)
-
-def get_resource_list():
-    return Resource.query.order_by(Resource.id)
+from app.core.common.drop_down import get_user_list, get_resource_list
 
 @manage.route('/role', methods=['POST','GET'])
 def role():
@@ -30,7 +25,7 @@ def role():
         else:
             Role.insert_roles(name, status=role_status, default=bool(default_role))
             flash("Success: add role ok")
-
+    role_id = request.args.get('role_id')
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -42,6 +37,8 @@ def role():
         offset_size = (page - 1) * page_size
 
     filter_result = Role.query.order_by(eval("Role.%s.%s()"%(order_name, order_direction)))
+    if role_id:
+        filter_result = filter_result.filter_by(id=role_id)
     page_result = filter_result.limit(page_size).offset(offset_size)
     return render_template('manage/admin/role.html', roles=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
@@ -52,7 +49,10 @@ def role():
 @manage.route('/role/edit-status')
 def edit_role_status():
     print request.args
-    flash('Edit "%s" status to "%s" success'%(request.args.get('role_id'), request.args.get('status')))
+    role_id = request.args.get('role_id')
+    status = request.args.get('status')
+    Role.set_status(role_id, bool(int(status)))
+    flash('Edit "%s" status to "%s" success'%(role_id, status))
     return redirect(url_for('manage.role'))
 
 @manage.route('/role/search', methods=['POST'])
@@ -82,13 +82,17 @@ def bind_role_user():
 def bind_role_resource():
     print request.form
     role_name = request.form.get('name')
-    resource_id = request.form.getlist('resource_id')
-    Role.add_role_resource_by_id(role_name, resource_id)
+    resource_id = request.form.get('resource_id')
+    right_weight = request.form.get('right_weight')
+    Role.add_role_resource_by_id(role_name, resource_id, right_weight)
     flash('Bind role "%s" resource id "%s" success'%(role_name, resource_id))
     return redirect(url_for('manage.role'))
 
 @manage.route('/role/set-default')
 def set_default_role():
     print request.args
-    flash('Edit "%s" default role to "%s" success'%(request.args.get('role_id'), request.args.get('status')))
+    role_id = request.args.get('role_id')
+    status = request.args.get('status')
+    Role.set_default(role_id, bool(int(status)))
+    flash('Edit "%s" default role to "%s" success'%(role_id, status))
     return redirect(url_for('manage.role'))

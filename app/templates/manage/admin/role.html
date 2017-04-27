@@ -90,6 +90,26 @@
                 }
             }
         });
+        $('#bindRoleResourceForm').bootstrapValidator({
+            message: 'This value is not valid',
+            container: 'tooltip',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                right_weight: {
+                    message: 'The role name is not valid',
+                    validators: {
+                        regexp: {
+                            regexp: /^0x[0-9]+$/,
+                            message: 'The right weight can only start with 0x and end with number, such as 0x02'
+                        }
+                    }
+                }
+            }
+        });
     });
     // 绑定角色用户对话框
     function bind_role_user(name, id){
@@ -98,7 +118,7 @@
     }
 
     // 绑定角色资源对话框
-    function bind_role_resource(name, id){
+    function bind_role_resource(name, right_weight){
         $("#inputBindRoleResourceRoleName").val(name);
         $("#bind_role_resource").modal('show');
     }
@@ -228,9 +248,9 @@
                 <td>
                     <div class="btn-group" role="group" aria-label="Action">
                         {% if role.default %}
-                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=1) }}" title="Cancel Default Role" data-toggle="tooltip"><span class="fa fa-eye-slash"></span> </a>
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=0) }}" class="disabled" style="color:#E5E0E0;text-decoration: none;" title="Cancel Default Role" data-toggle="tooltip"><span class="fa fa-eye-slash"></span> </a>
                         {% else %}
-                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=0) }}" title="Set Default Role" data-toggle="tooltip"><span class="fa fa-eye"></span> </a>
+                        <a href="{{ url_for('manage.set_default_role', role_id=role.id, status=1) }}" title="Set Default Role" data-toggle="tooltip"><span class="fa fa-eye"></span> </a>
                         {% endif %}
                         <a href="javascript:;" onclick="bind_role_user('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's User"><span class="fa fa-user"></span></a>
                         <a href="javascript:;" onclick="bind_role_resource('{{role.name}}','{{role.id}}')" data-toggle="tooltip" title="Bind Role's Resource"><span class="fa fa-tree"></span></a>
@@ -308,7 +328,7 @@
                     <div class="form-group">
                         <label for="selectBindRoleUsername" class="col-sm-3 control-label">User Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" multiple data-actions-box="true" id="selectBindRoleUsername" name="user_ids">
+                            <select class="selectpicker" multiple data-actions-box="true" data-live-search="true" data-size="6" id="selectBindRoleUsername" name="user_ids">
                                 {% for user in user_list %}
                                 <option value="{{user.id}}">{{user.name}}</option>
                                 {% endfor %}
@@ -331,7 +351,7 @@
             <form id="bindRoleResourceForm" class="form-horizontal" action="{{ url_for('manage.bind_role_resource') }}" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Bind User's Resource</h4>
+                    <h4 class="modal-title">Bind Role's Resource</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
@@ -343,11 +363,17 @@
                     <div class="form-group">
                         <label for="selectBindRoleResourceName" class="col-sm-3 control-label">Resource Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" data-live-search="true" data-size="5" data-header="Select a Resource" id="selectBindRoleResourceName" name="resource_id">
+                            <select class="selectpicker" data-live-search="true" data-size="6" data-header="Select a Resource" id="selectBindRoleResourceName" name="resource_id">
                                 {% for resource in resource_list %}
                                 <option value="{{resource.id}}">{{resource.name}}</option>
                                 {% endfor %}
                             </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputBindRoleResourceRightWeight" class="col-sm-3 control-label">Right Weight</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputBindRoleResourceRightWeight" name="right_weight" placeholder="example: 0x01">
                         </div>
                     </div>
                 </div>

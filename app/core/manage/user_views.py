@@ -12,10 +12,8 @@ from app.core.db.sql.models import User, Role
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import manage_blueprint as manage
+from app.core.common.drop_down import get_role_list
 
-def get_role_list():
-    role_list = Role.query.order_by(Role.id)
-    return role_list
 
 @manage.route('/user', methods=['POST','GET'])
 def user():
@@ -100,7 +98,7 @@ def edit_user_status():
     print request.args
     user_id = request.args.get('user_id')
     status = request.args.get('status')
-    User.set_user_status(user_id, bool(int(status)))
+    User.set_status(user_id, bool(int(status)))
     flash('Edit "%s" status to "%s" success'%(user_id, status))
     return redirect(url_for('manage.user'))
 

@@ -157,6 +157,15 @@
                                     }
                                 }
                             }
+                        },
+                        right_weight: {
+                            message: 'The role name is not valid',
+                            validators: {
+                                regexp: {
+                                    regexp: /^0x[0-9]+$/,
+                                    message: 'The right weight can only start with 0x and end with number, such as 0x02'
+                                }
+                            }
                         }
                     }
                 });
@@ -386,14 +395,17 @@
                     <div class="form-group">
                         <label for="selectBindResourceRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" multiple data-actions-box="true" id="selectBindResourceRoleName" name="role_ids">
-                                <option data-icon="glyphicon-heart" value="1">Mustard</option>
-                                <option data-icon="fa fa-leaf" value="2">Ketchup</option>
-                                <option value="3">control</option>
-                                <option value="4">Username</option>
-                                <option value="5">Relish</option>
-                                <option value="6">RoleName</option>
+                            <select class="selectpicker" multiple data-actions-box="true" data-live-search="true" data-size="6" id="selectBindResourceRoleName" name="role_ids">
+                                {% for role in role_list %}
+                                <option value="{{role.id}}">{{role.name}}</option>
+                                {% endfor %}
                             </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputBindResourceRoleRightWeight" class="col-sm-3 control-label">Right Weight</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="inputBindResourceRoleRightWeight" name="right_weight" placeholder="example: 0x01">
                         </div>
                     </div>
                 </div>
@@ -424,13 +436,10 @@
                     <div class="form-group">
                         <label for="selectBindResourceRightName" class="col-sm-3 control-label">Right Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" multiple data-actions-box="true" id="selectBindResourceRightName" name="right_ids">
-                                <option data-icon="glyphicon-heart" value="1">Mustard</option>
-                                <option data-icon="fa fa-leaf" value="2">Ketchup</option>
-                                <option value="3">control</option>
-                                <option value="4">Username</option>
-                                <option value="5">Relish</option>
-                                <option value="6">RoleName</option>
+                            <select class="selectpicker" multiple data-actions-box="true" data-live-search="true" data-size="6" id="selectBindResourceRightName" name="right_ids">
+                                <{% for right in right_list %}
+                                <option value="{{right.id}}">{{right.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>

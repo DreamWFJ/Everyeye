@@ -267,9 +267,9 @@
                     <div class="btn-group" role="group" aria-label="Action">
                         <a href="javascript:;" onclick="bind_right_resource('{{right.name}}','{{right.resource_ids}}')" data-toggle="tooltip" title="Bind Right's Resource"><span class="fa fa-tree"></span></a>
                         {% if right.status %}
-                        <a href="{{ url_for('manage.edit_right_status')}}?right_id={{right.id}}&status=0" data-toggle="tooltip" title="Disable Role"><span class="fa fa-lock"></span></a>
+                        <a href="{{ url_for('manage.edit_right_status', right_id=right.id, status=0)}}" data-toggle="tooltip" title="Disable Role"><span class="fa fa-lock"></span></a>
                         {% else %}
-                        <a href="{{ url_for('manage.edit_right_status')}}?right_id={{right.id}}&status=1" data-toggle="tooltip" title="Enable Role"><span class="fa fa-unlock"></span></a>
+                        <a href="{{ url_for('manage.edit_right_status', right_id=right.id, status=1)}}" data-toggle="tooltip" title="Enable Role"><span class="fa fa-unlock"></span></a>
                         {% endif %}
 
                     </div>
@@ -344,13 +344,10 @@
                     <div class="form-group">
                         <label for="selectBindResourceName" class="col-sm-3 control-label">Resource Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" multiple data-actions-box="true" id="selectBindResourceName" name="resource_ids">
-                                <option data-icon="glyphicon-heart" value="1">Mustard</option>
-                                <option data-icon="fa fa-leaf" value="2">Ketchup</option>
-                                <option value="3">control</option>
-                                <option value="4">Username</option>
-                                <option value="5">Relish</option>
-                                <option value="6">RoleName</option>
+                            <select class="selectpicker" multiple data-actions-box="true" data-live-search="true" data-size="6" id="selectBindResourceName" name="resource_ids">
+                                {% for resource in resource_list %}
+                                <option value="{{resource.id}}">{{resource.name}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>

@@ -11,6 +11,7 @@ CreateTime:     2017-04-04 20:11
 from app.core.db.sql.models import Right
 from flask import render_template, request, url_for, flash, redirect
 from . import manage_blueprint as manage
+from app.core.common.drop_down import get_resource_list
 
 @manage.route('/right', methods=['POST','GET'])
 def right():
@@ -38,13 +39,16 @@ def right():
     page_result = filter_result.limit(page_size).offset(offset_size)
     return render_template('manage/admin/right.html', rights=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('manage.right'),
+                           current_url=url_for('manage.right'), resource_list = get_resource_list(),
                            total=Right.query.count(), query_size=filter_result.count())
 
 @manage.route('/right/edit-status')
 def edit_right_status():
     print request.args
-    flash('Edit "%s" status to "%s" success'%(request.args.get('right_id'), request.args.get('status')))
+    right_id = request.args.get('right_id')
+    status = request.args.get('status')
+    Right.set_status(right_id, bool(int(status)))
+    flash('Edit "%s" status to "%s" success'%(right_id, status))
     return redirect(url_for('manage.right'))
 
 @manage.route('/right/search', methods=['POST'])
@@ -64,5 +68,8 @@ def delete_right():
 @manage.route('/right/bind-resource', methods=['POST'])
 def bind_right_resource():
     print request.form
-    flash('Bind "%s" right resource "%s" success'%(request.form.get('name'), request.form.get('resource_id')))
+    name = request.form.get('name')
+    resource_ids = request.form.getlist('resource_ids')
+    Right.add_right_resource_by_ids(name, resource_ids)
+    flash('Bind "%s" right resource ids "%s" success'%(name, resource_ids))
     return redirect(url_for('manage.right'))

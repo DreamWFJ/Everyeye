@@ -109,6 +109,31 @@ class Role(db.Model):
         return role
 
     @staticmethod
+    def set_status(role_id, status):
+        # 设置角色是否被锁定
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            role.status = status
+            db.session.add(role)
+            db.session.commit()
+
+    @staticmethod
+    def set_default(role_id, status):
+        # 设置默认角色
+        roles = Role.query.filter_by(default = status).all()
+        print list(roles)
+        if roles:
+            for role in roles:
+                role.default = not status
+                db.session.add(role)
+            db.session.commit()
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            role.default = status
+            db.session.add(role)
+            db.session.commit()
+
+    @staticmethod
     def add_resource(rolename, resourcename, weight):
         role = Role.query.filter_by(name = rolename).first()
         if role is None:
@@ -133,11 +158,8 @@ class Role(db.Model):
         users = User.query.filter(User.id.in_(user_ids)).all()
         if users and role:
             for user in users:
-
                 user.role_id = role.id
                 db.session.add(user)
-                print user.name
-                print user.role_id
             db.session.commit()
 
     @staticmethod
@@ -146,9 +168,9 @@ class Role(db.Model):
         resource = Resource.query.filter_by(id=resource_id).first()
         if role and resource:
             # 这里需要判断资源的权重是否大于等于关联关系中添加的权重
-            role_resource = RolesResources.query.filter(and_(right_weight=weight,
-                                                             resource_id=resource_id,
-                                                             role_id=role.id)).first()
+            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight,
+                                                             RolesResources.resource_id==resource_id,
+                                                             RolesResources.role_id==role.id)).first()
             if not role_resource:
                 role_resource = RolesResources(right_weight=weight)
                 role_resource.resource = resource
@@ -201,6 +223,15 @@ class Resource(db.Model):
         return resource
 
     @staticmethod
+    def set_status(resource_id, status):
+        # 设置资源是否被锁定
+        resource = Resource.query.filter_by(id=resource_id).first()
+        if resource:
+            resource.status = status
+            db.session.add(resource)
+            db.session.commit()
+
+    @staticmethod
     def delete_resources(name):
         """
         注意：这里需要关注资源绑定的权限，角色关系
@@ -217,6 +248,42 @@ class Resource(db.Model):
             for resource in resources:
                 db.session.delete(resource)
             db.session.commit()
+
+    @staticmethod
+    def add_resource_right_by_ids(name, right_ids):
+        # 添加权限资源通过ID
+        resource = Resource.query.filter_by(name = name).first()
+        rights = Right.query.filter(Right.id.in_(right_ids)).all()
+        if resource and rights:
+            for right in rights:
+                resource_right = ResourcesRights.query.filter(and_(
+                    ResourcesRights.right_id == right.id,
+                    ResourcesRights.resource_id == resource.id
+                )).first()
+                if not resource_right:
+                    resource_right = ResourcesRights()
+                    resource_right.right = right
+                    resource.rights.append(resource_right)
+                    db.session.add_all([resource_right, right])
+            db.session.commit()
+
+    @staticmethod
+    def add_resource_role_by_ids(name, role_ids, weight):
+        # 添加权限资源通过ID
+        resource = Resource.query.filter_by(name = name).first()
+        roles = Role.query.filter(Role.id.in_(role_ids)).all()
+        if resource and roles:
+            for role in roles:
+                role_resource = RolesResources.query.filter(and_(
+                    RolesResources.role_id == role.id,
+                    RolesResources.resource_id == resource.id
+                )).first()
+                if not role_resource:
+                    role_resource = RolesResources(resource=resource, right_weight=weight)
+                    role_resource.role = role
+                    db.session.add(role_resource)
+            db.session.commit()
+
 
     def __repr__(self):
         return '<Resource %r>' % self.name
@@ -244,6 +311,15 @@ class Right(db.Model):
         right.status = status
         db.session.add(right)
         db.session.commit()
+
+    @staticmethod
+    def set_status(right_id, status):
+        # 设置权限是否被锁定
+        right = Right.query.filter_by(id=right_id).first()
+        if right:
+            right.status = status
+            db.session.add(right)
+            db.session.commit()
 
     @staticmethod
     def add_resource(rightname, resourcename):
@@ -276,6 +352,24 @@ class Right(db.Model):
         if rights:
             for right in rights:
                 db.session.delete(right)
+            db.session.commit()
+
+    @staticmethod
+    def add_right_resource_by_ids(name, resource_ids):
+        # 添加权限资源通过ID
+        right = Right.query.filter_by(name = name).first()
+        resources = Resource.query.filter(Resource.id.in_(resource_ids)).all()
+        if right and resources:
+            for resource in resources:
+                resource_right = ResourcesRights.query.filter(and_(
+                    ResourcesRights.right_id == right.id,
+                    ResourcesRights.resource_id == resource.id
+                )).first()
+                if not resource_right:
+                    resource_right = ResourcesRights()
+                    resource_right.resource = resource
+                    right.resources.append(resource_right)
+                    db.session.add_all([resource_right, right])
             db.session.commit()
 
     def __repr__(self):
@@ -528,7 +622,7 @@ class User(UserMixin, db.Model):
             db.session.commit()
 
     @staticmethod
-    def set_user_status(user_id, status):
+    def set_status(user_id, status):
         # 设置用户是否被锁定
         user = User.query.filter_by(id=user_id).first()
         if user:

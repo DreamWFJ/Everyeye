@@ -401,7 +401,7 @@
                     {% endif %}
                 </td>
 
-                <td>{{ user.role_id }}</td>
+                <td><a href="{{ url_for('manage.role', role_id=user.role_id) }}" title="Show Role's Detail Info">{{ user.role_id }}</a></td>
                 <td>{% if user.confirmed %}
                     <span class="glyphicon glyphicon-ok"></span>
                     {% else %}
@@ -507,7 +507,7 @@
                     <div class="form-group" data-toggle="tooltip" title="Role Name">
                         <label for="inputBindUserRoleName" class="col-sm-3 control-label">Role Name</label>
                         <div class="col-sm-8">
-                            <select class="selectpicker" data-live-search="true" data-header="Select a role" id="inputBindUserRoleName" name="role_id">
+                            <select class="selectpicker" data-live-search="true" data-size="6" data-header="Select a role" id="inputBindUserRoleName" name="role_id">
                                 <option>None</option>
                                 {% for role in role_list %}
                                 <option value="{{role.id}}">{{role.name}}</option>
