@@ -69,6 +69,13 @@
                                     }
                                 }
                             },
+                            category_id: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The article category required and cannot be empty'
+                                    }
+                                }
+                            },
                             summernote_content:{
                                 validators: {
                                     callback: {
@@ -239,7 +246,7 @@
                     })
                     .end()
                     // 文章来源icheck初始化和校验
-                    .find('input:radio[name="source"]')
+                    .find('input:radio[name="source_id"]')
                     // Init icheck elements
                     .iCheck({
                         // The tap option is only available in v2.0
@@ -284,10 +291,10 @@
                 <div class="form-group">
                     <label for="inputArticleSource" class="col-sm-2 control-label">Source</label>
                     <div class="col-sm-10">
-                        <ul style="margin: 0; padding: 0; list-style: none">
+                        <ul id="inputArticleSource" style="margin: 0; padding: 0; list-style: none">
                             {% for source in article_sources %}
                                 <li>
-                                    <input type="radio" id="{{ source.id }}" name="source_id">&nbsp;
+                                    <input type="radio" id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
                                     <label for="{{ source.id }}">{{ source.name }}</label>
                                 </li>
                             {% endfor %}
@@ -304,7 +311,7 @@
                             {% endfor %}
                         </select>
                         &nbsp;
-                        <a class="link" href="category"><span class="fa fa-plus"></span></a>
+                        <a class="link" href="{{ url_for('resource.category', username=current_user.name) }}"><span class="fa fa-plus"></span></a>
                     </div>
                 </div>
 

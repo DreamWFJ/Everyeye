@@ -35,7 +35,7 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             current_user.new_audit_log(request.remote_addr)
-            return redirect(request.args.get('next') or url_for('resource.index'))
+            return redirect(request.args.get('next') or url_for('resource.user_index', username=current_user.name))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
