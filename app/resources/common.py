@@ -7,31 +7,13 @@ Version:        0.1.0
 FileName:       common.py
 CreateTime:     2017-04-27 21:27
 """
+from app.core.db.sql.models import ArticleCategory, ArticleSource
+
 def get_user_article_sources():
-    return [
-        {
-            "id":1, "name":"original"
-        },
-        {
-            "id":2, "name":"quote"
-        },
-        {
-            "id":3, "name":"other"
-        }
-    ]
+    return ArticleSource.query.order_by(ArticleSource.id)
 
 def get_user_article_categorys():
-    return [
-        {
-            "id":1, "name":"life"
-        },
-        {
-            "id":2, "name":"python"
-        },
-        {
-            "id":3, "name":"work"
-        }
-    ]
+    return ArticleCategory.query.order_by(ArticleCategory.id)
 
 def get_user_article_keywords():
     # 限制返回8个

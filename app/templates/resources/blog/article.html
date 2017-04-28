@@ -115,15 +115,16 @@
                     <input type="checkbox" id="check_all_box" name='check_box[]'>
                 </th>
                 <th>ID</th>
-                <th>Article Title</th>
+                <th>Title</th>
+                <th>Source</th>
+                <th>Category</th>
+                <th>Keywords</th>
                 <th>View Count</th>
                 <th>Comment Count</th>
                 <th>Permit Comment</th>
                 <th>Status</th>
                 <th>Public Time</th>
                 <th>Last Change Time</th>
-                <th>Last View Time</th>
-                <th>Last Comment Time</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -135,7 +136,25 @@
                 </td>
                 <td>{{ article.id }}</td>
                 <td><a href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}">{{ article.title }}</a></td>
+                <td><a href="#">
+                    {% for source in article_sources %}
+                        {% if source.id|int == article.source_id|int %}
+                            {{ source.name }}
+                        {% endif %}
+                    {% endfor %}</a>
+                </td>
+                <td>
+                    <a href="#">
+                    {% for category in article_categorys %}
+                        {% if category.id|int == article.category_id|int %}
+                            {{ category.name }}
+                        {% endif %}
+                    {% endfor %}</a>
+                </td>
+                <td><a href="#">{{ article.keywords }}</a></td>
+                <!--这里点击后，可以查看具体统计数据，包括访问的用户，IP，时间-->
                 <td><a href="#">{{ article.view_count }}</a></td>
+                <!--这里点击后，可以查看具体评论信息-->
                 <td><a href="#">{{ article.comment_count }}</a></td>
                 {% if article.permit_comment %}
                 <td><span class="glyphicon glyphicon-ok-sign"></span></td>
@@ -147,15 +166,12 @@
                 {% else %}
                 <td><span class="fa fa-unlock"></span></td>
                 {% endif %}
-                <td>{{ article.public_time }}</td>
-                <td>{{ article.last_change_time }}</td>
-                <!--这里添加链接，可以查看最后评论用户的信息，用户个人信息等等-->
-                <td><a href="#">{{ article.last_view_time }}</a></td>
-                <td><a href="#">{{ article.last_comment_time }}</a></td>
+                <td>{{ article.public_time|string|truncate(19, True, end='') }}</td>
+                <td>{{ article.last_change_time|string|truncate(19, True, end='') }}</td>
                 <td>
                     <div class="btn-group" role="group">
                         {% if article.permit_comment %}
-                        <a href="#"><span class="glyphicon glyphicon-remove"></span></a>
+                        <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
                         {% else %}
                         <a href="#"><span class="glyphicon glyphicon-ok-sign"></span></a>
                         {% endif %}

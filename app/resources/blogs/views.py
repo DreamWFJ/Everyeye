@@ -7,10 +7,11 @@ Version:        0.1.0
 FileName:       views.py
 CreateTime:     2017-04-15 16:17
 """
-
+from app.core.db.sql.models import Article, ArticleReferenceLink
 from flask_login import login_required, current_user
 from flask import render_template, request, redirect, url_for
 from .. import resource_blueprint as main
+from app import sql_db
 from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 @main.route('/<string:username>')
@@ -24,44 +25,7 @@ def user_index(username):
 @login_required
 def article(username):
     # 文章列表
-    article_list = [
-        {
-            'id':1,
-            'title':"Test Article Title",
-            'status':True,# 表示是否显示
-            'view_count':16,
-            'comment_count':12,
-            'permit_comment':True,# 表示是否允许评论
-            'public_time':"2010-12-25 12:31:45",
-            'last_change_time':"2010-12-25 12:31:45",
-            'last_view_time':"2010-12-25 14:12:01",
-            'last_comment_time':"2010-12-25 14:12:43",
-        },
-        {
-            'id':2,
-            'title':"Test Article Title 2",
-            'status':True,# 表示是否显示
-            'view_count':24,
-            'comment_count':14,
-            'permit_comment':False,# 表示是否允许评论
-            'public_time':"2010-12-25 12:31:45",
-            'last_change_time':"2010-12-25 12:31:45",
-            'last_view_time':"2010-12-25 14:12:01",
-            'last_comment_time':"2010-12-25 14:12:43",
-        },
-        {
-            'id':3,
-            'title':"Test Article Title 2",
-            'status':False,# 表示是否显示
-            'view_count':15,
-            'comment_count':14,
-            'permit_comment':False,# 表示是否允许评论
-            'public_time':"2010-12-25 12:31:45",
-            'last_change_time':"2010-12-25 12:31:45",
-            'last_view_time':"2010-12-25 14:12:01",
-            'last_comment_time':"2010-12-25 14:12:43",
-        }
-    ]
+
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -71,9 +35,17 @@ def article(username):
     else:
         page_size = int(page_size)
         offset_size = (page - 1) * page_size
-    return render_template('resources/blog/article.html', article_list=article_list,
+
+    # article_list = Article.query.order_by(Article.id).all()
+    result_sql = "select articles.*, (select count(*) from article_view_records where article_view_records.article_id = articles.id) as view_count, " \
+                 "(select count(*) from article_comments where article_comments.article_id = articles.id) as comment_count from articles"
+
+    page_result = sql_db.session.execute(result_sql)
+
+    return render_template('resources/blog/article.html', article_list=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('manage.user'), query_size=10)
+                           current_url=url_for('resource.article', username=current_user.name), query_size=10, article_categorys=get_user_article_categorys(),
+                               article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources())
 
 # @main.route('/<string:username>/article/<uuid:article_id>')
 @main.route('/<string:username>/article/<int:article_id>')
@@ -81,7 +53,13 @@ def article(username):
 def one_article(username, article_id):
     # 某一篇文章
     print "request article id: <%s>"%id
-    return render_template('resources/blog/one_article.html')
+    article = Article.query.filter_by(id=article_id).first()
+    reference_links = ArticleReferenceLink.query.filter_by(article_id=article_id).all()
+    setattr(article, 'reference_links', reference_links)
+    return render_template('resources/blog/one_article.html', article=article,
+                           current_url=url_for('resource.article', username=current_user.name, article_id=article_id),
+                           article_categorys=get_user_article_categorys(), article_keywords=get_user_article_keywords(),
+                           article_sources=get_user_article_sources())
 
 @main.route('/<string:username>/new-article', methods=['POST','GET'])
 @login_required
@@ -96,7 +74,8 @@ def new_article(username):
         category_id = request.form.get('category_id')
         source_id = request.form.get('source_id')
         keywords = request.form.get('keywords')
-        enable_comment = request.form.get('enable_comment')
+        status = bool(request.form.get('status'))
+        permit_comment = bool(request.form.get('permit_comment'))
         content = request.form.get('summernote_content')
         content_type = "summernote"
         if len(content) == 0:
@@ -107,11 +86,13 @@ def new_article(username):
         print "category_id : ",category_id
         print "source_id : ",source_id
         print "keywords : ",keywords
-        print "enable_comment : ",enable_comment
+        print "status : ",status
+        print "permit_comment : ",permit_comment
         print "content : ",content
         print "content_type : ",content_type
         print "reference_links : ",reference_links
         print "current_user_id : ",current_user.id
+        Article.insert_article(current_user.id, title, keywords, source_id, category_id, status, permit_comment, content, content_type, reference_links)
         return redirect(url_for('resource.article', username=current_user.name))
 
 @main.route('/<string:username>/delete-article')

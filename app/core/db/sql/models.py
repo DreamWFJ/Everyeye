@@ -523,6 +523,8 @@ class User(UserMixin, db.Model):
     identity_card_number = db.Column(db.String(32))
     # 其他信息
     extra = db.Column(db.PickleType())
+    # 用户文章
+    articles = db.relationship('Article', backref = 'users', lazy= 'dynamic')
     # 用户创建时间
     create_at = db.Column(db.DateTime(), default = datetime.now)
     # 用户地址信息
@@ -565,7 +567,7 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, status=True, telephone=None, addresses=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
+    def insert_users(username, email, password, status=True, telephone=None, addresses=None, articles=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
         user = User()
@@ -576,6 +578,8 @@ class User(UserMixin, db.Model):
         user.status = status
         if addresses:
             user.addresses = addresses
+        if articles:
+            user.articles = articles
         if logs:
             user.logs = logs
         if audit_logs:
@@ -819,7 +823,207 @@ class AnonymousUser(AnonymousUserMixin):
     def has_right(self, res, action):
         return False
 
+class ArticleComment(db.Model):
+    """文章评论信息"""
+    __tablename__ = 'article_comments'
+    id = db.Column(db.Integer, primary_key = True)
+    # 评论的用户
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    # 评论状态，是否显示
+    status = db.Column(db.String(64))
+    # 评论内容
+    content = db.Column(db.Text())
+    # 评论时间
+    create_at = db.Column(db.DateTime, default = datetime.now)
 
+
+class ArticleSource(db.Model):
+    """文章来源信息"""
+    __tablename__ = 'article_sources'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    articles = db.relationship('Article', backref = 'article_sources', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_source(name):
+        article_source = ArticleSource.query.filter_by(name = name).first()
+        if article_source is None:
+            article_source = ArticleSource(name = name)
+            db.session.add(article_source)
+            db.session.commit()
+
+    @staticmethod
+    def init():
+        sources = ["original", "quote", "other"]
+        for source in sources:
+            ArticleSource.insert_source(source)
+
+    def __repr__(self):
+        return '<ArticleSource %r>' % self.name
+
+class ArticleCategory(db.Model):
+    """文章来源信息"""
+    __tablename__ = 'article_categorys'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    articles = db.relationship('Article', backref = 'article_categorys', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_categorys(categorys):
+        for category in categorys:
+            article_category = ArticleCategory.query.filter_by(name = category).first()
+            if article_category is None:
+                article_source = ArticleCategory(name = category)
+                db.session.add(article_source)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        article_categorys = ["work", "learning", "life", "other"]
+        ArticleCategory.insert_categorys(article_categorys)
+
+    def __repr__(self):
+        return '<ArticleCategory %r>' % self.name
+
+class ArticleContentType(db.Model):
+    """文章内容类型"""
+    __tablename__ = 'article_content_types'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_content_types(content_types):
+        for content_type in content_types:
+            article_content_type = ArticleContentType.query.filter_by(name = content_type).first()
+            if article_content_type is None:
+                article_content_type = ArticleContentType(name = content_type)
+                db.session.add(article_content_type)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        content_types = ["summernote", "markdown"]
+        ArticleContentType.insert_content_types(content_types)
+
+    def __repr__(self):
+        return '<ArticleContentType %r>' % self.name
+
+class ArticleReferenceLink(db.Model):
+    """文章参考链接"""
+    __tablename__ = 'article_reference_links'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_reference_links(reference_links):
+        for reference_link in reference_links:
+            article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+            if article_reference_link is None:
+                article_reference_link = ArticleReferenceLink(name = reference_link)
+                db.session.add(article_reference_link)
+        db.session.commit()
+
+    @staticmethod
+    def insert_reference_link(reference_link):
+        article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+        if article_reference_link is None:
+            article_reference_link = ArticleReferenceLink(name = reference_link)
+            db.session.add(article_reference_link)
+        db.session.commit()
+        return article_reference_link
+
+
+    def __repr__(self):
+        return '<ArticleReferenceLink %r>' % self.name
+
+class ArticleViewRecord(db.Model):
+    """文章访问记录"""
+    __tablename__ = 'article_view_records'
+    id = db.Column(db.Integer, primary_key = True)
+    ip = db.Column(db.String(64))
+    user_id = db.Column(db.Integer)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_content_types(view_records):
+        for view_record in view_records:
+            article_view_record = ArticleViewRecord.query.filter_by(name = view_record).first()
+            if article_view_record is None:
+                article_view_record = ArticleViewRecord(name = view_record)
+                db.session.add(article_view_record)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleViewRecord %r>' % self.name
+
+class Article(db.Model):
+    """文章信息"""
+    __tablename__ = 'articles'
+    id = db.Column(db.Integer, primary_key = True)
+    # 文章作者
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # 文章标题
+    title = db.Column(db.String(64), unique=True)
+    # 文章关键词
+    keywords = db.Column(db.String(64))
+    # 文章来源
+    source_id = db.Column(db.Integer, db.ForeignKey('article_sources.id'))
+    # 文章目录
+    category_id = db.Column(db.Integer, db.ForeignKey('article_categorys.id'))
+    # 文章状态，是否显示
+    status = db.Column(db.Boolean(), default=True)
+    # 文章是否允许被评论
+    permit_comment = db.Column(db.Boolean(), default=False)
+    # 文章内容
+    content = db.Column(db.Text())
+    # 文章内容类型，目前支持富文本和markdown
+    # content_type_id = db.Column(db.Integer, db.ForeignKey('article_content_types.id'))
+    content_type = db.Column(db.String(64))
+    # 文章中参考的链接
+    reference_links = db.relationship('ArticleReferenceLink', backref = 'articles', lazy = 'dynamic')
+    # 发表时间
+    public_time = db.Column(db.DateTime, default = datetime.now)
+    # 文章修改时间
+    change_time = db.Column(db.DateTime)
+    # 文章访问信息
+    views = db.relationship('ArticleViewRecord', backref = 'articles', lazy = 'dynamic')
+    # 文章评论信息
+    comments = db.relationship('ArticleComment', backref = 'articles', lazy= 'dynamic')
+
+    @staticmethod
+    def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, content, content_type, reference_links):
+        article = Article()
+        article.user_id = user_id
+        article.title = title
+        article.keywords = keywords
+        article.source_id = source_id
+        article.category_id = category_id
+        article.status = status
+        article.permit_comment = permit_comment
+        article.content = content
+        article.content_type = content_type
+        if len(reference_links) > 0:
+            ArticleReferenceLink.insert_reference_links(reference_links)
+            for reference_link in reference_links:
+                article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+                if article_reference_link is None:
+                    article_reference_link = ArticleReferenceLink(name = reference_link)
+                    db.session.add(article_reference_link)
+                article.reference_links.append(article_reference_link)
+        db.session.add(article)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<Article title %r>' % self.title
+
+# 初始化测试数据
 class InitData(object):
     """初始化数据库"""
     def __init__(self):
@@ -829,7 +1033,17 @@ class InitData(object):
         self.user = self.create_user()
         self.create_a_test_user()
 
+        self.init_dict()
 
+    def init_dict(self):
+        # 初始化字典数据
+        ArticleContentType.init()
+        ArticleSource.init()
+        ArticleCategory.init()
+
+
+    def create_article(self):
+        pass
 
     def create_log(self):
         action = 'update user name'
