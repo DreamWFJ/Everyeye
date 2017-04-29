@@ -1,8 +1,182 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
 {% extends "framework.html" %}
+{% block css %}
+    <style type="text/css">
+        .page-title {
+            font-size: 38px;
+            font-weight: 700;
+            color: #343434;
+            line-height: 1.2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .blog-post {
+            background-color: #fafafa;
+            border: 1px solid #f3f3f3;
+            margin: 0 0 70px;
+            position: relative;
+        }
+        .blog-post .blog-post-body {
+            padding: 20px 20px 0 20px;
+            min-height: 140px;
+        }
+        .blog-post.full {
+            background-color: transparent;
+            border: none;
+        }
+        .blog-post .blog-post-content {
+            padding: 0 0 10px;
+        }
+        .blog-post footer {
+            background-color: #f1f1f1;
+            padding: 12px 20px;
+            border-top: 1px solid #e8e8e8;
+            font-size: 14px;
+            line-height: 2;
+            clear: both;
+        }
+        .post-date{
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        h1,h2,h3,h4,h5,h6{
+            margin-top: 0px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .post-left-info{
+            text-align: right;
+        }
+        .post-left-info p{
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .post-left-info p i{
+            margin-right: 5px;
+            color:#777;
+
+        }
+        .blog-post ul.links {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .blog-post ul.links li {
+            display: inline-block;
+        }
+        .blog-post ul.links li a {
+            color: #666666;
+            display: inline-block;
+        }
+        .blog-post ul.links li a:hover {
+            color: #e84c3d;
+        }
+        .blog-post .blog-post-reference-link {
+            padding: 12px 20px;
+            font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+            font-size: small;
+            background-color: #99979c;
+        }
+
+        /* Comments
+    ---------------------------------- */
+        .comments {
+            margin-top: 60px;
+        }
+        .comments h2.title {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #d2d2d2;
+            padding-bottom: 10px;
+        }
+        .comment {
+            font-size: 14px;
+        }
+        .comment .comment {
+            margin-left: 75px;
+        }
+        .comment-avatar {
+            margin-top: 5px;
+            width: 55px;
+            float: left;
+        }
+        .comment-content {
+            margin-left: 75px;
+            border-bottom: 1px solid #d2d2d2;
+            margin-bottom: 40px;
+        }
+        .comment h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .comment-meta {
+            margin-bottom: 15px;
+            color: #999999;
+            font-size: 12px;
+        }
+        .comment-meta a {
+            color: #666666;
+        }
+        .comment-meta a:hover {
+            text-decoration: underline;
+        }
+        .comment .btn {
+            font-size: 12px;
+            padding: 7px;
+            min-width: 100px;
+            margin-top: 5px;
+            margin-bottom: -1px;
+        }
+        .comment .btn i {
+            padding-right: 5px;
+        }
+    </style>
+
+{% endblock css %}
 {% block script %}
+    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $(document).ready(function() {
+                var pre_set_color = {
+                    0:   'red',
+                    0.5: 'orange',
+                    1:   'rgba(0,0,0,0.1)'
+                };
+                var counter = 0;
+                var tag_option = {
+                    interval: 20,
+                    textFont: 'Arial, Helvetica, sans-serif',
+                    textColour: '#337ab7',
+                    textHeight: 25,
+                    outlineMethod: 'colour',
+                    outlineColour: 'red',
+                    outlineThickness: 1,
+                    maxSpeed: 0.04,
+                    minSpeed: 0.01,
+                    minBrightness: 0.1,
+                    depth: 0.92,
+                    outlineOffset: 0,
+                    shadowOffset: [1,1],
+                    stretchX: 0.7,
+                    pulsateTo: 0.2,
+                    pulsateTime: 0.75,
+                    initial: [0.1,-0.1],
+                    decel: 0.98,
+                    reverse: true,
+                    wheelZoom: false,
+                    hideTags: false,
+                    shuffleTags: true,
+                    shadow: '#ccf',
+                    shadowBlur: 3,
+                    weight: true,
+                    weightFrom: 'data-weight',
+                    weightGradient: pre_set_color,
+                    clickToFront: 600,
+                    weightMode:'both',
+                    fadeIn: 800
+                };
+                $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
+            });
         });
     </script>
 {% endblock script %}
@@ -10,157 +184,218 @@
 {% block search %}
     {{frame_search('article')}}
 {% endblock search %}
-{% block content %}
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">
-            <div class="page-header">
-                <h1 id="article_title" >{{article.title}}</h1>
-            </div>
-        </div>
-        <div class="panel-body">
-            <div id="article_source" class="row">
-                 {% for source in article_sources %}
-                        {% if source.id|int == article.source_id|int %}
-                            {{ source.name }}
-                        {% endif %}
-                    {% endfor %}
-            </div>
-            <div id="article_category" class="row">
-                {% for category in article_categorys %}
-                        {% if category.id|int == article.category_id|int %}
-                            {{ category.name }}
-                        {% endif %}
-                    {% endfor %}
-            </div>
-            <div id="article_content" class="row">
-                {{article.content}}
-            </div>
-            <div id="article_reference_links" class="row">
-                {% for reference_link in article.reference_links %}
-                {{reference_link}}
-                {% endfor %}
-            </div>
-            <div id="article_public_time">
-                {{article.public_time}}
-            </div>
-
-            <!-- Previous or next blog -->
-            <nav aria-label="...">
-                <ul class="pager">
-                    <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
-                    <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
-                </ul>
-            </nav>
-        </div>
-
-        <!-- 评论使用 -->
-        <div class="panel-footer">
-            Comment
-            <div class="panel-body">
-                <ul class="media-list">
-                    <li class="media">
-                        <div class="media-left">
-                            <a href="#">
-                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-                            </a>
+{% block page_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="panel-body">
+                    <article class="blog-post full">
+                        <div class="col-sm-2">
                         </div>
-                        <div class="media-body">
-                            <h4 class="media-heading">Media heading</h4>
-                            <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.</p>
-                            <div class="media">
-                                <div class="media-left">
-                                    <a href="#">
-                                        <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2MwMTQ4NiB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYzAxNDg2Ij48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-                                    </a>
+                        <div class="col-sm-10">
+                            <h1 class="page-title" id="article_title" >{{article.title}}</h1>
+                        </div>
+                        <div class="blog-post-body">
+                            <div class="col-sm-2 pull-left">
+                                <div class="post-date text-right">
+                                    <h2>{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</h2><span>{{article.public_time|string|truncate(7, True, end='')}}</span>
                                 </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">Nested media heading</h4>
-                                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
-                                    <!-- Nested media object -->
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <a href="#">
-                                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-                                            </a>
-                                        </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">Nested media heading</h4>
-                                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
-                                        </div>
+                                <div class="post-left-info">
+                                    <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
+                                    <p><i class="fa fa-tag"></i> <a href="#">{{article.keywords}}</a></p>
+                                    <p><i class="fa fa-comment"></i> <a href="#">3 Comments</a></p>
+                                </div>
+                            </div>
+                            <div class="col-sm-10">
+                                <div class="blog-post-info">
+                                    <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" class="img-responsive" alt>
+                                </div>
+                                <div id="article_content" class="blog-post-content">
+                                    {{article.content | string | safe }}
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <label>Reference Link</label>
+                                    </div>
+                                    <div class="col-sm-10 blog-post-reference-link" id="article_reference_links" >
+                                    <ul style="margin: 0; padding: 0; list-style: none">
+                                        {% for reference_link in article.reference_links %}
+                                            <li>{{reference_link.name}}</li>
+                                        {% endfor %}
+                                    </ul>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </li>
-                </ul>
-                {{ page_navigation(10, 1, 'http://test.com/page') }}
+                        <footer class="clearfix">
+                            <ul class="links pull-left">
+                                <li><i class="fa fa-comment-o pr-5"></i> <a href="#">
+                                    {% for source in article_sources %}
+                                        {% if source.id|int == article.source_id|int %}
+                                            {{ source.name }}
+                                        {% endif %}
+                                    {% endfor %}</a> |</li>
+                                <li><i class="fa fa-tags pr-5"></i>
+                                    {% for category in article_categorys %}
+                                        {% if category.id|int == article.category_id|int %}
+                                            {{ category.name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                        </footer>
+                    </article>
+
+                    <!-- Previous or next blog -->
+                    <nav aria-label="...">
+                        <ul class="pager">
+                            <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
+                            <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+                        </ul>
+                    </nav>
+                    <div class="comments">
+                        <h2 class="title">There are 3 comments</h2>
+
+                        <!-- comment start -->
+                        <div class="comment clearfix">
+                            <div class="comment-avatar">
+                                <img src="images/avatar.jpg" alt="avatar">
+                            </div>
+                            <div class="comment-content">
+                                <h3>Comment title</h3>
+                                <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
+                                <div class="comment-body clearfix">
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
+                                    <a href="blog-post.html" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
+                                </div>
+                            </div>
+
+                            <!-- comment start -->
+                            <div class="comment clearfix">
+                                <div class="comment-avatar">
+                                    <img src="images/avatar.jpg" alt="avatar">
+                                </div>
+                                <div class="comment-content clearfix">
+                                    <h3>Comment title</h3>
+                                    <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
+                                    <div class="comment-body">
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
+                                        <a href="blog-post.html" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- comment end -->
+
+                        </div>
+                        <!-- comment end -->
+
+                        <!-- comment start -->
+                        <div class="comment clearfix">
+                            <div class="comment-avatar">
+                                <img src="#" alt="avatar">
+                            </div>
+                            <div class="comment-content clearfix">
+                                <h3>Comment title</h3>
+                                <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
+                                <div class="comment-body">
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
+                                    <a href="#" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- comment end -->
+
+                    </div>
+                    <div class="comments-form">
+                        <h2 class="title">Add your comment</h2>
+                        <form role="form" id="comment-form">
+                            <div class="form-group has-feedback">
+                                <label for="name4">Name</label>
+                                <input type="text" class="form-control" id="name4" placeholder="" name="name4" required="">
+                                <i class="fa fa-user form-control-feedback"></i>
+                            </div>
+                            <div class="form-group has-feedback">
+                                <label for="subject4">Subject</label>
+                                <input type="text" class="form-control" id="subject4" placeholder="" name="subject4" required="">
+                                <i class="fa fa-pencil form-control-feedback"></i>
+                            </div>
+                            <div class="form-group has-feedback">
+                                <label for="message4">Message</label>
+                                <textarea class="form-control" rows="8" id="message4" placeholder="" name="message4" required=""></textarea>
+                                <i class="fa fa-envelope-o form-control-feedback"></i>
+                            </div>
+                            <input type="submit" value="Submit" class="btn btn-default">
+                        </form>
+                    </div>
+                </div>
             </div>
+            <div class="col-md-3">
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                        <ul class="nav nav-tabs">
+                            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+                            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+                            <li role="presentation" class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Dropdown <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                                    <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
+                                    <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="home">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
+                                    <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
+                                    <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
+                                </ul>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="profile">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
+                                    <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
+                                    <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
+                                </ul>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="messages">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
+                                    <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
+                                </ul>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="life">...</div>
+                            <div role="tabpanel" class="tab-pane" id="happly">...</div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Keyword Cloud</div>
+                        <div class="panel-body">
+                            <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                                <p>Anything in here will be replaced on browsers that support the canvas element</p>
+                            </canvas>
+
+                            <div id="ExtendCloudTag" style="display: none">
+                                <ul>
+                                    <li><a href="http://www.google.com" target="_blank">Google</a></li>
+                                    <li><a href="/fish">Fish</a></li>
+                                    <li><a href="/chips">Chips</a></li>
+                                    <li><a href="/salt">Salt</a></li>
+                                    <li><a href="/vinegar">Vinegar</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-{% endblock content %}
-
-{% block sidebar %}
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default">
-            <ul class="nav nav-tabs">
-                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                <li role="presentation" class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Dropdown <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                        <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
-                        <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="home">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="profile">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="messages">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="life">...</div>
-                <div role="tabpanel" class="tab-pane" id="happly">...</div>
-            </div>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">Keyword Cloud</div>
-            <div class="panel-body">
-                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
-                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
-                </canvas>
-
-                <div id="ExtendCloudTag" style="display: none">
-                    <ul>
-                        <li><a href="http://www.google.com" target="_blank">Google</a></li>
-                        <li><a href="/fish">Fish</a></li>
-                        <li><a href="/chips">Chips</a></li>
-                        <li><a href="/salt">Salt</a></li>
-                        <li><a href="/vinegar">Vinegar</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock sidebar %}
+    {% block footer %}{% endblock footer %}
+{% endblock page_content %}
