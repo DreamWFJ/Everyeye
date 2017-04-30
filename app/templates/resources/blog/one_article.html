@@ -202,7 +202,15 @@
                                 </div>
                                 <div class="post-left-info">
                                     <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
-                                    <p><i class="fa fa-tag"></i> <a href="#">{{article.keywords}}</a></p>
+                                    <p><i class="fa fa-folder-open"></i>
+                                        <a href="#">
+                                        {% for category in article_categorys %}
+                                        {% if category.id|int == article.category_id|int %}
+                                            {{ category.name }}
+                                        {% endif %}
+                                        {% endfor %}
+                                        </a>
+                                    </p>
                                     <p><i class="fa fa-comment"></i> <a href="#">3 Comments</a></p>
                                 </div>
                             </div>
@@ -210,7 +218,7 @@
                                 <div class="blog-post-info">
                                     <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" class="img-responsive" alt>
                                 </div>
-                                <div id="article_content" class="blog-post-content">
+                                <div id="article_content" class="blog-post-content" >
                                     {{article.content | string | safe }}
                                 </div>
                                 <div class="row">
@@ -237,11 +245,7 @@
                                         {% endif %}
                                     {% endfor %}</a> |</li>
                                 <li><i class="fa fa-tags pr-5"></i>
-                                    {% for category in article_categorys %}
-                                        {% if category.id|int == article.category_id|int %}
-                                            {{ category.name }}
-                                        {% endif %}
-                                    {% endfor %}
+                                    {{article.keywords }}
                                 </li>
                             </ul>
                         </footer>
@@ -260,7 +264,7 @@
                         <!-- comment start -->
                         <div class="comment clearfix">
                             <div class="comment-avatar">
-                                <img src="images/avatar.jpg" alt="avatar">
+                                <img src="#" alt="avatar">
                             </div>
                             <div class="comment-content">
                                 <h3>Comment title</h3>
@@ -274,7 +278,7 @@
                             <!-- comment start -->
                             <div class="comment clearfix">
                                 <div class="comment-avatar">
-                                    <img src="images/avatar.jpg" alt="avatar">
+                                    <img src="#" alt="avatar">
                                 </div>
                                 <div class="comment-content clearfix">
                                     <h3>Comment title</h3>

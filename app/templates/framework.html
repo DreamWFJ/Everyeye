@@ -26,10 +26,9 @@
     <!-- bootstrap tabs js -->
     <script src="{{ url_for('static', filename = 'js/bootstrap-tabs-x.min.js') }}" crossorigin="anonymous"></script>
 
-    <!-- bootstrap codemirror css -->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/codemirror.min.css') }}" crossorigin="anonymous">
-    <!-- bootstrap codemirror js -->
-    <script src="{{ url_for('static', filename = 'js/codemirror.min.js') }}" crossorigin="anonymous"></script>
+    <!-- 代码高亮 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/prettify.css') }}" crossorigin="anonymous">
+    <script src="{{ url_for('static', filename = 'js/prettify.js') }}" crossorigin="anonymous"></script>
     <!-- bootstrap bootbox js，用于alert类似的弹出确认框 -->
     <script src="{{ url_for('static', filename = 'js/bootbox.min.js') }}" crossorigin="anonymous"></script>
     <!-- jquery scrollUp js，用于滚轮 -->
@@ -49,6 +48,9 @@
             $(".disabled").click(function (event) {
                 event.preventDefault();
             });
+            $("pre").addClass("prettyprint");
+            prettyPrint();
+
             // 添加工具提示
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip();

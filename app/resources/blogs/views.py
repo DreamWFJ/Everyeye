@@ -7,7 +7,8 @@ Version:        0.1.0
 FileName:       views.py
 CreateTime:     2017-04-15 16:17
 """
-from app.core.db.sql.models import Article, ArticleReferenceLink
+import markdown
+from app.core.db.sql.models import Article, ArticleReferenceLink, ArticleCategory, ArticleComment
 from flask_login import login_required, current_user
 from flask import render_template, request, redirect, url_for
 from .. import resource_blueprint as main
@@ -54,6 +55,8 @@ def one_article(username, article_id):
     # 某一篇文章
     print "request article id: <%s>"%id
     article = Article.query.filter_by(id=article_id).first()
+    if article.content_type == "markdown":
+        article.content = markdown.markdown(article.content)
     reference_links = ArticleReferenceLink.query.filter_by(article_id=article_id).all()
     setattr(article, 'reference_links', reference_links)
     return render_template('resources/blog/one_article.html', article=article,
@@ -108,7 +111,24 @@ def delete_article(username):
 @login_required
 def category(username):
     # 文章目录管理
-    return render_template('resources/blog/category.html')
+    page = int(request.args.get('page', 1))
+    page_size = request.args.get('page_size', 10)
+    order_name = request.args.get('order_name', 'id')
+    order_direction = request.args.get('order_direction', 'asc')
+    if page_size == 'all':
+        offset_size = page_size = None
+    else:
+        page_size = int(page_size)
+        offset_size = (page - 1) * page_size
+
+    result_sql = "select article_categorys.*, (select count(*) from articles where articles.category_id = " \
+                 "article_categorys.id) as article_count from article_categorys"
+
+    page_result = sql_db.session.execute(result_sql)
+
+    return render_template('resources/blog/category.html', category_list=page_result,
+                           page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
+                           current_url=url_for('resource.category', username=current_user.name), query_size=10)
 
 @main.route('/<string:username>/keyword')
 @login_required

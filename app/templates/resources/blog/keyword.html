@@ -3,7 +3,44 @@
 {% extends "framework.html" %}
 {% block script %}
     <script type="text/javascript">
-        $(document).ready(function() {});
+        $(document).ready(function() {
+            // checkbox全选和取消
+            $("#check_all_box").on('ifChanged',
+                    function(event){
+                        var checkbox = $("input[name='check_box[]']");
+                        if(this.checked){
+                            checkbox.iCheck('check');
+                            $("button#remove").attr('disabled', false);
+                        }else{
+                            checkbox.iCheck('uncheck');
+                            $("button#remove").attr('disabled', true);
+                        }
+                    }
+            );
+            // 单选和取消 checkbox时，对相关按钮的禁用和启用
+            $("input[name='check_box[]']").on('ifChanged', function(e, d){
+                var checkbox = $(this);
+                if(this.checked){
+                    checkbox.parents('tr').addClass('info');
+                    $("button#remove").attr('disabled', false);
+                }else{
+                    checkbox.parents('tr').removeClass('info');
+                    $("button#remove").attr('disabled', true);
+                }
+            });
+            // 设置checkbox的初始化选项
+            $("input:checkbox").iCheck({
+                checkboxClass: 'icheckbox_minimal',
+                radioClass: 'iradio_minimal',
+                increaseArea: '20%', // optional
+                handle: 'checkbox'
+            });
+
+            // 点击事件，获取选中的数据，然后删除
+            $("button#add").click(function(){
+                window.location.href = $(this).attr('data-ajax-url');
+            });
+        });
     </script>
 {% endblock script %}
 {% block title %}Keyword{% endblock title %}
@@ -16,65 +53,55 @@
         <!-- Default panel contents -->
         <div class="panel-heading">Panel heading</div>
         <div class="panel-body">
-            <form class="form">
-                <div class="tabs-x align-center tabs-above tab-bordered">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#panel_for_search" data-toggle="tab">Search</a></li>
-                        <li><a href="#panel_for_add" data-toggle="tab">Add</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="panel_for_search">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon" id="basic-search-keyword"><span class="fa fa-key"></span></span>
-                                        <input type="text" class="form-control" placeholder="Category" aria-describedby="basic-search-keyword">
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">
-                                            Order
-                                        </span>
-                                        <select class="form-control">
-                                            <option>Keyword</option>
-                                            <option>Article Count</option>
-                                        </select>
-                                    </div><!-- /input-group -->
-                                </div><!-- /.col-lg-6 -->
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-6">
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="pull-right">
-                                        <button type="submit" class="btn btn-default">Search</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="panel_for_add">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="input-group">
-                                        <span class="input-group-addon" id="basic-add-key"><span class="fa fa-key"></span></span>
-                                        <input type="text" class="form-control" placeholder="Category" aria-describedby="basic-add-key">
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="pull-right">
-                                        <button type="submit" class="btn btn-default">Add</button>
-                                    </div>
-                                </div><!-- /.col-lg-6 -->
-                            </div>
-
-                        </div>
-                    </div>
+            <div class="input-group-btn">
+            <div class="bs-bars pull-left">
+                <div id="toolbar">
+                    <button id="remove" data-ajax-url="{{url_for('resource.delete_article', username=current_user.name)}}" class="btn btn-danger" disabled="">
+                        <i class="glyphicon glyphicon-remove"></i> Delete
+                    </button>
                 </div>
+            </div>
+            <div class="columns columns-right btn-group pull-right">
+                <!-- 添加目录的对话框 -->
+                <button id="add" type="button" class="btn btn-default" data-ajax-url="{{url_for('resource.new_article', username=current_user.name)}}" data-toggle="tooltip" aria-label="Add" title="New Article">
+                    <i class="glyphicon glyphicon-plus"></i>
+                </button>
 
-            </form>
+
+                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                </button>
+                <div class="keep-open btn-group" title="Order">
+                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" name="order-table">
+                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                    </ul>
+                </div>
+                <div class="export btn-group">
+                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                        <i class="glyphicon glyphicon-export icon-share"></i>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pull-right search">
+                <form id="TableSearchForm" action="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size)}}" method="post">
+                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                </form>
+            </div>
+        </div>
         </div>
         <!-- Table -->
         <div class="table-responsive">
@@ -82,7 +109,7 @@
                 <thead>
                 <tr>
                     <th>
-                        <input type="checkbox" value="option1" >
+                        <input type="checkbox" id="check_all_box" name='check_box[]'>
                     </th>
                     <th>ID</th>
                     <th>Keyword</th>

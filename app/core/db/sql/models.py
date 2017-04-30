@@ -831,7 +831,7 @@ class ArticleComment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     # 评论状态，是否显示
-    status = db.Column(db.String(64))
+    status = db.Column(db.Boolean(), default=True)
     # 评论内容
     content = db.Column(db.Text())
     # 评论时间
@@ -843,6 +843,7 @@ class ArticleSource(db.Model):
     __tablename__ = 'article_sources'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=True)
     articles = db.relationship('Article', backref = 'article_sources', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -868,6 +869,7 @@ class ArticleCategory(db.Model):
     __tablename__ = 'article_categorys'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=True)
     articles = db.relationship('Article', backref = 'article_categorys', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -887,6 +889,37 @@ class ArticleCategory(db.Model):
 
     def __repr__(self):
         return '<ArticleCategory %r>' % self.name
+
+# 建立文章与关键词的多对多关系
+article_keywords = db.Table('article_keywords',
+                  db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
+                  db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
+
+class ArticleKeyword(db.Model):
+    """文章关键词"""
+    __tablename__ = 'article_keyword'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+    status = db.Column(db.Boolean(), default=True)
+
+    @staticmethod
+    def insert_categorys(categorys):
+        for category in categorys:
+            article_category = ArticleCategory.query.filter_by(name = category).first()
+            if article_category is None:
+                article_source = ArticleCategory(name = category)
+                db.session.add(article_source)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        article_categorys = ["work", "learning", "life", "other"]
+        ArticleCategory.insert_categorys(article_categorys)
+
+    def __repr__(self):
+        return '<ArticleKeyword %r>' % self.name
+
 
 class ArticleContentType(db.Model):
     """文章内容类型"""
@@ -919,6 +952,7 @@ class ArticleReferenceLink(db.Model):
     name = db.Column(db.String(64), unique=True)
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     create_at = db.Column(db.DateTime, default = datetime.now)
+    status = db.Column(db.Boolean(), default=True)
 
     @staticmethod
     def insert_reference_links(reference_links):
@@ -948,6 +982,7 @@ class ArticleViewRecord(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     ip = db.Column(db.String(64))
     user_id = db.Column(db.Integer)
+    status = db.Column(db.Boolean(), default=True)
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -972,7 +1007,9 @@ class Article(db.Model):
     # 文章标题
     title = db.Column(db.String(64), unique=True)
     # 文章关键词
-    keywords = db.Column(db.String(64))
+    keywords = db.relationship('ArticleKeyword',
+                               secondary = article_keywords,
+                               backref = db.backref('articles', lazy='dynamic'))
     # 文章来源
     source_id = db.Column(db.Integer, db.ForeignKey('article_sources.id'))
     # 文章目录
@@ -996,6 +1033,7 @@ class Article(db.Model):
     views = db.relationship('ArticleViewRecord', backref = 'articles', lazy = 'dynamic')
     # 文章评论信息
     comments = db.relationship('ArticleComment', backref = 'articles', lazy= 'dynamic')
+
 
     @staticmethod
     def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, content, content_type, reference_links):
