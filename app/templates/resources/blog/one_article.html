@@ -204,11 +204,11 @@
                                     <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
                                     <p><i class="fa fa-folder-open"></i>
                                         <a href="#">
-                                        {% for category in article_categorys %}
-                                        {% if category.id|int == article.category_id|int %}
-                                            {{ category.name }}
-                                        {% endif %}
-                                        {% endfor %}
+                                            {% for category in article_categorys %}
+                                                {% if category.id|int == article.category_id|int %}
+                                                    {{ category.name }}
+                                                {% endif %}
+                                            {% endfor %}
                                         </a>
                                     </p>
                                     <p><i class="fa fa-comment"></i> <a href="#">3 Comments</a></p>
@@ -221,19 +221,23 @@
                                 <div id="article_content" class="blog-post-content" >
                                     {{article.content | string | safe }}
                                 </div>
-                                <div class="row">
-                                    <div class="col-sm-2">
-                                        <label>Reference Link</label>
-                                    </div>
-                                    <div class="col-sm-10 blog-post-reference-link" id="article_reference_links" >
-                                    <ul style="margin: 0; padding: 0; list-style: none">
-                                        {% for reference_link in article.reference_links %}
-                                            <li>{{reference_link.name}}</li>
-                                        {% endfor %}
-                                    </ul>
+                                {% if article.reference_links %}
+                                    <div class="row">
+                                        <div class="col-sm-2">
+                                            <label>Reference Link</label>
+                                        </div>
+                                        <div class="col-sm-10 blog-post-reference-link" id="article_reference_links" >
+                                            <ul style="margin: 0; padding: 0; list-style: none">
 
+                                                {% for reference_link in article.reference_links %}
+                                                    <li>{{reference_link.name}}</li>
+                                                {% endfor %}
+
+                                            </ul>
+
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         <footer class="clearfix">
@@ -245,7 +249,10 @@
                                         {% endif %}
                                     {% endfor %}</a> |</li>
                                 <li><i class="fa fa-tags pr-5"></i>
-                                    {{article.keywords }}
+                                    {% for keyword in article.keywords %}
+                                        <a href="#">{{keyword.name }}</a>
+                                        {% if loop.index <= loop.length - 1 %},{% endif %}
+                                    {% endfor %}
                                 </li>
                             </ul>
                         </footer>

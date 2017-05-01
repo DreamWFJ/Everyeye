@@ -211,7 +211,7 @@ class Resource(db.Model):
                             primaryjoin="RolesResources.resource_id==Resource.id")
 
     rights = db.relationship("ResourcesRights", back_populates="resource",
-                                primaryjoin="ResourcesRights.resource_id==Resource.id")
+                             primaryjoin="ResourcesRights.resource_id==Resource.id")
 
     @staticmethod
     def insert_resources(name, weight, status=True):
@@ -830,8 +830,8 @@ class ArticleComment(db.Model):
     # 评论的用户
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
-    # 评论状态，是否显示
-    status = db.Column(db.Boolean(), default=True)
+    # 评论状态，是否锁定
+    status = db.Column(db.Boolean(), default=False)
     # 评论内容
     content = db.Column(db.Text())
     # 评论时间
@@ -843,7 +843,7 @@ class ArticleSource(db.Model):
     __tablename__ = 'article_sources'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
-    status = db.Column(db.Boolean(), default=True)
+    status = db.Column(db.Boolean(), default=False)
     articles = db.relationship('Article', backref = 'article_sources', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -869,7 +869,7 @@ class ArticleCategory(db.Model):
     __tablename__ = 'article_categorys'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
-    status = db.Column(db.Boolean(), default=True)
+    status = db.Column(db.Boolean(), default=False)
     articles = db.relationship('Article', backref = 'article_categorys', lazy = 'dynamic')
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -883,6 +883,15 @@ class ArticleCategory(db.Model):
         db.session.commit()
 
     @staticmethod
+    def insert_category(name, status):
+        article_category = ArticleCategory.query.filter_by(name = name).first()
+        if article_category is None:
+            article_source = ArticleCategory(name = name)
+            article_source.status = status
+            db.session.add(article_source)
+        db.session.commit()
+
+    @staticmethod
     def init():
         article_categorys = ["work", "learning", "life", "other"]
         ArticleCategory.insert_categorys(article_categorys)
@@ -892,30 +901,83 @@ class ArticleCategory(db.Model):
 
 # 建立文章与关键词的多对多关系
 article_keywords = db.Table('article_keywords',
-                  db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
-                  db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
+                            db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
+                            db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
 
 class ArticleKeyword(db.Model):
     """文章关键词"""
     __tablename__ = 'article_keyword'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
+    color = db.Column(db.String(64))
     create_at = db.Column(db.DateTime, default = datetime.now)
-    status = db.Column(db.Boolean(), default=True)
 
     @staticmethod
-    def insert_categorys(categorys):
-        for category in categorys:
-            article_category = ArticleCategory.query.filter_by(name = category).first()
-            if article_category is None:
-                article_source = ArticleCategory(name = category)
-                db.session.add(article_source)
+    def insert_keywords(keywords):
+        for keyword in keywords:
+            article_keyword = ArticleKeyword.query.filter_by(name = keyword["name"]).first()
+            if article_keyword is None:
+                article_keyword = ArticleKeyword(name = keyword["name"])
+                article_keyword.color = keyword["color"]
+                db.session.add(article_keyword)
         db.session.commit()
 
     @staticmethod
+    def insert_keyword(name, color, status=True):
+        article_keyword = ArticleKeyword.query.filter_by(name = name).first()
+        if article_keyword is None:
+            article_keyword = ArticleKeyword(name = name)
+            article_keyword.color = color
+            article_keyword.status = status
+            db.session.add(article_keyword)
+        db.session.commit()
+        return article_keyword
+
+    @staticmethod
+    def delete_keyword(name):
+        keyword = ArticleKeyword.query.filter_by(name = name).first()
+        if keyword:
+            db.session.delete(keyword)
+            db.session.commit()
+
+    @staticmethod
+    def delete_keyword_by_ids(ids):
+        keywords = ArticleKeyword.query.filter(ArticleKeyword.id.in_(ids))
+        if keywords:
+            for keyword in keywords:
+                db.session.delete(keyword)
+            db.session.commit()
+
+    @staticmethod
     def init():
-        article_categorys = ["work", "learning", "life", "other"]
-        ArticleCategory.insert_categorys(article_categorys)
+        article_keywords = [
+            {
+                "id":1, "name":"Aritcle", "color":"default"
+            },
+            {
+                "id":2, "name":"nothing", "color":"primary"
+            },
+            {
+                "id":3, "name":"learning", "color":"success"
+            },
+            {
+                "id":4, "name":"CDN", "color":"info"
+            },
+            {
+                "id":5, "name":"K8S", "color":"warning"
+            },
+            {
+                "id":6, "name":"Cloud", "color":"danger"
+            },
+            {
+                "id":7, "name":"mouse", "color":"default"
+            },
+            {
+                "id":8, "name":"apple", "color":"primary"
+            }
+        ]
+        ArticleKeyword.insert_keywords(article_keywords)
 
     def __repr__(self):
         return '<ArticleKeyword %r>' % self.name
@@ -926,6 +988,7 @@ class ArticleContentType(db.Model):
     __tablename__ = 'article_content_types'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
     create_at = db.Column(db.DateTime, default = datetime.now)
 
     @staticmethod
@@ -952,7 +1015,7 @@ class ArticleReferenceLink(db.Model):
     name = db.Column(db.String(64), unique=True)
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     create_at = db.Column(db.DateTime, default = datetime.now)
-    status = db.Column(db.Boolean(), default=True)
+    status = db.Column(db.Boolean(), default=False)
 
     @staticmethod
     def insert_reference_links(reference_links):
@@ -982,7 +1045,7 @@ class ArticleViewRecord(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     ip = db.Column(db.String(64))
     user_id = db.Column(db.Integer)
-    status = db.Column(db.Boolean(), default=True)
+    status = db.Column(db.Boolean(), default=False)
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     create_at = db.Column(db.DateTime, default = datetime.now)
 
@@ -1014,8 +1077,8 @@ class Article(db.Model):
     source_id = db.Column(db.Integer, db.ForeignKey('article_sources.id'))
     # 文章目录
     category_id = db.Column(db.Integer, db.ForeignKey('article_categorys.id'))
-    # 文章状态，是否显示
-    status = db.Column(db.Boolean(), default=True)
+    # 文章状态，是否被锁定
+    status = db.Column(db.Boolean(), default=False)
     # 文章是否允许被评论
     permit_comment = db.Column(db.Boolean(), default=False)
     # 文章内容
@@ -1058,6 +1121,21 @@ class Article(db.Model):
         db.session.add(article)
         db.session.commit()
 
+    @staticmethod
+    def delete_article(name):
+        article = Article.query.filter_by(name = name).first()
+        if article:
+            db.session.delete(article)
+            db.session.commit()
+
+    @staticmethod
+    def delete_article_by_ids(ids):
+        articles = Article.query.filter(Article.id.in_(ids))
+        if articles:
+            for article in articles:
+                db.session.delete(article)
+            db.session.commit()
+
     def __repr__(self):
         return '<Article title %r>' % self.title
 
@@ -1078,6 +1156,7 @@ class InitData(object):
         ArticleContentType.init()
         ArticleSource.init()
         ArticleCategory.init()
+        ArticleKeyword.init()
 
 
     def create_article(self):

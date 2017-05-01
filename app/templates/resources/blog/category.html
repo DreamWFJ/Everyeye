@@ -2,6 +2,14 @@
 {% import 'macro/__article__.html' as article %}
 {% extends "framework.html" %}
 {% block script %}
+    <!-- bootstrap validator css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap validator js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+    <!-- bootstrap-switch css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap-switch js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $(document).ready(function() {
 
@@ -41,6 +49,11 @@
             $("button#add").click(function(){
                 window.location.href = $(this).attr('data-ajax-url');
             });
+
+            $("[name='status']").bootstrapSwitch({
+                onText: 'Lock',
+                offText: 'Unlock'
+            });
         });
     </script>
 {% endblock script %}
@@ -64,7 +77,7 @@
                 </div>
                 <div class="columns columns-right btn-group pull-right">
                     <!-- 添加目录的对话框 -->
-                    <button id="add" type="button" class="btn btn-default" data-ajax-url="{{url_for('resource.new_article', username=current_user.name)}}" data-toggle="tooltip" aria-label="Add" title="New Article">
+                    <button type="button" class="btn btn-default" data-toggle="modal" aria-label="Add" title="Add" data-target="#add_category">
                         <i class="glyphicon glyphicon-plus"></i>
                     </button>
 
@@ -149,8 +162,42 @@
                 </tbody>
             </table>
         </div>
+        {{ menu_paging(page_size, page, query_size, current_url) }}
     </div>
-    {{ menu_paging(page_size, page, query_size, current_url) }}
+
+    <!-- 添加目录具体实现模块 -->
+    <div class="modal fade" id="add_category" tabindex="-1" role="dialog" aria-labelledby="Add Article's Category">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="addArticleCategoryForm" class="form-horizontal" action="{{ current_url }}" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Add Article's Category</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="inputArticleCategoryName" class="col-sm-3 control-label">Category Name</label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="inputArticleCategoryName" placeholder="Category Name" name="name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="inputArticleCategoryStatus">Category Status</label>
+                            <div class="col-sm-9">
+                                <input id="inputArticleCategoryStatus" name="status" checked type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block sidebar %}
