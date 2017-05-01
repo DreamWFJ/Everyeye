@@ -151,7 +151,7 @@
                         {% endif %}
                     {% endfor %}</a>
                 </td>
-                <td><a href="#">{{ article.keywords }}</a></td>
+                <td><a href="{{ url_for('resource.keyword', username=current_user.name, article_id=article.id) }}">{{ article.keywords }}</a></td>
                 <!--这里点击后，可以查看具体统计数据，包括访问的用户，IP，时间-->
                 <td><a href="#">{{ article.view_count }}</a></td>
                 <!--这里点击后，可以查看具体评论信息-->
@@ -170,6 +170,7 @@
                 <td>{{ article.last_change_time|string|truncate(19, True, end='') }}</td>
                 <td>
                     <div class="btn-group" role="group">
+                        <a href="{{ url_for('resource.new_article', username=current_user.name, article_id=article.id) }}"><span class="fa fa-edit"></span></a>
                         {% if article.permit_comment %}
                         <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
                         {% else %}

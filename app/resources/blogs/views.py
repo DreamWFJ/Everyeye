@@ -39,7 +39,8 @@ def article(username):
         offset_size = (page - 1) * page_size
 
     # article_list = Article.query.order_by(Article.id).all()
-    result_sql = "select articles.*, (select name from article_keyword, article_keywords where article_keyword.id = article_keywords.keyword_id ) as keywords, " \
+    result_sql = "select articles.*, (select count(*) from article_keyword, article_keywords where " \
+                 "article_keyword.id = article_keywords.keyword_id and articles.id = article_keywords.article_id ) as keywords, " \
                  "(select count(*) from article_view_records where article_view_records.article_id = articles.id) as view_count, " \
                  "(select count(*) from article_comments where article_comments.article_id = articles.id) as comment_count from articles"
 
@@ -71,8 +72,18 @@ def one_article(username, article_id):
 def new_article(username):
     # 写文章
     if request.method == 'GET':
+        article_id = request.args.get('article_id')
+        if article_id:
+            article = Article.query.filter_by(id=article_id).first()
+            keywords = ','.join([keyword.name for keyword in article.keywords])
+        else:
+            article = None
+            keywords = None
+        print article
+        print keywords
         return render_template('resources/blog/new_article.html', article_categorys=get_user_article_categorys(),
-                               article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources())
+                               article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources(),
+                               article=article, keywords=keywords)
     elif request.method == 'POST':
         print request.form
         title = request.form.get('title')
@@ -180,9 +191,18 @@ def keyword(username):
         page_size = int(page_size)
         offset_size = (page - 1) * page_size
 
-    result_sql = "select article_keyword.*, (select count(*) from articles, article_keywords where article_keywords.keyword_id = " \
-                 "article_keyword.id) as article_count from article_keyword "
-
+    article_id = request.args.get('article_id')
+    if article_id:
+        filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
+                     "article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} and " \
+                     "article_keywords.article_id = {article_id}) as article_count from article_keyword,article_keywords, " \
+                     "articles WHERE article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} " \
+                     "and article_keywords.article_id = {article_id} ".format(article_id=article_id)
+    else:
+        filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
+                     "article_keywords.keyword_id = article_keyword.id and articles.id = article_keywords.article_id) as " \
+                     "article_count from article_keyword"
+    result_sql = filter_sql
     page_result = sql_db.session.execute(result_sql)
 
     return render_template('resources/blog/keyword.html', keyword_list=page_result,

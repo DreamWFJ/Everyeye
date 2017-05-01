@@ -284,7 +284,7 @@
                 <div class="form-group">
                     <label for="inputArticleTitle" class="col-sm-2 control-label">Title</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputArticleTitle" name="title" placeholder="Article Title">
+                        <input type="text" class="form-control" id="inputArticleTitle" name="title" value="{{ article.title }}" placeholder="Article Title">
                     </div>
                 </div>
 
@@ -294,7 +294,7 @@
                         <ul id="inputArticleSource" style="margin: 0; padding: 0; list-style: none">
                             {% for source in article_sources %}
                                 <li>
-                                    <input type="radio" id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
+                                    <input type="radio" {% if article.source_id|string == source.id|string %}checked{% endif %} id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
                                     <label for="{{ source.id }}">{{ source.name }}</label>
                                 </li>
                             {% endfor %}
@@ -340,7 +340,7 @@
                     <label for="inputKeywords" class="col-sm-2 control-label">Keywords</label>
                     <div class="col-sm-10">
                         <div class="input-group">
-                            <input type="text" name="keywords" id="inputKeywords" class="form-control" data-role="tagsinput" />
+                            <input type="text" name="keywords" id="inputKeywords" value="{{ article.keywords }}" class="form-control" data-role="tagsinput" />
                         </div><!-- /input-group -->
                     </div>
                     <div class="col-sm-2">
