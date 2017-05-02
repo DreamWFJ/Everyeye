@@ -524,7 +524,7 @@ class User(UserMixin, db.Model):
     # 其他信息
     extra = db.Column(db.PickleType())
     # 用户文章
-    articles = db.relationship('Article', backref = 'users', lazy= 'dynamic')
+    articles = db.relationship('Article', backref = 'user', lazy= 'dynamic')
     # 用户创建时间
     create_at = db.Column(db.DateTime(), default = datetime.now)
     # 用户地址信息
@@ -537,6 +537,8 @@ class User(UserMixin, db.Model):
 
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
+    # 用户的评论信息
+    comments = db.relationship('ArticleComment', backref = 'user', lazy = 'dynamic')
     # 关于我
     about_me = db.Column(db.Text())
 
@@ -823,6 +825,14 @@ class AnonymousUser(AnonymousUserMixin):
     def has_right(self, res, action):
         return False
 
+class ArticleCommentFollow(db.Model):
+    __tablename__ = 'article_comment_follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
+                           primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
+                         primary_key=True)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
 class ArticleComment(db.Model):
     """文章评论信息"""
     __tablename__ = 'article_comments'
@@ -834,9 +844,59 @@ class ArticleComment(db.Model):
     status = db.Column(db.Boolean(), default=False)
     # 评论内容
     content = db.Column(db.Text())
+    comment_type = db.Column(db.String(64), default='comment')
     # 评论时间
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    followed = db.relationship('ArticleCommentFollow',
+                               foreign_keys=[ArticleCommentFollow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('ArticleCommentFollow',
+                               foreign_keys=[ArticleCommentFollow.followed_id],
+                               backref=db.backref('followed', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    @property
+    def is_reply(self):
+        return False if self.followed.count() == 0 else True
+
+    @property
+    def followed_name(self):
+        if self.is_reply:
+            user_id = self.followed.first().followed.user_id
+            return User.query.filter_by(id=user_id).first().name
+
+    @property
+    def user_name(self):
+        return User.query.filter_by(id=self.user_id).first().name
+
+
+    @staticmethod
+    def get_article_comments(article_id):
+        return ArticleComment.query.filter_by(article_id=article_id).order_by(ArticleComment.create_at.desc()).all()
+
+    @staticmethod
+    def add_comment(user_id, article_id, content):
+        article = Article.query.filter_by(id=article_id).first()
+        user = User.query.filter_by(id=user_id).first()
+        if article and user:
+            comment = ArticleComment(user=user, article=article, content=content)
+            db.session.add(comment)
+            db.session.commit()
+
+    @staticmethod
+    def add_reply(user_id, reply_to_user_id, article_id, content):
+        article = Article.query.filter_by(id=article_id).first()
+        user = User.query.filter_by(id=user_id).first()
+        if article and user:
+            followed = ArticleComment.query.filter(and_(article_id=article_id, user_id=reply_to_user_id, comment_type="comment"))
+            if followed:
+                comment = ArticleComment(user=user, article=article, content=content, comment_type="reply")
+                article_comment_follow = ArticleCommentFollow(follower=comment, followed=followed)
+                db.session.add(article_comment_follow)
+                db.session.commit()
 
 class ArticleSource(db.Model):
     """文章来源信息"""
@@ -1012,7 +1072,7 @@ class ArticleReferenceLink(db.Model):
     """文章参考链接"""
     __tablename__ = 'article_reference_links'
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(64), unique=True)
+    name = db.Column(db.String(64))
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     create_at = db.Column(db.DateTime, default = datetime.now)
     status = db.Column(db.Boolean(), default=False)
@@ -1035,6 +1095,34 @@ class ArticleReferenceLink(db.Model):
         db.session.commit()
         return article_reference_link
 
+    @staticmethod
+    def update_reference_link(article_id, reference_links):
+        return_reference_link = []
+        ArticleReferenceLink.remove_reference_link_by_article_id(article_id)
+        if reference_links:
+            for reference_link in reference_links:
+                article_reference_link = ArticleReferenceLink.query.filter_by(article_id=article_id, name = reference_link).first()
+                if article_reference_link is None:
+                    article_reference_link = ArticleReferenceLink(article_id=article_id, name = reference_link)
+                    db.session.add(article_reference_link)
+                return_reference_link.append(article_reference_link)
+        db.session.commit()
+        return return_reference_link
+    @staticmethod
+    def remove_reference_link_by_ids(ids):
+        article_reference_links = ArticleReferenceLink.query.filter(ArticleReferenceLink.id.in_(ids))
+        if article_reference_links:
+            for article_reference_link in article_reference_links:
+                db.session.delete(article_reference_link)
+            db.session.commit()
+
+    @staticmethod
+    def remove_reference_link_by_article_id(article_id):
+        article_reference_links = ArticleReferenceLink.query.filter_by(article_id=article_id).all()
+        if article_reference_links:
+            for article_reference_link in article_reference_links:
+                db.session.delete(article_reference_link)
+            db.session.commit()
 
     def __repr__(self):
         return '<ArticleReferenceLink %r>' % self.name
@@ -1081,6 +1169,8 @@ class Article(db.Model):
     status = db.Column(db.Boolean(), default=False)
     # 文章是否允许被评论
     permit_comment = db.Column(db.Boolean(), default=False)
+    # 文章图像名称
+    image_name = db.Column(db.String(64))
     # 文章内容
     content = db.Column(db.Text())
     # 文章内容类型，目前支持富文本和markdown
@@ -1093,13 +1183,13 @@ class Article(db.Model):
     # 文章修改时间
     change_time = db.Column(db.DateTime)
     # 文章访问信息
-    views = db.relationship('ArticleViewRecord', backref = 'articles', lazy = 'dynamic')
+    views = db.relationship('ArticleViewRecord', backref = 'article', lazy = 'dynamic')
     # 文章评论信息
-    comments = db.relationship('ArticleComment', backref = 'articles', lazy= 'dynamic')
+    comments = db.relationship('ArticleComment', backref = 'article', lazy= 'dynamic')
 
 
     @staticmethod
-    def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, content, content_type, reference_links):
+    def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
         article = Article()
         article.user_id = user_id
         article.title = title
@@ -1108,10 +1198,10 @@ class Article(db.Model):
         article.category_id = category_id
         article.status = status
         article.permit_comment = permit_comment
+        article.image_name = image_name
         article.content = content
         article.content_type = content_type
         if len(reference_links) > 0:
-            ArticleReferenceLink.insert_reference_links(reference_links)
             for reference_link in reference_links:
                 article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
                 if article_reference_link is None:
@@ -1120,6 +1210,28 @@ class Article(db.Model):
                 article.reference_links.append(article_reference_link)
         db.session.add(article)
         db.session.commit()
+
+    @staticmethod
+    def update_article(article_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
+        article = Article.query.filter_by(id=article_id).first()
+        if article:
+            article.title = title
+            article.keywords = keywords
+            article.source_id = source_id
+            article.category_id = category_id
+            article.status = status
+            article.permit_comment = permit_comment
+            article.image_name = image_name
+            article.content = content
+            article.content_type = content_type
+            if len(reference_links) > 0:
+                article_reference_links = ArticleReferenceLink.update_reference_link(article_id, reference_links)
+                article.reference_links = article_reference_links
+            else:
+                ArticleReferenceLink.remove_reference_link_by_article_id(article_id)
+                article.reference_links = None
+            db.session.add(article)
+            db.session.commit()
 
     @staticmethod
     def delete_article(name):

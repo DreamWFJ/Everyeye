@@ -8,6 +8,7 @@
 
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+upload_image_path = os.path.join(BASE_DIR, 'app/static/img/blogs').replace('\\', '/')
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'

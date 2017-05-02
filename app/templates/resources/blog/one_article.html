@@ -215,9 +215,11 @@
                                 </div>
                             </div>
                             <div class="col-sm-10">
+                                {% if image_path %}
                                 <div class="blog-post-info">
-                                    <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" class="img-responsive" alt>
+                                    <img src="{{ image_path }}" class="img-responsive" alt>
                                 </div>
+                                {% endif %}
                                 <div id="article_content" class="blog-post-content" >
                                     {{article.content | string | safe }}
                                 </div>
@@ -265,80 +267,10 @@
                             <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
                         </ul>
                     </nav>
-                    <div class="comments">
-                        <h2 class="title">There are 3 comments</h2>
-
-                        <!-- comment start -->
-                        <div class="comment clearfix">
-                            <div class="comment-avatar">
-                                <img src="#" alt="avatar">
-                            </div>
-                            <div class="comment-content">
-                                <h3>Comment title</h3>
-                                <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
-                                <div class="comment-body clearfix">
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
-                                    <a href="blog-post.html" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
-                                </div>
-                            </div>
-
-                            <!-- comment start -->
-                            <div class="comment clearfix">
-                                <div class="comment-avatar">
-                                    <img src="#" alt="avatar">
-                                </div>
-                                <div class="comment-content clearfix">
-                                    <h3>Comment title</h3>
-                                    <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
-                                    <div class="comment-body">
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
-                                        <a href="blog-post.html" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- comment end -->
-
-                        </div>
-                        <!-- comment end -->
-
-                        <!-- comment start -->
-                        <div class="comment clearfix">
-                            <div class="comment-avatar">
-                                <img src="#" alt="avatar">
-                            </div>
-                            <div class="comment-content clearfix">
-                                <h3>Comment title</h3>
-                                <div class="comment-meta">By <a href="#">admin</a> | Today, 12:31</div>
-                                <div class="comment-body">
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo </p>
-                                    <a href="#" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- comment end -->
-
+                    {% include "resources/blog/_article_comments.html" %}
+                    <div class="pagination">
                     </div>
-                    <div class="comments-form">
-                        <h2 class="title">Add your comment</h2>
-                        <form role="form" id="comment-form">
-                            <div class="form-group has-feedback">
-                                <label for="name4">Name</label>
-                                <input type="text" class="form-control" id="name4" placeholder="" name="name4" required="">
-                                <i class="fa fa-user form-control-feedback"></i>
-                            </div>
-                            <div class="form-group has-feedback">
-                                <label for="subject4">Subject</label>
-                                <input type="text" class="form-control" id="subject4" placeholder="" name="subject4" required="">
-                                <i class="fa fa-pencil form-control-feedback"></i>
-                            </div>
-                            <div class="form-group has-feedback">
-                                <label for="message4">Message</label>
-                                <textarea class="form-control" rows="8" id="message4" placeholder="" name="message4" required=""></textarea>
-                                <i class="fa fa-envelope-o form-control-feedback"></i>
-                            </div>
-                            <input type="submit" value="Submit" class="btn btn-default">
-                        </form>
-                    </div>
+                    {% include "resources/blog/_submit_comment.html" %}
                 </div>
             </div>
             <div class="col-md-3">
