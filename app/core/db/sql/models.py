@@ -21,6 +21,15 @@ class DatabaseError(Exception):
 class NotFoundData(Exception):
     pass
 
+def weight2int(v):
+    if not isinstance(v, int) and isinstance(v, basestring):
+        return int(v, 16)
+    else:
+        try:
+            return int(v)
+        except:
+            return 0
+
 # 建立资源与角色的多对多关系
 class RolesResources(db.Model):
     __tablename__ = 'roles_resources'
@@ -141,7 +150,7 @@ class Role(db.Model):
         resource = Resource.query.filter_by(name=resourcename).first()
         if resource is None:
             raise NotFoundData('resource name <%s> not existed.'%resourcename)
-        role_resource = RolesResources(right_weight=weight)
+        role_resource = RolesResources(right_weight=weight2int(weight))
         role_resource.resource = resource
         role.resources.append(role_resource)
         db.session.add(resource)
@@ -168,11 +177,11 @@ class Role(db.Model):
         resource = Resource.query.filter_by(id=resource_id).first()
         if role and resource:
             # 这里需要判断资源的权重是否大于等于关联关系中添加的权重
-            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight,
+            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight2int(weight),
                                                              RolesResources.resource_id==resource_id,
                                                              RolesResources.role_id==role.id)).first()
             if not role_resource:
-                role_resource = RolesResources(right_weight=weight)
+                role_resource = RolesResources(right_weight=weight2int(weight))
                 role_resource.resource = resource
                 role.resources.append(role_resource)
                 db.session.add_all([role_resource, role])
@@ -216,7 +225,7 @@ class Resource(db.Model):
     @staticmethod
     def insert_resources(name, weight, status=True):
         resource = Resource(name=name)
-        resource.weight = weight
+        resource.weight = weight2int(weight)
         resource.status = status
         db.session.add(resource)
         db.session.commit()
@@ -279,7 +288,7 @@ class Resource(db.Model):
                     RolesResources.resource_id == resource.id
                 )).first()
                 if not role_resource:
-                    role_resource = RolesResources(resource=resource, right_weight=weight)
+                    role_resource = RolesResources(resource=resource, right_weight=weight2int(weight))
                     role_resource.role = role
                     db.session.add(role_resource)
             db.session.commit()
@@ -307,7 +316,7 @@ class Right(db.Model):
         right = Right.query.filter_by(name = name).first()
         if right is None:
             right = Right(name = name)
-        right.weight = weight
+        right.weight = weight2int(weight)
         right.status = status
         db.session.add(right)
         db.session.commit()
@@ -945,10 +954,10 @@ class ArticleSource(db.Model):
     create_at = db.Column(db.DateTime, default = datetime.now)
 
     @staticmethod
-    def insert_source(name):
+    def insert_source(name, status=False):
         article_source = ArticleSource.query.filter_by(name = name).first()
         if article_source is None:
-            article_source = ArticleSource(name = name)
+            article_source = ArticleSource(name = name, status = status)
             db.session.add(article_source)
             db.session.commit()
 
@@ -983,8 +992,7 @@ class ArticleCategory(db.Model):
     def insert_category(name, status):
         article_category = ArticleCategory.query.filter_by(name = name).first()
         if article_category is None:
-            article_source = ArticleCategory(name = name)
-            article_source.status = status
+            article_source = ArticleCategory(name = name, status = status)
             db.session.add(article_source)
         db.session.commit()
 

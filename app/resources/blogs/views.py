@@ -13,7 +13,8 @@ from uuid import uuid4
 import markdown
 import random
 from config import upload_image_path
-from app.core.db.sql.models import Article, ArticleReferenceLink, ArticleCategory, ArticleComment, ArticleKeyword, User
+from app.core.db.sql.models import Article, ArticleCategory, ArticleComment, ArticleKeyword, \
+    User, ArticleSource
 from flask_login import login_required, current_user
 from flask import render_template, request, redirect, url_for, send_from_directory, current_app
 from .. import resource_blueprint as main
@@ -27,7 +28,6 @@ class UploadImageNameError(Exception):
 @login_required
 def user_index(username):
     # 用户主页，这里展示文章简介
-    print "show_user: ", username
     return render_template('resources/blog/index.html')
 
 @main.route('/<string:username>/article')
@@ -265,3 +265,52 @@ def comment(user_id, article_id):
         ArticleComment.add_comment(user_id, article_id, content)
     username = User.query.filter_by(id=user_id).first().name
     return redirect(url_for('resource.one_article', username=username, article_id=article_id))
+
+
+@main.route('/<string:username>/delete-comment', methods=['POST'])
+@login_required
+def delete_comment(username):
+    # 文章目录管理
+    ids = request.form.get('ids')
+    print ids.split(',')
+    # ArticleKeyword.delete_keyword_by_ids(ids.split(','))
+    print "user: %s delete comment id: %s"%(username, ids)
+    return "Delete ids '%s' success"%ids
+
+@main.route('/<string:username>/source', methods=['GET', 'POST'])
+@login_required
+def source(username):
+    # 文章来源管理
+    if request.method == "POST":
+        name = request.form.get("name")
+        status = request.form.get("status")
+        status = True if status == "on" else False
+        ArticleSource.insert_source(name, status)
+    page = int(request.args.get('page', 1))
+    page_size = request.args.get('page_size', 10)
+    order_name = request.args.get('order_name', 'id')
+    order_direction = request.args.get('order_direction', 'asc')
+    if page_size == 'all':
+        offset_size = page_size = None
+    else:
+        page_size = int(page_size)
+        offset_size = (page - 1) * page_size
+
+    result_sql = "select article_sources.*, (select count(*) from articles where articles.category_id = " \
+                 "article_sources.id) as article_count from article_sources"
+
+    page_result = sql_db.session.execute(result_sql)
+
+    return render_template('resources/blog/source.html', source_list=page_result,
+                           page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
+                           current_url=url_for('resource.source', username=current_user.name), query_size=10)
+
+@main.route('/<string:username>/delete-source', methods=['POST'])
+@login_required
+def delete_source(username):
+    # 删除来源
+    ids = request.form.get('ids')
+    print ids.split(',')
+    # ArticleKeyword.delete_keyword_by_ids(ids.split(','))
+    print "user: %s delete source id: %s"%(username, ids)
+    return "Delete ids '%s' success"%ids
