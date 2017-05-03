@@ -1,344 +1,312 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
 {% extends "framework.html" %}
 {% block css %}
-    <style type="text/css">
-        .page-title {
-            font-size: 38px;
-            font-weight: 700;
-            color: #343434;
-            line-height: 1.2;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .blog-post {
-            background-color: #fafafa;
-            border: 1px solid #f3f3f3;
-            margin: 0 0 70px;
-            position: relative;
-        }
-        .blog-post .blog-post-body {
-            padding: 20px 20px 0 20px;
-            min-height: 140px;
-        }
-        .blog-post.full {
-            background-color: transparent;
-            border: none;
-        }
-        .blog-post .blog-post-content {
-            padding: 0 0 10px;
-        }
-        .blog-post footer {
-            background-color: #f1f1f1;
-            padding: 12px 20px;
-            border-top: 1px solid #e8e8e8;
-            font-size: 14px;
-            line-height: 2;
-            clear: both;
-        }
-        .post-date{
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        h1,h2,h3,h4,h5,h6{
-            margin-top: 0px;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .post-left-info{
-            text-align: right;
-        }
-        .post-left-info p{
-            margin: 5px 0;
-            font-size: 12px;
-        }
-        .post-left-info p i{
-            margin-right: 5px;
-            color:#777;
+<style type="text/css">
+    .page-title {
+        font-size: 38px;
+        font-weight: 700;
+        color: #343434;
+        line-height: 1.2;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        position:relative;
+        text-align:center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #d3d3d3;
+    }
+    .blog-post {
+        background-color: #fafafa;
+        border: 1px solid #f3f3f3;
+        margin: 0 0 70px;
+        position: relative;
+    }
+    .blog-post .blog-post-body {
+        padding: 20px 20px 0 20px;
+        min-height: 140px;
+    }
+    .blog-post.full {
+        background-color: transparent;
+        border: none;
+    }
+    .blog-post .blog-post-content {
+        padding: 0 0 10px;
+    }
+    .blog-post footer {
+        background-color: #f1f1f1;
+        padding: 12px 20px;
+        border-top: 1px solid #e8e8e8;
+        font-size: 14px;
+        line-height: 2;
+        clear: both;
+    }
+    .post-date{
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    h1,h2,h3,h4,h5,h6{
+        margin-top: 0px;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .post-left-info{
+        text-align: right;
+    }
+    .post-left-info p{
+        margin: 5px 0;
+        font-size: 12px;
+    }
+    .post-left-info p i{
+        margin-right: 5px;
+        color:#777;
 
-        }
-        .blog-post ul.links {
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 0;
-        }
-        .blog-post ul.links li {
-            display: inline-block;
-        }
-        .blog-post ul.links li a {
-            color: #666666;
-            display: inline-block;
-        }
-        .blog-post ul.links li a:hover {
-            color: #e84c3d;
-        }
-        .blog-post .blog-post-reference-link {
-            padding: 12px 20px;
-            font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
-            font-size: small;
-            background-color: #99979c;
-        }
+    }
+    .blog-post ul.links {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .blog-post ul.links li {
+        display: inline-block;
+    }
+    .blog-post ul.links li a {
+        color: #666666;
+        display: inline-block;
+    }
+    .blog-post ul.links li a:hover {
+        color: #e84c3d;
+    }
 
-        /* Comments
-    ---------------------------------- */
-        .comments {
-            margin-top: 60px;
-        }
-        .comments h2.title {
-            margin-bottom: 40px;
-            border-bottom: 1px solid #d2d2d2;
-            padding-bottom: 10px;
-        }
-        .comment {
-            font-size: 14px;
-        }
-        .comment .comment {
-            margin-left: 75px;
-        }
-        .comment-avatar {
-            margin-top: 5px;
-            width: 55px;
-            float: left;
-        }
-        .comment-content {
-            margin-left: 75px;
-            border-bottom: 1px solid #d2d2d2;
-            margin-bottom: 40px;
-        }
-        .comment h3 {
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-        .comment-meta {
-            margin-bottom: 15px;
-            color: #999999;
-            font-size: 12px;
-        }
-        .comment-meta a {
-            color: #666666;
-        }
-        .comment-meta a:hover {
-            text-decoration: underline;
-        }
-        .comment .btn {
-            font-size: 12px;
-            padding: 7px;
-            min-width: 100px;
-            margin-top: 5px;
-            margin-bottom: -1px;
-        }
-        .comment .btn i {
-            padding-right: 5px;
-        }
-    </style>
+
+    /* Comments
+---------------------------------- */
+    .comments {
+        margin-top: 60px;
+    }
+    .comments h2.title {
+        margin-bottom: 40px;
+        border-bottom: 1px solid #d2d2d2;
+        padding-bottom: 10px;
+    }
+    .comment {
+        font-size: 14px;
+    }
+    .comment .comment {
+        margin-left: 75px;
+    }
+    .comment-avatar {
+        margin-top: 5px;
+        width: 55px;
+        float: left;
+    }
+    .comment-content {
+        margin-left: 75px;
+        border-bottom: 1px solid #d2d2d2;
+        margin-bottom: 40px;
+    }
+    .comment h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    .comment-meta {
+        margin-bottom: 15px;
+        color: #999999;
+        font-size: 12px;
+    }
+    .comment-meta a {
+        color: #666666;
+    }
+    .comment-meta a:hover {
+        text-decoration: underline;
+    }
+    .comment .btn {
+        font-size: 12px;
+        padding: 7px;
+        min-width: 100px;
+        margin-top: 5px;
+        margin-bottom: -1px;
+    }
+    .comment .btn i {
+        padding-right: 5px;
+    }
+
+    /*-- 引用 --*/
+    .reference-link {
+        margin: 2em auto;
+        padding: 1.5em;
+    }
+    .reference-link h3 {
+        border-bottom: 1px solid gray;
+        font-size: 1.92em;
+        font-weight: bold;
+        color: #556677;
+    }
+    .blog-post-reference-link {
+        padding: 12px 20px;
+        font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+        font-size: small;
+        margin-left: 16px;
+    }
+    .blog-post-reference-link ul {
+        margin: 0;
+        padding: 0;
+    }
+</style>
 
 {% endblock css %}
 {% block script %}
-    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
-    <script type="text/javascript">
+<script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
         $(document).ready(function() {
-            $(document).ready(function() {
-                var pre_set_color = {
-                    0:   'red',
-                    0.5: 'orange',
-                    1:   'rgba(0,0,0,0.1)'
-                };
-                var counter = 0;
-                var tag_option = {
-                    interval: 20,
-                    textFont: 'Arial, Helvetica, sans-serif',
-                    textColour: '#337ab7',
-                    textHeight: 25,
-                    outlineMethod: 'colour',
-                    outlineColour: 'red',
-                    outlineThickness: 1,
-                    maxSpeed: 0.04,
-                    minSpeed: 0.01,
-                    minBrightness: 0.1,
-                    depth: 0.92,
-                    outlineOffset: 0,
-                    shadowOffset: [1,1],
-                    stretchX: 0.7,
-                    pulsateTo: 0.2,
-                    pulsateTime: 0.75,
-                    initial: [0.1,-0.1],
-                    decel: 0.98,
-                    reverse: true,
-                    wheelZoom: false,
-                    hideTags: false,
-                    shuffleTags: true,
-                    shadow: '#ccf',
-                    shadowBlur: 3,
-                    weight: true,
-                    weightFrom: 'data-weight',
-                    weightGradient: pre_set_color,
-                    clickToFront: 600,
-                    weightMode:'both',
-                    fadeIn: 800
-                };
-                $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
-            });
+            // img自动适应预定宽度
+            $("img").addClass("img-responsive");
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
         });
-    </script>
+    });
+</script>
 {% endblock script %}
 {% block title %}Category{% endblock title %}
 {% block search %}
-    {{frame_search('article')}}
+{{frame_search('article')}}
 {% endblock search %}
 {% block page_content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9">
-                <div class="panel-body">
-                    <article class="blog-post full">
-                        <div class="col-sm-2">
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <div class="panel-body">
+                <article class="blog-post full">
+                    <div class="col-sm-2">
+                    </div>
+                    <div class="col-sm-10">
+                        <h1 class="page-title" id="article_title" >{{article.title}}</h1>
+                    </div>
+                    <div class="blog-post-body">
+                        <div class="col-sm-2 pull-left">
+                            <div class="post-date text-right">
+                                <h2>{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</h2><span>{{article.public_time|string|truncate(7, True, end='')}}</span>
+                            </div>
+                            <div class="post-left-info">
+                                <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
+                                <p><i class="fa fa-folder-open"></i>
+                                    <a href="#">
+                                        {% for category in article_categorys %}
+                                        {% if category.id|int == article.category_id|int %}
+                                        {{ category.name }}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </a>
+                                </p>
+                                <p><i class="glyphicon glyphicon-paperclip"></i>
+                                    <a href="#" title="Article's Source">
+                                        {% for source in article_sources %}
+                                        {% if source.id|int == article.source_id|int %}
+                                        {{ source.name }}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </a>
+                                </p>
+                            </div>
                         </div>
                         <div class="col-sm-10">
-                            <h1 class="page-title" id="article_title" >{{article.title}}</h1>
-                        </div>
-                        <div class="blog-post-body">
-                            <div class="col-sm-2 pull-left">
-                                <div class="post-date text-right">
-                                    <h2>{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</h2><span>{{article.public_time|string|truncate(7, True, end='')}}</span>
-                                </div>
-                                <div class="post-left-info">
-                                    <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
-                                    <p><i class="fa fa-folder-open"></i>
-                                        <a href="#">
-                                            {% for category in article_categorys %}
-                                                {% if category.id|int == article.category_id|int %}
-                                                    {{ category.name }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </a>
-                                    </p>
-                                    <p><i class="fa fa-comment"></i> <a href="#">3 Comments</a></p>
+                            {% if article.image_name %}
+                            <div class="blog-post-info">
+                                <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" class="img-responsive" alt>
+                            </div>
+                            {% endif %}
+                            <div id="article_content" class="blog-post-content" >
+                                {{article.content | string | safe }}
+                            </div>
+
+                            {% if article.reference_links.count() > 0 %}
+                            <div class="row reference-link">
+                                <h3>Reference Link</h3>
+                                <div class="blog-post-reference-link" id="article_reference_links" >
+                                    <ul>
+
+                                        {% for reference_link in article.reference_links %}
+                                        <li>{{reference_link.name}}</li>
+                                        {% endfor %}
+
+                                    </ul>
+
                                 </div>
                             </div>
-                            <div class="col-sm-10">
-                                {% if image_path %}
-                                <div class="blog-post-info">
-                                    <img src="{{ image_path }}" class="img-responsive" alt>
-                                </div>
-                                {% endif %}
-                                <div id="article_content" class="blog-post-content" >
-                                    {{article.content | string | safe }}
-                                </div>
-                                {% if article.reference_links %}
-                                    <div class="row">
-                                        <div class="col-sm-2">
-                                            <label>Reference Link</label>
-                                        </div>
-                                        <div class="col-sm-10 blog-post-reference-link" id="article_reference_links" >
-                                            <ul style="margin: 0; padding: 0; list-style: none">
-
-                                                {% for reference_link in article.reference_links %}
-                                                    <li>{{reference_link.name}}</li>
-                                                {% endfor %}
-
-                                            </ul>
-
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            </div>
+                            {% endif %}
                         </div>
-                        <footer class="clearfix">
-                            <ul class="links pull-left">
-                                <li><i class="fa fa-comment-o pr-5"></i> <a href="#">
-                                    {% for source in article_sources %}
-                                        {% if source.id|int == article.source_id|int %}
-                                            {{ source.name }}
-                                        {% endif %}
-                                    {% endfor %}</a> |</li>
-                                <li><i class="fa fa-tags pr-5"></i>
-                                    {% for keyword in article.keywords %}
-                                        <a href="#">{{keyword.name }}</a>
-                                        {% if loop.index <= loop.length - 1 %},{% endif %}
-                                    {% endfor %}
-                                </li>
-                            </ul>
-                        </footer>
-                    </article>
-
-                    <!-- Previous or next blog -->
-                    <nav aria-label="...">
-                        <ul class="pager">
-                            <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
-                            <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
-                        </ul>
-                    </nav>
-                    {% include "resources/blog/_article_comments.html" %}
-                    <div class="pagination">
                     </div>
-                    {% include "resources/blog/_submit_comment.html" %}
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-default">
-                        <ul class="nav nav-tabs">
-                            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-                            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                            <li role="presentation" class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                    Dropdown <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                                    <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
-                                    <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
-                                </ul>
+                    <footer class="clearfix">
+                        <ul class="links pull-left">
+                            <li><i class="fa fa-comments pr-5"></i>
+                                <a href="#">
+                                    {{ article_comments_total }} Comments
+                                </a> |
+                            </li>
+                            <li><i class="fa fa-tags pr-5"></i>
+                                {% for keyword in article.keywords %}
+                                <a href="#">{{keyword.name }}</a>
+                                {% if loop.index <= loop.length - 1 %},{% endif %}
+                                {% endfor %}
                             </li>
                         </ul>
-                        <!-- Tab panes -->
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="home">
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
-                                    <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
-                                    <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
-                                </ul>
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="profile">
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
-                                    <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
-                                    <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
-                                </ul>
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="messages">
-                                <ul class="nav nav-pills nav-stacked">
-                                    <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
-                                    <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
-                                </ul>
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="life">...</div>
-                            <div role="tabpanel" class="tab-pane" id="happly">...</div>
-                        </div>
-                    </div>
+                    </footer>
+                </article>
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Keyword Cloud</div>
-                        <div class="panel-body">
-                            <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
-                                <p>Anything in here will be replaced on browsers that support the canvas element</p>
-                            </canvas>
-
-                            <div id="ExtendCloudTag" style="display: none">
-                                <ul>
-                                    <li><a href="http://www.google.com" target="_blank">Google</a></li>
-                                    <li><a href="/fish">Fish</a></li>
-                                    <li><a href="/chips">Chips</a></li>
-                                    <li><a href="/salt">Salt</a></li>
-                                    <li><a href="/vinegar">Vinegar</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Previous or next blog -->
+                <nav aria-label="...">
+                    <ul class="pager">
+                        <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
+                        <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </nav>
+                {% include "resources/blog/_article_comments.html" %}
+                <div class="pagination">
                 </div>
+                {% include "resources/blog/_submit_comment.html" %}
             </div>
-
         </div>
+        <div class="col-md-3">
+            {% include "resources/blog/_article_side.html" %}
+        </div>
+
     </div>
-    {% block footer %}{% endblock footer %}
+</div>
+{% block footer %}{% endblock footer %}
 {% endblock page_content %}

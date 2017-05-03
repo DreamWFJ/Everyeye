@@ -1,13 +1,14 @@
 <div class="comments-form">
     <h2 class="title">Add your comment</h2>
-    <form role="form" method="post" id="comment-form" action="{{ url_for('resource.comment', user_id=current_user.id, article_id=article.id) }}">
+    <form role="form" method="post" id="CommentForm" action="{{ url_for('resource.comment', user_id=current_user.id, article_id=article.id) }}">
         <div class="form-group has-feedback hide">
-            <label for="reply_to">Reply To</label>
-            <input type="text" id="inputCommentReplyTo" class="form-control" disabled  id="reply_to" placeholder="Reply To" name="reply_to_user_id" value="little wang">
+            <label for="inputCommentReplyToUserName">Reply To</label>
+            <input type="text" id="inputCommentReplyToUserName" class="form-control" disabled>
+            <input type="text" id="inputCommentReplyToCommentID" class="form-control hide" disabled  name="reply_to_comment_id">
         </div>
         <div class="form-group has-feedback">
-            <label for="comment_content">Message</label>
-            <textarea class="form-control" rows="8" id="comment_content" placeholder="" name="content" required=""></textarea>
+            <label for="inputCommentReplyContent">Message</label>
+            <textarea class="form-control" rows="8" id="inputCommentReplyContent" placeholder="" name="content" required=""></textarea>
         </div>
         <input type="submit" value="Submit" class="btn btn-default">
     </form>

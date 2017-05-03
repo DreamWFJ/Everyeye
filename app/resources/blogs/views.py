@@ -15,7 +15,7 @@ import random
 from config import upload_image_path
 from app.core.db.sql.models import Article, ArticleReferenceLink, ArticleCategory, ArticleComment, ArticleKeyword, User
 from flask_login import login_required, current_user
-from flask import render_template, request, redirect, url_for, send_from_directory
+from flask import render_template, request, redirect, url_for, send_from_directory, current_app
 from .. import resource_blueprint as main
 from app import sql_db
 from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
@@ -63,22 +63,15 @@ def article(username):
 @login_required
 def one_article(username, article_id):
     # 某一篇文章
-    print "request article id: <%s>"%id
     article = Article.query.filter_by(id=article_id).first()
     if article.content_type == "markdown":
         article.content = markdown.markdown(article.content)
-    # 获取参考链接
-    reference_links = ArticleReferenceLink.query.filter_by(article_id=article_id).all()
-    setattr(article, 'reference_links', reference_links)
-    # 配置文章图片地址
-    image_path = "/static/img/blogs/%s/%s"%(username, article.image_name) if article.image_name else None
-    # 获取文章评论,注意：这里需要限制返回的条目数
     article_comments_total = ArticleComment.query.filter_by(article_id=article_id).count()
     article_comments = ArticleComment.get_article_comments(article_id)
     return render_template('resources/blog/one_article.html', article=article,
                            current_url=url_for('resource.article', username=current_user.name, article_id=article_id),
                            article_categorys=get_user_article_categorys(), article_keywords=get_user_article_keywords(),
-                           article_sources=get_user_article_sources(), image_path=image_path, article_comments=article_comments,
+                           article_sources=get_user_article_sources(), article_comments=article_comments,
                            article_comments_total=article_comments_total)
 
 @main.route('/<string:username>/new-article', methods=['POST','GET'])
@@ -101,12 +94,11 @@ def new_article(username):
             keywords = None
         print article
 
-        print keywords
         return render_template('resources/blog/new_article.html', article_categorys=get_user_article_categorys(),
                                article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources(),
                                edit_article=article)
     elif request.method == 'POST':
-        print "POST request: ",request.form
+        current_app.logger.debug(request.form)
         title = request.form.get('title')
         category_id = request.form.get('category_id')
         source_id = request.form.get('source_id')
@@ -121,15 +113,17 @@ def new_article(username):
         reference_links = request.form.getlist('reference_links_box[]')
 
         article_id = request.args.get('article_id')
-
+        # 允许上传的图片
         def allowed_file(filename):
             return '.' in filename and \
                    filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
+        # 转换图片名为uuid
         def secure_filename(filename):
             image_format = filename.rsplit('.', 1)[1]
             return "%s.%s"%(str(uuid4()), image_format)
         file = request.files.get('image')
         image_name = None
+        # 图片保存
         if file and allowed_file(file.filename):
             image_name = secure_filename(file.filename)
             user_upload_image_path = os.path.join(upload_image_path, username)
@@ -159,45 +153,6 @@ def new_article(username):
 
 
 
-@main.route('/<string:username>/upload-file', methods=['POST','GET'])
-@login_required
-def upload_file(username):
-    def allowed_file(filename):
-        return '.' in filename and \
-               filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
-    def secure_filename(filename):
-        image_format = filename.rsplit('.', 1)[1]
-        return "%s.%s"%(str(uuid4()), image_format)
-
-    if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            print "filename: ",filename
-            user_upload_image_path = os.path.join(upload_image_path, username)
-            if not os.path.isdir(user_upload_image_path):
-                os.makedirs(user_upload_image_path)
-            file.save(os.path.join(user_upload_image_path, filename).replace('\\', '/'))
-            return redirect(url_for('resource.uploaded_file', username=current_user.name, filename=filename))
-        else:
-            raise UploadImageNameError('Illegality image file "%s"'%file)
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form action="%s" method=post enctype=multipart/form-data>
-      <p><input type=file name=file class=file data-overwrite-initial=false data-max-file-count="1">
-         <input type=submit value=Upload>
-         <script>
-            $("input:file[name='file']").fileinput({
-                'allowedFileExtensions': ['jpg', 'png', 'gif'],
-                maxFileSize: 1000,
-                maxFilesNum: 1,
-            });
-        </script>
-    </form>
-    '''%url_for('resource.upload_file', username=current_user.name)
-
 @main.route('/<string:username>/upload/<string:filename>', methods=['POST','GET'])
 def uploaded_file(username, filename):
     return send_from_directory(os.path.join(upload_image_path, username).replace('\\', '/'),filename)
@@ -207,7 +162,6 @@ def uploaded_file(username, filename):
 def delete_article(username):
     # 文章目录管理
     ids = request.form.get('ids')
-    print ids.split(',')
     Article.delete_article_by_ids(ids.split(','))
     print "user: %s delete article id: %s"%(username, ids)
     return "Delete ids '%s' success"%ids
@@ -299,11 +253,14 @@ def delete_keyword(username):
 @main.route('/<string:user_id>/comment/<string:article_id>', methods=['POST'])
 @login_required
 def comment(user_id, article_id):
-    # 文章目录管理
-    reply_to_user_id = request.form.get('reply_to_user_id')
+    # 文章评论管理
+    print request.form
+    current_app.logger.debug("user_id: %s, article_id: %s"%(user_id, article_id))
+    current_app.logger.debug(request.form)
+    reply_to_comment_id = request.form.get('reply_to_comment_id')
     content = request.form.get('content')
-    if reply_to_user_id:
-        ArticleComment.add_reply(user_id, reply_to_user_id, article_id, content)
+    if reply_to_comment_id:
+        ArticleComment.add_reply(user_id, reply_to_comment_id, article_id, content)
     else:
         ArticleComment.add_comment(user_id, article_id, content)
     username = User.query.filter_by(id=user_id).first().name

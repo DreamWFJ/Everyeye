@@ -833,11 +833,14 @@ class ArticleCommentFollow(db.Model):
                          primary_key=True)
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    def __repr__(self):
+        return '<ArticleCommentFollow follower_id: %r, followed_id: %r >' % (self.follower_id, self.followed_id)
+
 class ArticleComment(db.Model):
     """文章评论信息"""
     __tablename__ = 'article_comments'
     id = db.Column(db.Integer, primary_key = True)
-    # 评论的用户
+    # 写评论的用户
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     # 评论状态，是否锁定
@@ -847,12 +850,13 @@ class ArticleComment(db.Model):
     comment_type = db.Column(db.String(64), default='comment')
     # 评论时间
     create_at = db.Column(db.DateTime, default = datetime.now)
-
+    # 表示我评论谁
     followed = db.relationship('ArticleCommentFollow',
                                foreign_keys=[ArticleCommentFollow.follower_id],
                                backref=db.backref('follower', lazy='joined'),
                                lazy='dynamic',
                                cascade='all, delete-orphan')
+    # 表示谁评论我(这里的我表示写评论的用户)
     followers = db.relationship('ArticleCommentFollow',
                                foreign_keys=[ArticleCommentFollow.followed_id],
                                backref=db.backref('followed', lazy='joined'),
@@ -872,10 +876,39 @@ class ArticleComment(db.Model):
     def user_name(self):
         return User.query.filter_by(id=self.user_id).first().name
 
+    @property
+    def user_avatar(self):
+        return User.query.filter_by(id=self.user_id).first().gravatar(size=256)
 
     @staticmethod
     def get_article_comments(article_id):
-        return ArticleComment.query.filter_by(article_id=article_id).order_by(ArticleComment.create_at.desc()).all()
+        all_comments = []
+        article_comments = ArticleComment.query\
+            .filter(and_(ArticleComment.comment_type=="comment",
+                         ArticleComment.article_id==article_id))\
+            .order_by(ArticleComment.create_at.asc()).all()
+
+        for comment in article_comments:
+            all_comments.append(comment)
+            follower_ids = [one.follower_id for one in comment.followers.all()]
+            if len(follower_ids) > 0:
+                article_reply_comments = ArticleComment.query\
+                    .filter(and_(ArticleComment.comment_type=="reply",
+                                 ArticleComment.id.in_(follower_ids)))\
+                    .order_by(ArticleComment.create_at.asc()).all()
+
+                for article_reply_comment in article_reply_comments:
+                    all_comments.append(article_reply_comment)
+                    follower_ids = [one.follower_id for one in article_reply_comment.followers.all()]
+                    if len(follower_ids) > 0:
+                        article_reply_to_reply_comments = ArticleComment\
+                            .query.filter(and_(ArticleComment.comment_type=="reply",
+                                               ArticleComment.id.in_(follower_ids)))\
+                            .order_by(ArticleComment.create_at.asc()).all()
+                        all_comments.extend(article_reply_to_reply_comments)
+
+        return all_comments
+        # return ArticleComment.query.filter_by(article_id=article_id).order_by(ArticleComment.comment_type.asc(), ArticleComment.create_at.asc()).all()
 
     @staticmethod
     def add_comment(user_id, article_id, content):
@@ -887,16 +920,20 @@ class ArticleComment(db.Model):
             db.session.commit()
 
     @staticmethod
-    def add_reply(user_id, reply_to_user_id, article_id, content):
+    def add_reply(user_id, reply_to_comment_id, article_id, content):
+        # user_id 是指谁在写评论，reply_to_user_id 是评论谁
         article = Article.query.filter_by(id=article_id).first()
         user = User.query.filter_by(id=user_id).first()
         if article and user:
-            followed = ArticleComment.query.filter(and_(article_id=article_id, user_id=reply_to_user_id, comment_type="comment"))
+            followed = ArticleComment.query.filter_by(id=reply_to_comment_id).first()
             if followed:
                 comment = ArticleComment(user=user, article=article, content=content, comment_type="reply")
                 article_comment_follow = ArticleCommentFollow(follower=comment, followed=followed)
                 db.session.add(article_comment_follow)
                 db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleComment user_id: %r, article_id: %r >' % (self.user_id, self.article_id)
 
 class ArticleSource(db.Model):
     """文章来源信息"""
@@ -1079,6 +1116,7 @@ class ArticleReferenceLink(db.Model):
 
     @staticmethod
     def insert_reference_links(reference_links):
+        # 插入多个链接，json格式
         for reference_link in reference_links:
             article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
             if article_reference_link is None:
@@ -1088,6 +1126,7 @@ class ArticleReferenceLink(db.Model):
 
     @staticmethod
     def insert_reference_link(reference_link):
+        # 插入单个参考链接
         article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
         if article_reference_link is None:
             article_reference_link = ArticleReferenceLink(name = reference_link)
@@ -1097,10 +1136,13 @@ class ArticleReferenceLink(db.Model):
 
     @staticmethod
     def update_reference_link(article_id, reference_links):
+        # 更新文章的参考链接
         return_reference_link = []
         ArticleReferenceLink.remove_reference_link_by_article_id(article_id)
         if reference_links:
             for reference_link in reference_links:
+                if len(reference_link) == 0:
+                    continue
                 article_reference_link = ArticleReferenceLink.query.filter_by(article_id=article_id, name = reference_link).first()
                 if article_reference_link is None:
                     article_reference_link = ArticleReferenceLink(article_id=article_id, name = reference_link)
@@ -1110,6 +1152,7 @@ class ArticleReferenceLink(db.Model):
         return return_reference_link
     @staticmethod
     def remove_reference_link_by_ids(ids):
+        # 通过ID删除参考链接
         article_reference_links = ArticleReferenceLink.query.filter(ArticleReferenceLink.id.in_(ids))
         if article_reference_links:
             for article_reference_link in article_reference_links:
@@ -1170,7 +1213,7 @@ class Article(db.Model):
     # 文章是否允许被评论
     permit_comment = db.Column(db.Boolean(), default=False)
     # 文章图像名称
-    image_name = db.Column(db.String(64))
+    image_name = db.Column(db.String(64), default=None)
     # 文章内容
     content = db.Column(db.Text())
     # 文章内容类型，目前支持富文本和markdown
@@ -1203,11 +1246,15 @@ class Article(db.Model):
         article.content_type = content_type
         if len(reference_links) > 0:
             for reference_link in reference_links:
+                if len(reference_link) == 0:
+                    continue
                 article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
                 if article_reference_link is None:
                     article_reference_link = ArticleReferenceLink(name = reference_link)
                     db.session.add(article_reference_link)
                 article.reference_links.append(article_reference_link)
+        else:
+            article.reference_links = None
         db.session.add(article)
         db.session.commit()
 
