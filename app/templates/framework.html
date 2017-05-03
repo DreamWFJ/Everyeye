@@ -180,7 +180,7 @@
                         <li><a href="{{ url_for('resource.article', username=current_user.name)}}">Article</a></li>
                         <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
                         <li><a href="{{ url_for('resource.setting', username=current_user.name) }}">Setting</a></li>
-                        <li><a href="{{ url_for('resource.action_log', username=current_user.name) }}">Action Log</a></li>
+                        <li><a href="{{ url_for('resource.action_log', user_id=current_user.id) }}">Action Log</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
                     </ul>

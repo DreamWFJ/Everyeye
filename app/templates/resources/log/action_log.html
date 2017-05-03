@@ -1,97 +1,217 @@
-{% extends "base.html" %}
+{% from 'macro/__frame__.html' import frame_search, menu_paging %}
+{% import 'macro/__log__.html' as log_side %}
+{% extends "framework.html" %}
+{% block script %}
+    <!-- bootstrap validator css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap validator js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+    <!-- bootstrap-switch css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-switch.min.css') }}" crossorigin="anonymous">
+    <!-- bootstrap-switch js -->
+    <script src="{{ url_for('static', filename = 'js/bootstrap-switch.min.js') }}" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // checkbox全选和取消
+            $("#check_all_box").on('ifChanged',
+                    function(event){
+                        var checkbox = $("input[name='check_box[]']");
+                        if(this.checked){
+                            checkbox.iCheck('check');
+                            $("button#remove").attr('disabled', false);
+                        }else{
+                            checkbox.iCheck('uncheck');
+                            $("button#remove").attr('disabled', true);
+                        }
+                    }
+            );
+            // 单选和取消 checkbox时，对相关按钮的禁用和启用
+            $("input[name='check_box[]']").on('ifChanged', function(e, d){
+                var checkbox = $(this);
+                if(this.checked){
+                    checkbox.parents('tr').addClass('info');
+                    $("button#remove").attr('disabled', false);
+                }else{
+                    checkbox.parents('tr').removeClass('info');
+                    $("button#remove").attr('disabled', true);
+                }
+            });
+            // 设置checkbox的初始化选项
+            $("input:checkbox").iCheck({
+                checkboxClass: 'icheckbox_minimal',
+                radioClass: 'iradio_minimal',
+                increaseArea: '20%', // optional
+                handle: 'checkbox'
+            });
 
-{% block title %}Log{% endblock %}
-{% block head %}
-{{ super() }}
-<style type="text/css">
-    *{
-        margin: 0;
-        padding: 0;
-    }
-    body{
-        font: italic 20px Georgia, serif;
-        letter-spacing: normal;
-        background-color: #f0f0f0;
-    }
-    #content{
-        width: 750px;
-        padding: 40px;
-        margin: 0 auto;
-        background-color: #fff;
-        border-left: 30px solid #1D81B6;
-        border-right: 1px solid #ddd;
-        box-shadow: 0px 0px 16px #aaa;
-    }
-    #table1{
-        font: bold 16px/1.4em "Trebuchet MS", sans-serif;
-    }
-    #table1 thead th{
-        padding: 15px;
-        border: 1px solid #93CE37;
-        border-bottom: 3px solid #9ED929;
-        text-shadow: 1px 1px 1px #568F23;
-        color: #fff;
-        background-color: #9DD929;
-        border-radius: 5px 5px 0px 0px;
-    }
-    #table1 thead th:empty{
-        background-color: transparent;
-        border: none;
-    }
-    #table1 tbody th{
-        padding: 0px 10px;
-        border: 1px solid #93CE37;
-        border-right: 3px solid #9ED929;
-        text-shadow: 1px 1px 1px #568F23;
-        color: #666;
-        background-color: #9DD929;
-        border-radius: 5px 0px 0px 5px;
-    }
-    #table1 tbody td{
-        padding: 10px;
-        border: 2px solid #E7EFE0;
-        text-align: center;
-        text-shadow: 1px 1px 1px #fff;
-        color: #666;
-        background-color: #DEF3CA;
-        border-radius: 2px;
-    }
+            // 点击事件，获取选中的数据，然后删除
+            $("button#add").click(function(){
+                window.location.href = $(this).attr('data-ajax-url');
+            });
 
-    #table1 tfoot td{
-        padding: 10px 0px;
-        font-size: 32px;
-        color: #9CD009;
-        text-align: center;
-        text-shadow: 1px 1px 1px #444;
-    }
-</style>
-{% endblock %}
-{% block page_content %}
-<table id="table1">
-    <thead>
-    <tr>
-        <th scope="col" abbr="Starter">ID</th>
-        <th scope="col" abbr="Medium">Action</th>
-        <th scope="col" abbr="Business">Log Detail</th>
-        <th scope="col" abbr="Deluxe">Time</th>
-    </tr>
-    </thead>
-    <tfoot>
-    </tfoot>
-    <tbody>
-    {% for log in logs %}
-    {% if log %}
-    <tr>
-        <td>{{log.id}}</td>
-        <td>{{log.action}}</td>
-        <td>{{log.log_detail}}</td>
-        <td>{{log.create_at}}</td>
-    </tr>
-    {% else %}
-    <td>Nothing</td>
-    {% endif %}
-    {% endfor %}
-    </tbody>
-</table>
+            $("[name='status']").bootstrapSwitch({
+                onText: 'Lock',
+                offText: 'Unlock'
+            });
+        });
+    </script>
+{% endblock script %}
+{% block title %}Keyword{% endblock title %}
+{% block search %}
+    {{frame_search('keyword')}}
+{% endblock search %}
+{% block content %}
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+        <div class="panel-body">
+            <div class="input-group-btn">
+                <div class="bs-bars pull-left">
+                    <div id="toolbar">
+                        <button id="remove" data-ajax-url="{{url_for('resource.delete_keyword', username=current_user.name)}}" class="btn btn-danger" disabled="">
+                            <i class="glyphicon glyphicon-remove"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="columns columns-right btn-group pull-right">
+                    <!-- 添加目录的对话框 -->
+                    <button type="button" class="btn btn-default" data-toggle="modal" aria-label="Add" title="Add" data-target="#add_keyword">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button>
 
-{% endblock %}
+
+                    <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                        <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                    </button>
+                    <div class="keep-open btn-group" title="Order">
+                        <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" name="order-table">
+                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                        </ul>
+                    </div>
+                    <div class="export btn-group">
+                        <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                            <i class="glyphicon glyphicon-export icon-share"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                            <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                            <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                            <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                            <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                            <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pull-right search">
+                    <form id="TableSearchForm" action="{{ url_for('resource.keyword', username=current_user.name, page=page, page_size=page_size)}}" method="post">
+                        <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="check_all_box" name='check_box[]'>
+                    </th>
+                    <th>ID</th>
+                    <th>Keyword</th>
+                    <th>Status</th>
+                    <th>Color</th>
+                    <th>Article Count</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for keyword in keyword_list %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="check_box[]" value="{{ keyword.id }}">
+                        </td>
+                        <td>{{ keyword.id }}</td>
+                        <td>{{ keyword.name }}</td>
+                        {% if keyword.status %}
+                            <td><span class="fa fa-lock"></span></td>
+                        {% else %}
+                            <td><span class="fa fa-unlock"></span></td>
+                        {% endif %}
+                        <td><span class="label label-{{ keyword.color }}">{{ keyword.color }}</span></td>
+                        <td><a href="#">{{ keyword.article_count }}</a> </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="#"><span class="fa fa-remove"></span></a>
+                                {% if keyword.status %}
+                                    <a href="#"><span class="fa fa-unlock"></span></a>
+                                {% else %}
+                                    <a href="#"><span class="fa fa-lock"></span></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ menu_paging(page_size, page, query_size, current_url) }}
+    </div>
+    <!-- 添加关键词具体实现模块 -->
+    <div class="modal fade" id="add_keyword" tabindex="-1" role="dialog" aria-labelledby="Add Article's Keyword">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="addArticleKeywordForm" class="form-horizontal" action="{{ current_url }}" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Add Article's Keyword</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="inputArticleKeywordName" class="col-sm-3 control-label">Keyword Name</label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="inputArticleKeywordName" placeholder="Keyword Name" name="name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" data-toggle="tooltip" title="Keyword Color">
+                            <label class="col-sm-3 control-label" for="inputArticleKeywordColor">Keyword Color</label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker" data-live-search="true" data-size="6" data-header="Select a Keyword Color" id="inputArticleKeywordColor" name="color">
+                                    <option value="1">default</option>
+                                    <option value="2">primary</option>
+                                    <option value="3">success</option>
+                                    <option value="4">info</option>
+                                    <option value="5">warning</option>
+                                    <option value="6">danger</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="inputArticleKeywordStatus">Keyword Status</label>
+                            <div class="col-sm-9">
+                                <input id="inputArticleKeywordStatus" name="status" checked type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block sidebar %}
+    {{ log_side.log_menu_navigation('Action Log') }}
+{% endblock sidebar %}

@@ -210,8 +210,8 @@ class Resource(db.Model):
     weight = db.Column(db.Integer)
     # 资源是否启用的状态，默认为启用True
     status = db.Column(db.Boolean, default=True, index=True)
-    extra = db.Column(db.PickleType)
-    description = db.Column(db.Text())
+    # extra = db.Column(db.PickleType)
+    # description = db.Column(db.Text())
     create_at = db.Column(db.DateTime, default = datetime.now)
     # rights = db.relationship('Right',
     #                            secondary=resources_rights,
@@ -462,9 +462,9 @@ class AuditLog(db.Model):
     def __repr__(self):
         return '<AuditLog %r>' % self.name
 
-class Log(db.Model):
+class ActionLog(db.Model):
     """用户的操作日志"""
-    __tablename__ = 'logs'
+    __tablename__ = 'action_logs'
     id = db.Column(db.Integer, primary_key = True)
     action = db.Column(db.String(64))
     log_detail = db.Column(db.Text())
@@ -473,7 +473,7 @@ class Log(db.Model):
 
     @staticmethod
     def insert_logs(action, log_detail):
-        log = Log()
+        log = ActionLog()
         log.action = action
         log.log_detail = log_detail
         db.session.add(log)
@@ -539,7 +539,7 @@ class User(UserMixin, db.Model):
     # 用户地址信息
     addresses = db.relationship('Address', backref = 'user', lazy = 'dynamic')
     # 操作日志信息
-    logs = db.relationship('Log', backref = 'user', lazy = 'dynamic')
+    action_logs = db.relationship('ActionLog', backref = 'user', lazy = 'dynamic')
 
     # 消息信息
     messages = db.relationship('Message', backref = 'user', lazy = 'dynamic')
@@ -578,7 +578,7 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, status=True, telephone=None, addresses=None, articles=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
+    def insert_users(username, email, password, status=True, telephone=None, addresses=None, articles=None, action_logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
         user = User()
@@ -591,8 +591,8 @@ class User(UserMixin, db.Model):
             user.addresses = addresses
         if articles:
             user.articles = articles
-        if logs:
-            user.logs = logs
+        if action_logs:
+            user.action_logs = action_logs
         if audit_logs:
             user.audit_logs = audit_logs
         if messages:
@@ -1238,6 +1238,9 @@ class Article(db.Model):
     # 文章评论信息
     comments = db.relationship('ArticleComment', backref = 'article', lazy= 'dynamic')
 
+    @property
+    def keywords_string(self):
+        pass
 
     @staticmethod
     def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
@@ -1332,7 +1335,7 @@ class InitData(object):
     def create_log(self):
         action = 'update user name'
         log_detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation'
-        return Log.insert_logs(action, log_detail)
+        return ActionLog.insert_logs(action, log_detail)
 
     def create_message(self):
         return  Message.insert_message('test', "this is a test message")
@@ -1363,7 +1366,7 @@ class InitData(object):
         message = self.create_message()
         audit_log = self.create_audit_log()
         return User.insert_users(username, email, password, telephone=telephone,
-                                 addresses=[address], logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
+                                 addresses=[address], action_logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
         User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
         User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)

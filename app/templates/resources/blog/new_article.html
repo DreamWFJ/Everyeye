@@ -1,5 +1,5 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
-{% import 'macro/__article__.html' as article %}
+{% import 'macro/__article__.html' as article_side %}
 {% extends "framework.html" %}
 {% block script %}
 <!-- bootstrap summernote edit tool css -->
@@ -291,11 +291,11 @@
 
     <div class="panel-body">
         <form class="form-horizontal" id="blogArticleForm" method="post" enctype="multipart/form-data"
-              action="{% if edit_article %}{{ url_for('resource.new_article', username=current_user.name, article_id=edit_article.id) }}{% else %}{{ url_for('resource.new_article', username=current_user.name) }}{% endif %}">
+              action="{% if article %}{{ url_for('resource.new_article', username=current_user.name, article_id=article.id) }}{% else %}{{ url_for('resource.new_article', username=current_user.name) }}{% endif %}">
             <div class="form-group">
                 <label for="inputArticleTitle" class="col-sm-2 control-label">Title</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="inputArticleTitle" name="title" value="{{ edit_article.title }}" placeholder="Article Title">
+                    <input type="text" class="form-control" id="inputArticleTitle" name="title" value="{{ article.title }}" placeholder="Article Title">
                 </div>
             </div>
 
@@ -305,7 +305,7 @@
                     <ul id="inputArticleSource" style="margin: 0; padding: 0; list-style: none">
                         {% for source in article_sources %}
                         <li>
-                            <input type="radio" {% if edit_article.source_id|string == source.id|string %}checked{% endif %} id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
+                            <input type="radio" {% if article.source_id|string == source.id|string %}checked{% endif %} id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
                             <label for="{{ source.id }}">{{ source.name }}</label>
                         </li>
                         {% endfor %}
@@ -318,7 +318,7 @@
                 <div class="col-sm-10">
                     <select class="selectpicker" id="selectCategory" name="category_id">
                         {% for category in article_categorys %}
-                        <option value="{{ category.id }}" {% if edit_article.category_id|string == category.id|string %}class="active" selected {% endif %}>{{ category.name }}</option>
+                        <option value="{{ category.id }}" {% if article.category_id|string == category.id|string %}class="active" selected {% endif %}>{{ category.name }}</option>
                         {% endfor %}
                     </select>
                     &nbsp;
@@ -342,10 +342,10 @@
                         </ul>
                         <div class="tab-content" id="article_edit_pane">
                             <div class="tab-pane active" id="summernote">
-                                <textarea id="summernote_edit_tool" name="summernote_content">{% if edit_article.content_type == "summernote" %}{{ edit_article.content }}{% endif %}</textarea>
+                                <textarea id="summernote_edit_tool" name="summernote_content">{% if article.content_type == "summernote" %}{{ article.content }}{% endif %}</textarea>
                             </div>
                             <div class="tab-pane" id="markdown">
-                                <textarea name="markdown_content" data-provide="markdown" style="resize: none; display: block;" rows="14" id="bootstrap_markdown_edit_tool">{% if edit_article.content_type == "markdown" %}{{ edit_article.content }}{% endif %}</textarea>
+                                <textarea name="markdown_content" data-provide="markdown" style="resize: none; display: block;" rows="14" id="bootstrap_markdown_edit_tool">{% if article.content_type == "markdown" %}{{ article.content }}{% endif %}</textarea>
                             </div>
                         </div>
                     </div>
@@ -356,7 +356,7 @@
                 <label for="inputKeywords" class="col-sm-2 control-label">Keywords</label>
                 <div class="col-sm-10">
                     <div class="input-group">
-                        <input type="text" name="keywords" id="inputKeywords" value="{{ edit_article.keywords_string }}" class="form-control" data-role="tagsinput" />
+                        <input type="text" name="keywords" id="inputKeywords" value="{{ article.keywords_string }}" class="form-control" data-role="tagsinput" />
                     </div><!-- /input-group -->
                 </div>
                 <div class="col-sm-2">
@@ -373,7 +373,7 @@
                 </div>
             </div>
 
-            {% for reference_link in edit_article.reference_links %}
+            {% for reference_link in article.reference_links %}
             {% if loop.index == 1 %}
             <div class="form-group">
                 <label class="col-sm-2 control-label">Reference links</label>
@@ -439,7 +439,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" {% if edit_article.status %}checked{% endif %} value="1" name="status"> Display Status
+                            <input type="checkbox" {% if article.status %}checked{% endif %} value="1" name="status"> Display Status
                         </label>
                     </div>
                 </div>
@@ -448,7 +448,7 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" {% if edit_article.permit_comment %}checked{% endif %} value="1" name="permit_comment"> Permit Comment
+                            <input type="checkbox" {% if article.permit_comment %}checked{% endif %} value="1" name="permit_comment"> Permit Comment
                         </label>
                     </div>
                 </div>
@@ -470,5 +470,5 @@
 {% endblock content %}
 
 {% block sidebar %}
-{{ article.article_menu_navigation('New Article') }}
+{{ article_side.article_menu_navigation('New Article') }}
 {% endblock sidebar %}

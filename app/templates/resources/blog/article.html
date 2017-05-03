@@ -118,7 +118,7 @@
                 <th>Title</th>
                 <th>Source</th>
                 <th>Category</th>
-                <th>Keywords</th>
+                <th>Keyword Count</th>
                 <th>View Count</th>
                 <th>Comment Count</th>
                 <th>Permit Comment</th>
@@ -136,7 +136,7 @@
                 </td>
                 <td>{{ article.id }}</td>
                 <td><a href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}">{{ article.title }}</a></td>
-                <td><a href="#">
+                <td><a href="{{ url_for('resource.source', username=current_user.name, source_id=article.source_id) }}">
                     {% for source in article_sources %}
                         {% if source.id|int == article.source_id|int %}
                             {{ source.name }}
@@ -144,18 +144,18 @@
                     {% endfor %}</a>
                 </td>
                 <td>
-                    <a href="#">
+                    <a href="{{ url_for('resource.category', username=current_user.name, category_id=article.category_id) }}">
                     {% for category in article_categorys %}
                         {% if category.id|int == article.category_id|int %}
                             {{ category.name }}
                         {% endif %}
                     {% endfor %}</a>
                 </td>
-                <td><a href="{{ url_for('resource.keyword', username=current_user.name, article_id=article.id) }}">{{ article.keywords }}</a></td>
+                <td><a href="{{ url_for('resource.keyword', username=current_user.name, article_id=article.id) }}">{{ article.keywords.count() }}</a></td>
                 <!--这里点击后，可以查看具体统计数据，包括访问的用户，IP，时间-->
-                <td><a href="#">{{ article.view_count }}</a></td>
+                <td><a href="#">{{ article.views.count() }}</a></td>
                 <!--这里点击后，可以查看具体评论信息-->
-                <td><a href="#">{{ article.comment_count }}</a></td>
+                <td><a href="#">{{ article.comments.count() }}</a></td>
                 {% if article.permit_comment %}
                 <td><span class="glyphicon glyphicon-ok-sign"></span></td>
                 {% else %}

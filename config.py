@@ -11,11 +11,14 @@ import logging
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 upload_image_path = os.path.join(BASE_DIR, 'app/static/img/blogs').replace('\\', '/')
 
-logging.basicConfig(level=logging.DEBUG,
-                format='%(asctime)s %(levelname)s %(message)s',
-                datefmt='%a, %d %b %Y %H:%M:%S',
-                filename=os.path.join(BASE_DIR, 'debug.log'),
-                filemode='w')
+DEBUG = True
+if not DEBUG:
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=os.path.join(BASE_DIR, 'debug.log'),
+                    filemode='w')
+
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
@@ -31,7 +34,7 @@ class Config:
         pass
 
 class Default(Config):
-    DEBUG = True
+    DEBUG = DEBUG
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 25
     MAIL_USE_TLS = True

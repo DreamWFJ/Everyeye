@@ -1,5 +1,5 @@
 {% from 'macro/__frame__.html' import frame_search, menu_paging %}
-{% import 'macro/__article__.html' as article %}
+{% import 'macro/__article__.html' as article_side %}
 {% extends "framework.html" %}
 {% block script %}
     <!-- bootstrap validator css -->
@@ -145,7 +145,7 @@
                         {% else %}
                             <td><span class="fa fa-unlock"></span></td>
                         {% endif %}
-                        <td><a href="#">{{ source.article_count }}</a> </td>
+                        <td><a href="#">{{ source.articles.count() }}</a> </td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="#"><span class="fa fa-remove"></span></a>
@@ -201,5 +201,5 @@
 {% endblock content %}
 
 {% block sidebar %}
-    {{ article.article_menu_navigation('Source') }}
+    {{ article_side.article_menu_navigation('Source') }}
 {% endblock sidebar %}
