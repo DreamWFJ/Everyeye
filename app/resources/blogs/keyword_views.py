@@ -8,18 +8,10 @@ FileName:       keyword_views.py
 CreateTime:     2017-05-03 20:17
 """
 
-import os
-from uuid import uuid4
-import markdown
-import random
-from config import upload_image_path
-from app.core.db.sql.models import Article, ArticleCategory, ArticleComment, ArticleKeyword, \
-    User, ArticleSource
+from app.core.db.sql.models import Article, ArticleKeywords, Keyword
 from flask_login import login_required, current_user
-from flask import render_template, request, redirect, url_for, send_from_directory, current_app
+from flask import render_template, request, redirect, url_for, current_app
 from .. import resource_blueprint as main
-from app import sql_db
-from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 @main.route('/<string:username>/keyword', methods=['POST','GET'])
 @login_required
@@ -38,7 +30,7 @@ def keyword(username):
             "5":"warning",
             "6":"danger"
         }
-        ArticleKeyword.insert_keyword(name, color_dict[str(color)], status)
+        Keyword.insert_keyword(name, color_dict[str(color)], status)
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -50,22 +42,31 @@ def keyword(username):
         offset_size = (page - 1) * page_size
 
     article_id = request.args.get('article_id')
+
     if article_id:
-        filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
-                     "article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} and " \
-                     "article_keywords.article_id = {article_id}) as article_count from article_keyword,article_keywords, " \
-                     "articles WHERE article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} " \
-                     "and article_keywords.article_id = {article_id} ".format(article_id=article_id)
+        # 多对多的查询：过滤条件为中间表，再到过滤对象表，最后得到结果
+        filter_result = Keyword.query.filter(Keyword.articles.any(ArticleKeywords.article_id == article_id))
     else:
-        filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
-                     "article_keywords.keyword_id = article_keyword.id and articles.id = article_keywords.article_id) as " \
-                     "article_count from article_keyword"
-    result_sql = filter_sql
-    page_result = sql_db.session.execute(result_sql)
+        filter_result = Keyword.query
+    order_result = filter_result.order_by(eval("Keyword.%s.%s()"%(order_name, order_direction)))
+    page_result = order_result.limit(page_size).offset(offset_size)
+
+    # if article_id:
+    #     filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
+    #                  "article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} and " \
+    #                  "article_keywords.article_id = {article_id}) as article_count from article_keyword,article_keywords, " \
+    #                  "articles WHERE article_keywords.keyword_id = article_keyword.id and articles.id = {article_id} " \
+    #                  "and article_keywords.article_id = {article_id} ".format(article_id=article_id)
+    # else:
+    #     filter_sql = "select article_keyword.*, (select count(*) from articles,article_keywords where " \
+    #                  "article_keywords.keyword_id = article_keyword.id and articles.id = article_keywords.article_id) as " \
+    #                  "article_count from article_keyword"
+    # result_sql = filter_sql
+    # page_result = sql_db.session.execute(result_sql)
 
     return render_template('resources/blog/keyword.html', keyword_list=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('resource.keyword', username=current_user.name), query_size=10)
+                           current_url=url_for('resource.keyword', username=current_user.name), query_size=order_result.count())
 
 @main.route('/<string:username>/delete-keyword', methods=['POST'])
 @login_required
@@ -73,6 +74,6 @@ def delete_keyword(username):
     # 文章目录管理
     ids = request.form.get('ids')
     print ids.split(',')
-    ArticleKeyword.delete_keyword_by_ids(ids.split(','))
+    Keyword.delete_keyword_by_ids(ids.split(','))
     print "user: %s delete article id: %s"%(username, ids)
     return "Delete ids '%s' success"%ids

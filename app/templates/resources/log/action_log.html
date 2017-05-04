@@ -56,9 +56,9 @@
         });
     </script>
 {% endblock script %}
-{% block title %}Keyword{% endblock title %}
+{% block title %}Action Log{% endblock title %}
 {% block search %}
-    {{frame_search('keyword')}}
+    {{frame_search('action_log')}}
 {% endblock search %}
 {% block content %}
     <!-- 面板 -->
@@ -69,18 +69,12 @@
             <div class="input-group-btn">
                 <div class="bs-bars pull-left">
                     <div id="toolbar">
-                        <button id="remove" data-ajax-url="{{url_for('resource.delete_keyword', username=current_user.name)}}" class="btn btn-danger" disabled="">
+                        <button id="remove" data-ajax-url="{{url_for('resource.delete_log', username=current_user.name)}}" class="btn btn-danger" disabled="">
                             <i class="glyphicon glyphicon-remove"></i> Delete
                         </button>
                     </div>
                 </div>
                 <div class="columns columns-right btn-group pull-right">
-                    <!-- 添加目录的对话框 -->
-                    <button type="button" class="btn btn-default" data-toggle="modal" aria-label="Add" title="Add" data-target="#add_keyword">
-                        <i class="glyphicon glyphicon-plus"></i>
-                    </button>
-
-
                     <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
                         <i class="glyphicon glyphicon-refresh icon-refresh"></i>
                     </button>
@@ -125,90 +119,33 @@
                         <input type="checkbox" id="check_all_box" name='check_box[]'>
                     </th>
                     <th>ID</th>
-                    <th>Keyword</th>
-                    <th>Status</th>
-                    <th>Color</th>
-                    <th>Article Count</th>
+                    <th>User</th>
                     <th>Action</th>
+                    <th>Resource</th>
+                    <th>Result</th>
+                    <th>Detail</th>
+                    <th>Time</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for keyword in keyword_list %}
+                {% for action_log in action_log_list %}
                     <tr>
                         <td>
                             <input type="checkbox" name="check_box[]" value="{{ keyword.id }}">
                         </td>
-                        <td>{{ keyword.id }}</td>
-                        <td>{{ keyword.name }}</td>
-                        {% if keyword.status %}
-                            <td><span class="fa fa-lock"></span></td>
-                        {% else %}
-                            <td><span class="fa fa-unlock"></span></td>
-                        {% endif %}
-                        <td><span class="label label-{{ keyword.color }}">{{ keyword.color }}</span></td>
-                        <td><a href="#">{{ keyword.article_count }}</a> </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="#"><span class="fa fa-remove"></span></a>
-                                {% if keyword.status %}
-                                    <a href="#"><span class="fa fa-unlock"></span></a>
-                                {% else %}
-                                    <a href="#"><span class="fa fa-lock"></span></a>
-                                {% endif %}
-                            </div>
-                        </td>
+                        <td>{{ action_log.id }}</td>
+                        <td>{{ action_log.user_name }}</td>
+                        <td>{{ action_log.action }}</td>
+                        <td>{{ action_log.resource }}</td>
+                        <td>{{ action_log.result }}</td>
+                        <td><a href="#" title="show action's detail information"><span class="fa fa-search"></span> </a></td>
+                        <td>{{ action_log.create_at }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
         {{ menu_paging(page_size, page, query_size, current_url) }}
-    </div>
-    <!-- 添加关键词具体实现模块 -->
-    <div class="modal fade" id="add_keyword" tabindex="-1" role="dialog" aria-labelledby="Add Article's Keyword">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form id="addArticleKeywordForm" class="form-horizontal" action="{{ current_url }}" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Add Article's Keyword</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="inputArticleKeywordName" class="col-sm-3 control-label">Keyword Name</label>
-                            <div class="col-sm-9">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="inputArticleKeywordName" placeholder="Keyword Name" name="name">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" data-toggle="tooltip" title="Keyword Color">
-                            <label class="col-sm-3 control-label" for="inputArticleKeywordColor">Keyword Color</label>
-                            <div class="col-sm-8">
-                                <select class="selectpicker" data-live-search="true" data-size="6" data-header="Select a Keyword Color" id="inputArticleKeywordColor" name="color">
-                                    <option value="1">default</option>
-                                    <option value="2">primary</option>
-                                    <option value="3">success</option>
-                                    <option value="4">info</option>
-                                    <option value="5">warning</option>
-                                    <option value="6">danger</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="inputArticleKeywordStatus">Keyword Status</label>
-                            <div class="col-sm-9">
-                                <input id="inputArticleKeywordStatus" name="status" checked type="checkbox" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 {% endblock content %}
 

@@ -9,16 +9,12 @@ CreateTime:     2017-05-03 19:41
 """
 
 import os
-from uuid import uuid4
 import markdown
-import random
 from config import upload_image_path
-from app.core.db.sql.models import Article, ArticleCategory, ArticleComment, ArticleKeyword, \
-    User, ArticleSource
+from app.core.db.sql.models import Article, ArticleComment
 from flask_login import login_required, current_user
-from flask import render_template, request, redirect, url_for, send_from_directory, current_app
+from flask import render_template, request,url_for, send_from_directory, current_app
 from .. import resource_blueprint as main
-from app import sql_db
 from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 

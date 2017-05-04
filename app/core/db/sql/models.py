@@ -6,6 +6,7 @@
 # CreateTime : 2017-03-27 15:44
 # ===================================
 import hashlib
+import random
 from app.utils import generate_uuid, get_current_0_24_time
 from flask import request, url_for
 from datetime import datetime
@@ -1005,50 +1006,69 @@ class ArticleCategory(db.Model):
         return '<ArticleCategory %r>' % self.name
 
 # 建立文章与关键词的多对多关系
-article_keywords = db.Table('article_keywords',
-                            db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
-                            db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
+# article_keywords = db.Table('article_keywords',
+#                             db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
+#                             db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
 
-class ArticleKeyword(db.Model):
+class ArticleKeywords(db.Model):
+    __tablename__ = 'article_keywords'
+    id = db.Column(db.Integer, primary_key = True)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    keyword_id = db.Column(db.Integer, db.ForeignKey('keywords.id'))
+    article = db.relationship('Article', back_populates="keywords")
+    keyword = db.relationship('Keyword', back_populates="articles")
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def delete_article_keyword_by_ids(ids):
+        resources_rights = ResourcesRights.query.filter(ResourcesRights.id.in_(ids))
+        if resources_rights:
+            for resource_right in resources_rights:
+                db.session.delete(resource_right)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleKeywords %r>' % self.__tablename__
+
+class Keyword(db.Model):
     """文章关键词"""
-    __tablename__ = 'article_keyword'
+    __tablename__ = 'keywords'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), unique=True)
     status = db.Column(db.Boolean(), default=False)
     color = db.Column(db.String(64))
     create_at = db.Column(db.DateTime, default = datetime.now)
-
+    articles = db.relationship("ArticleKeywords", back_populates="keyword",
+                                primaryjoin="ArticleKeywords.keyword_id==Keyword.id")
     @staticmethod
     def insert_keywords(keywords):
         for keyword in keywords:
-            article_keyword = ArticleKeyword.query.filter_by(name = keyword["name"]).first()
+            article_keyword = Keyword.query.filter_by(name = keyword["name"]).first()
             if article_keyword is None:
-                article_keyword = ArticleKeyword(name = keyword["name"])
+                article_keyword = Keyword(name = keyword["name"])
                 article_keyword.color = keyword["color"]
                 db.session.add(article_keyword)
         db.session.commit()
 
     @staticmethod
     def insert_keyword(name, color, status=True):
-        article_keyword = ArticleKeyword.query.filter_by(name = name).first()
+        article_keyword = Keyword.query.filter_by(name = name).first()
         if article_keyword is None:
-            article_keyword = ArticleKeyword(name = name)
-            article_keyword.color = color
-            article_keyword.status = status
+            article_keyword = Keyword(name = name, color = color, status = status)
             db.session.add(article_keyword)
         db.session.commit()
         return article_keyword
 
     @staticmethod
     def delete_keyword(name):
-        keyword = ArticleKeyword.query.filter_by(name = name).first()
+        keyword = Keyword.query.filter_by(name = name).first()
         if keyword:
             db.session.delete(keyword)
             db.session.commit()
 
     @staticmethod
     def delete_keyword_by_ids(ids):
-        keywords = ArticleKeyword.query.filter(ArticleKeyword.id.in_(ids))
+        keywords = Keyword.query.filter(Keyword.id.in_(ids))
         if keywords:
             for keyword in keywords:
                 db.session.delete(keyword)
@@ -1082,7 +1102,7 @@ class ArticleKeyword(db.Model):
                 "id":8, "name":"apple", "color":"primary"
             }
         ]
-        ArticleKeyword.insert_keywords(article_keywords)
+        Keyword.insert_keywords(article_keywords)
 
     def __repr__(self):
         return '<ArticleKeyword %r>' % self.name
@@ -1209,9 +1229,10 @@ class Article(db.Model):
     # 文章标题
     title = db.Column(db.String(64), unique=True)
     # 文章关键词
-    keywords = db.relationship('ArticleKeyword',
-                               secondary = article_keywords,
-                               backref = db.backref('articles', lazy='dynamic'))
+    keywords = db.relationship('ArticleKeywords',
+                               back_populates="article",
+                               primaryjoin="ArticleKeywords.article_id==Article.id")
+
     # 文章来源
     source_id = db.Column(db.Integer, db.ForeignKey('article_sources.id'))
     # 文章目录
@@ -1238,23 +1259,40 @@ class Article(db.Model):
     # 文章评论信息
     comments = db.relationship('ArticleComment', backref = 'article', lazy= 'dynamic')
 
-    @property
-    def keywords_string(self):
-        pass
+
+    @staticmethod
+    def get_keyword_color():
+        keyword_color_dict = {
+            "1":"default",
+            "2":"primary",
+            "3":"success",
+            "4":"info",
+            "5":"warning",
+            "6":"danger"
+        }
+        return random.choice(keyword_color_dict.values())
 
     @staticmethod
     def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
-        article = Article()
-        article.user_id = user_id
-        article.title = title
-        article.keywords = keywords
-        article.source_id = source_id
-        article.category_id = category_id
-        article.status = status
-        article.permit_comment = permit_comment
-        article.image_name = image_name
-        article.content = content
-        article.content_type = content_type
+        article = Article(user_id = user_id,
+                          title = title,
+                          source_id = source_id,
+                          category_id = category_id,
+                          permit_comment = permit_comment,
+                          image_name = image_name,
+                          status = status,
+                          content = content,
+                          content_type = content_type)
+        keyword_list = keywords.split(',')
+        if len(keyword_list) > 0:
+            for keyword in keyword_list:
+                keyword = Keyword.insert_keyword(keyword, Article.get_keyword_color())
+                article_keyword = ArticleKeywords.query.filter(and_(ArticleKeywords.article_id==article.id, ArticleKeywords.keyword_id==keyword.id)).first()
+                if not article_keyword:
+                    article_keyword = ArticleKeywords(article=article, keyword=keyword)
+                article.keywords.append(article_keyword)
+                db.session.add(article_keyword)
+
         if len(reference_links) > 0:
             for reference_link in reference_links:
                 if len(reference_link) == 0:
@@ -1274,7 +1312,6 @@ class Article(db.Model):
         article = Article.query.filter_by(id=article_id).first()
         if article:
             article.title = title
-            article.keywords = keywords
             article.source_id = source_id
             article.category_id = category_id
             article.status = status
@@ -1282,6 +1319,17 @@ class Article(db.Model):
             article.image_name = image_name
             article.content = content
             article.content_type = content_type
+
+            keyword_list = keywords.split(',')
+            if len(keyword_list) > 0:
+                for keyword in keyword_list:
+                    keyword = Keyword.insert_keyword(keyword, Article.get_keyword_color())
+                    article_keyword = ArticleKeywords.query.filter(and_(ArticleKeywords.article_id==article.id, ArticleKeywords.keyword_id==keyword.id)).first()
+                    if not article_keyword:
+                        article_keyword = ArticleKeywords(article=article, keyword=keyword)
+                    article.keywords.append(article_keyword)
+                    db.session.add(article_keyword)
+
             if len(reference_links) > 0:
                 article_reference_links = ArticleReferenceLink.update_reference_link(article_id, reference_links)
                 article.reference_links = article_reference_links
@@ -1326,7 +1374,7 @@ class InitData(object):
         ArticleContentType.init()
         ArticleSource.init()
         ArticleCategory.init()
-        ArticleKeyword.init()
+        Keyword.init()
 
 
     def create_article(self):

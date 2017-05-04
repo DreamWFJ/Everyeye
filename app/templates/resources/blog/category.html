@@ -145,7 +145,7 @@
                         {% else %}
                             <td><span class="fa fa-unlock"></span></td>
                         {% endif %}
-                        <td><a href="#">{{ category.articles.count() }}</a> </td>
+                        <td><a href="{{ url_for('resource.article', username=current_user.name, category_id=category.id) }}">{{ category.articles.count() }}</a> </td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="#"><span class="fa fa-remove"></span></a>

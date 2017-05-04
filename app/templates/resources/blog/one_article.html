@@ -280,8 +280,8 @@
                                 </a> |
                             </li>
                             <li><i class="fa fa-tags pr-5"></i>
-                                {% for keyword in article.keywords %}
-                                <a href="#">{{keyword.name }}</a>
+                                {% for article_keyword in article.keywords %}
+                                <a href="#">{{article_keyword.keyword.name }}</a>
                                 {% if loop.index <= loop.length - 1 %},{% endif %}
                                 {% endfor %}
                             </li>

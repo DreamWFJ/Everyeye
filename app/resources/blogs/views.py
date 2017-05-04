@@ -9,14 +9,13 @@ CreateTime:     2017-04-15 16:17
 """
 import os
 from uuid import uuid4
-from sqlalchemy import and_, or_
+from sqlalchemy import or_
 import random
 from config import upload_image_path
-from app.core.db.sql.models import Article, article_keywords, ArticleKeyword
+from app.core.db.sql.models import Article, ArticleKeywords
 from flask_login import login_required, current_user
-from flask import render_template, request, redirect, url_for, send_from_directory, current_app
+from flask import render_template, request, redirect, url_for, current_app
 from .. import resource_blueprint as main
-from app import sql_db
 from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 @main.route('/<string:username>')
@@ -43,9 +42,12 @@ def article(username):
     category_id = request.args.get('category_id')
     keyword_id = request.args.get('keyword_id')
     # article_list = Article.query.order_by(Article.id).all()
-
+    # 注意这里，多表关联查询
     if source_id or category_id or keyword_id:
-        filter_result = Article.query.filter(or_(Article.source_id==source_id, Article.category_id==category_id, Article.keywords.query.filter_by(id=keyword_id).first()))
+        filter_result = Article.query.filter(or_(Article.source_id==source_id,
+                                                 Article.category_id==category_id,
+                                                 Article.keywords.any(ArticleKeywords.keyword_id==keyword_id)))
+
     else:
         filter_result = Article.query
     order_result = filter_result.order_by(eval("Article.%s.%s()"%(order_name, order_direction)))
@@ -74,18 +76,15 @@ def new_article(username):
         article_id = request.args.get('article_id')
         if article_id:
             article = Article.query.filter_by(id=article_id).first()
-            keywords = ','.join([keyword.name for keyword in article.keywords])
+            keywords = ','.join([article_keyword.keyword.name for article_keyword in article.keywords])
             reference_links_string_list = [reference_link.name for reference_link in article.reference_links.all()]
             setattr(article, 'keywords_string', keywords)
             setattr(article, 'reference_links_string_list', reference_links_string_list)
 
-            print article.category_id
             # print article.reference_links_string
         else:
             article = None
             keywords = None
-        print article
-
         return render_template('resources/blog/new_article.html', article_categorys=get_user_article_categorys(),
                                article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources(),
                                article=article)
@@ -123,23 +122,12 @@ def new_article(username):
                 os.makedirs(user_upload_image_path)
             file.save(os.path.join(user_upload_image_path, image_name).replace('\\', '/'))
 
-        keyword_color_dict = {
-            "1":"default",
-            "2":"primary",
-            "3":"success",
-            "4":"info",
-            "5":"warning",
-            "6":"danger"
-        }
-        keyword_list = keywords.split(',')
-        article_keywords = []
-        for keyword in keyword_list:
-            article_keyword = ArticleKeyword.insert_keyword(keyword, random.choice(keyword_color_dict.values()))
-            article_keywords.append(article_keyword)
+
+
         if article_id:
-            Article.update_article(article_id, title, article_keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            Article.update_article(article_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
         else:
-            Article.insert_article(current_user.id, title, article_keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            Article.insert_article(current_user.id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
         return redirect(url_for('resource.article', username=current_user.name))
 
 
