@@ -31,3 +31,13 @@ def action_log(user_id):
     return render_template('resources/log/action_log.html', action_log_list=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
                            current_url=url_for('resource.action_log', user_id=current_user.id), query_size=filter_result.count())
+
+@main.route('/<string:user_id>/delete-source', methods=['POST'])
+@login_required
+def delete_action_log(user_id):
+    # 删除来源
+    ids = request.form.get('ids')
+    print ids.split(',')
+    # ArticleKeyword.delete_keyword_by_ids(ids.split(','))
+    print "user: %s delete source id: %s"%(user_id, ids)
+    return "Delete ids '%s' success"%ids

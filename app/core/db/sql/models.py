@@ -468,15 +468,17 @@ class ActionLog(db.Model):
     __tablename__ = 'action_logs'
     id = db.Column(db.Integer, primary_key = True)
     action = db.Column(db.String(64))
-    log_detail = db.Column(db.Text())
+    resource = db.Column(db.String(64))
+    # 操作是否成功
+    status = db.Column(db.Boolean, default = True, index = True)
+    # 操作详情
+    detail = db.Column(db.Text())
     create_at = db.Column(db.DateTime(), default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_logs(action, log_detail):
-        log = ActionLog()
-        log.action = action
-        log.log_detail = log_detail
+    def insert_logs(action, resource, status, detail):
+        log = ActionLog(action = action, resource = resource, status = status, detail = detail)
         db.session.add(log)
         db.session.commit()
         return log
@@ -838,9 +840,9 @@ class AnonymousUser(AnonymousUserMixin):
 class ArticleCommentFollow(db.Model):
     __tablename__ = 'article_comment_follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
-                           primary_key=True)
+                            primary_key=True)
     followed_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
-                         primary_key=True)
+                            primary_key=True)
     create_at = db.Column(db.DateTime, default = datetime.now)
 
     def __repr__(self):
@@ -868,10 +870,10 @@ class ArticleComment(db.Model):
                                cascade='all, delete-orphan')
     # 表示谁评论我(这里的我表示写评论的用户)
     followers = db.relationship('ArticleCommentFollow',
-                               foreign_keys=[ArticleCommentFollow.followed_id],
-                               backref=db.backref('followed', lazy='joined'),
-                               lazy='dynamic',
-                               cascade='all, delete-orphan')
+                                foreign_keys=[ArticleCommentFollow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
     @property
     def is_reply(self):
         return False if self.followed.count() == 0 else True
@@ -893,27 +895,27 @@ class ArticleComment(db.Model):
     @staticmethod
     def get_article_comments(article_id):
         all_comments = []
-        article_comments = ArticleComment.query\
+        article_comments = ArticleComment.query \
             .filter(and_(ArticleComment.comment_type=="comment",
-                         ArticleComment.article_id==article_id))\
+                         ArticleComment.article_id==article_id)) \
             .order_by(ArticleComment.create_at.asc()).all()
 
         for comment in article_comments:
             all_comments.append(comment)
             follower_ids = [one.follower_id for one in comment.followers.all()]
             if len(follower_ids) > 0:
-                article_reply_comments = ArticleComment.query\
+                article_reply_comments = ArticleComment.query \
                     .filter(and_(ArticleComment.comment_type=="reply",
-                                 ArticleComment.id.in_(follower_ids)))\
+                                 ArticleComment.id.in_(follower_ids))) \
                     .order_by(ArticleComment.create_at.asc()).all()
 
                 for article_reply_comment in article_reply_comments:
                     all_comments.append(article_reply_comment)
                     follower_ids = [one.follower_id for one in article_reply_comment.followers.all()]
                     if len(follower_ids) > 0:
-                        article_reply_to_reply_comments = ArticleComment\
+                        article_reply_to_reply_comments = ArticleComment \
                             .query.filter(and_(ArticleComment.comment_type=="reply",
-                                               ArticleComment.id.in_(follower_ids)))\
+                                               ArticleComment.id.in_(follower_ids))) \
                             .order_by(ArticleComment.create_at.asc()).all()
                         all_comments.extend(article_reply_to_reply_comments)
 
@@ -1039,7 +1041,7 @@ class Keyword(db.Model):
     color = db.Column(db.String(64))
     create_at = db.Column(db.DateTime, default = datetime.now)
     articles = db.relationship("ArticleKeywords", back_populates="keyword",
-                                primaryjoin="ArticleKeywords.keyword_id==Keyword.id")
+                               primaryjoin="ArticleKeywords.keyword_id==Keyword.id")
     @staticmethod
     def insert_keywords(keywords):
         for keyword in keywords:
@@ -1380,10 +1382,8 @@ class InitData(object):
     def create_article(self):
         pass
 
-    def create_log(self):
-        action = 'update user name'
-        log_detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation'
-        return ActionLog.insert_logs(action, log_detail)
+    def create_log(self, action, resource, detail, status=True):
+        return ActionLog.insert_logs(action, resource, status, detail)
 
     def create_message(self):
         return  Message.insert_message('test', "this is a test message")
@@ -1409,8 +1409,14 @@ class InitData(object):
         password = 'this_is_a_test_account'
         telephone = '13641361488'
         address = self.create_address()
-        log = self.create_log()
-        log1 = self.create_log()
+        log = self.create_log(action = 'update',
+                              resource = 'user',
+                              status = True,
+                              detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation')
+        log1 = self.create_log(action = 'create',
+                              resource = 'role',
+                              status = False,
+                              detail = 'create role<id=1, name="haha"> to role<id=1, name="lala">, result: successful operation')
         message = self.create_message()
         audit_log = self.create_audit_log()
         return User.insert_users(username, email, password, telephone=telephone,
