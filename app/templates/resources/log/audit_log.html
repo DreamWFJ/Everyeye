@@ -21,9 +21,9 @@
                             <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="order-table">
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                            <li><a href="{{ url_for('resource.audit_log', user_id=current_user.id, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                            <li><a href="{{ url_for('resource.audit_log', user_id=current_user.id, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                            <li><a href="{{ url_for('resource.audit_log', user_id=current_user.id, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
                         </ul>
                     </div>
                     <div class="export btn-group">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="pull-right search">
-                    <form id="TableSearchForm" action="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size)}}" method="post">
+                    <form id="TableSearchForm" action="{{ url_for('resource.audit_log', user_id=current_user.id, page=page, page_size=page_size)}}" method="post">
                         <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
                     </form>
                 </div>
@@ -55,29 +55,21 @@
                 <tr>
                     <th></th>
                     <th>ID</th>
-                    <th>Action</th>
-                    <th>Resource</th>
-                    <th>Result</th>
-                    <th>Detail</th>
-                    <th>Time</th>
+                    <th>IP</th>
+                    <th>Address</th>
+                    <th>Login Time</th>
+                    <th>Logout Time</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for action_log in action_log_list %}
+                {% for audit_log in audit_log_list %}
                     <tr>
                         <td></td>
-                        <td>{{ action_log.id }}</td>
-                        <td>{{ action_log.action|capitalize }}</td>
-                        <td>{{ action_log.resource|capitalize  }}</td>
-                        <td>
-                            {% if action_log.status %}
-                            <span class="glyphicon glyphicon-ok" style="color: green;"></span>
-                            {% else %}
-                            <span class="glyphicon glyphicon-remove" style="color: red;"></span>
-                            {% endif %}
-                        </td>
-                        <td><a href="#" title="show action's detail information"><span class="fa fa-search"></span> </a></td>
-                        <td>{{ action_log.create_at }}</td>
+                        <td>{{ audit_log.id }}</td>
+                        <td>{{ audit_log.ip }}</td>
+                        <td>{{ audit_log.province }}、{{ audit_log.city }}</td>
+                        <td>{{ audit_log.login_time }}</td>
+                        <td>{{ audit_log.logout_time }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

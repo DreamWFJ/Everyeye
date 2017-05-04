@@ -7,8 +7,7 @@ Version:        0.1.0
 FileName:       keyword_views.py
 CreateTime:     2017-05-03 20:17
 """
-
-from app.core.db.sql.models import Article, ArticleKeywords, Keyword
+from app.core.db.sql.models import User, ArticleKeywords, Keyword
 from flask_login import login_required, current_user
 from flask import render_template, request, redirect, url_for, current_app
 from .. import resource_blueprint as main
@@ -31,6 +30,9 @@ def keyword(username):
             "6":"danger"
         }
         Keyword.insert_keyword(name, color_dict[str(color)], status)
+        current_user.add_action_log('create', 'keyword', True,
+                                    'create keyword: "%s", color: "%s", status: "%s". insert data success'%(name, color, status))
+
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -73,7 +75,7 @@ def keyword(username):
 def delete_keyword(username):
     # 文章目录管理
     ids = request.form.get('ids')
-    print ids.split(',')
     Keyword.delete_keyword_by_ids(ids.split(','))
+    current_user.add_action_log('delete', 'keyword', True, 'delete keyword ids: "%s". remove data success'%ids)
     print "user: %s delete article id: %s"%(username, ids)
     return "Delete ids '%s' success"%ids

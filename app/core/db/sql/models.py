@@ -429,19 +429,17 @@ class AuditLog(db.Model):
     """用户的登录登出审计日志"""
     __tablename__ = 'audit_logs'
     id = db.Column(db.Integer, primary_key = True)
-    login_city = db.Column(db.String(16))
-    login_address = db.Column(db.Text())
+    province = db.Column(db.String(16))
+    city = db.Column(db.String(16))
+    detail_address = db.Column(db.Text())
     ip = db.Column(db.String(16))
     login_time = db.Column(db.DateTime(), default = datetime.now)
     last_request_time = db.Column(db.DateTime(), default = datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_audit_logs(login_city, login_address, ip, login_time = None, last_request_time=None):
-        audit_logs = AuditLog()
-        audit_logs.login_city = login_city
-        audit_logs.login_address = login_address
-        audit_logs.ip = ip
+    def insert_audit_logs(province, city, detail_address, ip, login_time = None, last_request_time=None):
+        audit_logs = AuditLog(province = province, city = city, ip = ip, detail_address = detail_address)
         if login_time:
             audit_logs.login_time = login_time
         if last_request_time:
@@ -459,9 +457,8 @@ class AuditLog(db.Model):
         db.session.add(audit_log)
         db.session.commit()
 
-
     def __repr__(self):
-        return '<AuditLog %r>' % self.name
+        return '<AuditLog %r>' % self.__tablename__
 
 class ActionLog(db.Model):
     """用户的操作日志"""
@@ -484,7 +481,7 @@ class ActionLog(db.Model):
         return log
 
     def __repr__(self):
-        return '<AuditLog %r>' % self.name
+        return '<AuditLog %r>' % self.__tablename__
 
 class Message(db.Model):
     """用户的消息记录"""
@@ -657,6 +654,13 @@ class User(UserMixin, db.Model):
             db.session.add(user)
             db.session.commit()
 
+    @staticmethod
+    def add_action_log(username, action_log):
+        user = User.query.filter_by(name=username).first()
+        if user:
+            user.action_logs.append(action_log)
+            db.session.add(user)
+            db.session.commit()
 
     @staticmethod
     def update_user(name, real_name=None, email=None, role_id=None, status=None, confirmed=None, about_me=None, identity_card_number=None, telephone=None):
@@ -776,13 +780,20 @@ class User(UserMixin, db.Model):
     def new_audit_log(self, ip):
         """产生审计日志"""
         print "user: %s, ip: %s login."%(self.name, ip)
+        login_province = 'beijin'
         login_city = 'beijin'
         login_address = 'haidianqu'
         s, e = get_current_0_24_time()
         log = AuditLog.query.filter(and_(AuditLog.user_id==self.id, AuditLog.last_request_time >= s, AuditLog.last_request_time <= e)).first()
         if log is None:
-            log = AuditLog.insert_audit_logs(login_city, login_address, ip)
+            log = AuditLog.insert_audit_logs(login_province, login_city, login_address, ip)
         self.audit_logs.append(log)
+        db.session.add(self)
+        db.session.commit()
+
+    def add_action_log(self, action, resource, status, detail):
+        action_log = ActionLog.insert_logs(action, resource, status, detail)
+        self.action_logs.append(action_log)
         db.session.add(self)
         db.session.commit()
 
@@ -1396,12 +1407,13 @@ class InitData(object):
         return Address.insert_address(name, country, city, address_detail, True)
 
     def create_audit_log(self):
+        login_province = 'Beijin'
         login_city = 'Beijin'
         login_address = 'Beijin of China, chao yang country'
         ip = '192.168.1.123'
         login_time = datetime.now()
         logout_time = datetime.now()
-        return AuditLog.insert_audit_logs(login_city, login_address, ip, login_time, logout_time)
+        return AuditLog.insert_audit_logs(login_province, login_city, login_address, ip, login_time, logout_time)
 
     def create_user(self):
         username = 'Administrator'

@@ -24,6 +24,9 @@ def category(username):
         status = request.form.get("status")
         status = True if status == "on" else False
         ArticleCategory.insert_category(name, status)
+        current_user.add_action_log('create', 'category', True,
+                                    'create category: "%s", status: "%s". insert data success'%(name, status))
+
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -52,5 +55,6 @@ def delete_category(username):
     # 文章目录管理
     ids = request.form.get('ids')
     Article.delete_article_by_ids(ids.split(','))
+    current_user.add_action_log('delete', 'category', True, 'delete category ids: "%s". remove data success'%ids)
     print "user: %s delete category id: %s"%(username, ids)
     return "Delete ids '%s' success"%ids

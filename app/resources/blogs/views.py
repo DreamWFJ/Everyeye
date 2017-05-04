@@ -126,8 +126,14 @@ def new_article(username):
 
         if article_id:
             Article.update_article(article_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            current_user.add_action_log('update', 'article', True,
+                                    'create article title: "%s", status: "%s". insert data success'%(title, status))
+
         else:
             Article.insert_article(current_user.id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            current_user.add_action_log('create', 'article', True,
+                                    'create article title: "%s", status: "%s". insert data success'%(title, status))
+
         return redirect(url_for('resource.article', username=current_user.name))
 
 
@@ -137,5 +143,6 @@ def delete_article(username):
     # 文章目录管理
     ids = request.form.get('ids')
     Article.delete_article_by_ids(ids.split(','))
+    current_user.add_action_log('delete', 'article', True, 'delete article ids: "%s". remove data success'%ids)
     print "user: %s delete article id: %s"%(username, ids)
     return "Delete ids '%s' success"%ids

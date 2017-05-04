@@ -24,6 +24,8 @@ def source(username):
         status = request.form.get("status")
         status = True if status == "on" else False
         ArticleSource.insert_source(name, status)
+        current_user.add_action_log('create', 'source', True,
+                                    'create source: "%s", status: "%s". insert data success'%(name, status))
     page = int(request.args.get('page', 1))
     page_size = request.args.get('page_size', 10)
     order_name = request.args.get('order_name', 'id')
@@ -52,4 +54,5 @@ def delete_source(username):
     print ids.split(',')
     # ArticleKeyword.delete_keyword_by_ids(ids.split(','))
     print "user: %s delete source id: %s"%(username, ids)
+    current_user.add_action_log('delete', 'source', True, 'delete source ids: "%s". remove data success'%ids)
     return "Delete ids '%s' success"%ids

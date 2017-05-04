@@ -2,96 +2,103 @@
 {% import 'macro/__log__.html' as log_side %}
 {% extends "framework.html" %}
 {% block script %}
-    <script type="text/javascript">
-        $(document).ready(function() {});
-    </script>
+<script type="text/javascript">
+    $(document).ready(function() {});
+    function show_action_detail(message){
+        bootbox.alert({
+            size: "small",
+            title: "Message",
+            message: '<span style="color: blue;">'+message+'</span>'
+        });
+    }
+</script>
 {% endblock script %}
 {% block title %}Action Log{% endblock title %}
 {% block search %}
-    {{frame_search('action_log')}}
+{{frame_search('action_log')}}
 {% endblock search %}
 {% block content %}
-    <!-- 面板 -->
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
-        <div class="panel-body">
-            <div class="input-group-btn">
-                <div class="columns columns-right btn-group pull-right">
-                    <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
-                        <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+<!-- 面板 -->
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Panel heading</div>
+    <div class="panel-body">
+        <div class="input-group-btn">
+            <div class="columns columns-right btn-group pull-right">
+                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
+                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+                </button>
+                <div class="keep-open btn-group" title="Order">
+                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                     </button>
-                    <div class="keep-open btn-group" title="Order">
-                        <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" name="order-table">
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
-                            <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
-                        </ul>
-                    </div>
-                    <div class="export btn-group">
-                        <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
-                            <i class="glyphicon glyphicon-export icon-share"></i>
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
-                            <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
-                            <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
-                            <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
-                            <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
-                            <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
-                        </ul>
-                    </div>
+                    <ul class="dropdown-menu" role="menu" name="order-table">
+                        <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                        <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                        <li><a href="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                    </ul>
                 </div>
-                <div class="pull-right search">
-                    <form id="TableSearchForm" action="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size)}}" method="post">
-                        <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
-                    </form>
+                <div class="export btn-group">
+                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
+                        <i class="glyphicon glyphicon-export icon-share"></i>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
+                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
+                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
+                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
+                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                    </ul>
                 </div>
             </div>
+            <div class="pull-right search">
+                <form id="TableSearchForm" action="{{ url_for('resource.action_log', user_id=current_user.id, page=page, page_size=page_size)}}" method="post">
+                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
+                </form>
+            </div>
         </div>
-        <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th>ID</th>
-                    <th>Action</th>
-                    <th>Resource</th>
-                    <th>Result</th>
-                    <th>Detail</th>
-                    <th>Time</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for action_log in action_log_list %}
-                    <tr>
-                        <td></td>
-                        <td>{{ action_log.id }}</td>
-                        <td>{{ action_log.action|capitalize }}</td>
-                        <td>{{ action_log.resource|capitalize  }}</td>
-                        <td>
-                            {% if action_log.status %}
-                            <span class="glyphicon glyphicon-ok" style="color: green;"></span>
-                            {% else %}
-                            <span class="glyphicon glyphicon-remove" style="color: red;"></span>
-                            {% endif %}
-                        </td>
-                        <td><a href="#" title="show action's detail information"><span class="fa fa-search"></span> </a></td>
-                        <td>{{ action_log.create_at }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ menu_paging(page_size, page, query_size, current_url) }}
     </div>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Action</th>
+                <th>Resource</th>
+                <th>Result</th>
+                <th>Detail</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for action_log in action_log_list %}
+            <tr>
+                <td></td>
+                <td>{{ action_log.id }}</td>
+                <td>{{ action_log.action|capitalize }}</td>
+                <td>{{ action_log.resource|capitalize  }}</td>
+                <td>
+                    {% if action_log.status %}
+                    <span class="glyphicon glyphicon-ok" style="color: green;"></span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-remove" style="color: red;"></span>
+                    {% endif %}
+                </td>
+                <td><a href="javascript:;" onclick="show_action_detail('{{ action_log.detail }}');" title="show action's detail information"><span class="fa fa-search"></span> </a></td>
+                <td>{{ action_log.create_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ menu_paging(page_size, page, query_size, current_url) }}
+</div>
 {% endblock content %}
 
 {% block sidebar %}
-    {{ log_side.log_menu_navigation('Action Log') }}
+{{ log_side.log_menu_navigation('Action Log') }}
 {% endblock sidebar %}
