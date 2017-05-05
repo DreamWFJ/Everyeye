@@ -20,10 +20,14 @@
         <div class="panel-heading">Aritcle Category</div>
         <div class="panel-body">
             <ul class="nav nav-pills nav-stacked">
-                    <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
-                    <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
-                    <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
-                </ul>
+                {% for category in category_side_nav %}
+                <li role="presentation">
+                    <a href="{{ url_for('resource.article', username=current_user.name, category_id=category.id) }}">{{ category.name }}
+                        <span class="badge pull-right">{{ category.articles.count() }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
     <br>
@@ -31,10 +35,14 @@
         <div class="panel-heading">Similar Article</div>
         <div class="panel-body">
             <ul class="nav nav-pills nav-stacked">
-                    <li role="presentation"><a href="#">Home is My life <span class="badge pull-right">42</span></a></li>
-                    <li role="presentation"><a href="#">图形界面虽然好看，解决问题还是要靠命令行<span class="badge pull-right">45</span></a></li>
-                    <li role="presentation"><a href="#">Pointfree 编程风格指南<span class="badge pull-right">23</span></a></li>
-                </ul>
+                {% for article in similar_article %}
+                <li role="presentation">
+                    <a href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}">{{article.title}}</a>
+                </li>
+                {% else %}
+                <li role="presentation">None</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 

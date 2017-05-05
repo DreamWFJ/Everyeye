@@ -16,7 +16,7 @@ from flask_login import login_required, current_user
 from flask import render_template, request,url_for, send_from_directory, current_app
 from .. import resource_blueprint as main
 from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
-from .handle import get_keywords_cloud
+from .handle import get_keywords_cloud, get_category_side_nav, get_similar_article
 
 
 # @main.route('/<string:username>/article/<uuid:article_id>')
@@ -31,11 +31,16 @@ def one_article(username, article_id):
     article_comments = ArticleComment.get_article_comments(article_id)
     # 获取侧边关键词云数据
     keywords_cloud = get_keywords_cloud(username)
+    # 获取文章目录
+    category_side_nav = get_category_side_nav(username)
+    # 获取类似文章
+    similar_article = get_similar_article(username, article_id)
     return render_template('resources/blog/one_article.html', article=article,
                            current_url=url_for('resource.article', username=current_user.name, article_id=article_id),
                            article_categorys=get_user_article_categorys(), article_keywords=get_user_article_keywords(),
                            article_sources=get_user_article_sources(), article_comments=article_comments,
-                           article_comments_total=article_comments_total, keywords_cloud=keywords_cloud)
+                           article_comments_total=article_comments_total, keywords_cloud=keywords_cloud,
+                           category_side_nav=category_side_nav, similar_article=similar_article)
 
 @main.route('/<string:username>/upload/<string:filename>', methods=['POST','GET'])
 def uploaded_file(username, filename):
