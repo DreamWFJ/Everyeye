@@ -19,6 +19,23 @@ from ..common import get_user_article_categorys, get_user_article_keywords, get_
 from .handle import get_keywords_cloud, get_category_side_nav, get_similar_article
 
 
+@main.route('/<string:username>/article')
+@login_required
+def article(username):
+    article_list = Article.query.all()
+    # if article.content_type == "markdown":
+    #     article.content = markdown.markdown(article.content)
+    # 获取侧边关键词云数据
+    keywords_cloud = get_keywords_cloud(username)
+    # 获取文章目录
+    category_side_nav = get_category_side_nav(username)
+    return render_template('resources/blog/article.html', article_list=article_list,
+                           current_url=url_for('resource.article', username=current_user.name),
+                           article_categorys=get_user_article_categorys(), article_keywords=get_user_article_keywords(),
+                           article_sources=get_user_article_sources(), keywords_cloud=keywords_cloud,
+                           category_side_nav=category_side_nav)
+
+
 # @main.route('/<string:username>/article/<uuid:article_id>')
 @main.route('/<string:username>/article/<int:article_id>')
 @login_required

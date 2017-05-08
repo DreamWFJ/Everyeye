@@ -177,7 +177,10 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('resource.profile', username=current_user.name) }}">Profile</a></li>
+                        <li><a href="{{ url_for('resource.new_article', username=current_user.name)}}">New Article</a></li>
                         <li><a href="{{ url_for('resource.article', username=current_user.name)}}">Article</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ url_for('resource.manage_article', username=current_user.name)}}">Manage Article</a></li>
                         <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
                         <li><a href="{{ url_for('resource.setting', username=current_user.name) }}">Setting</a></li>
                         <li><a href="{{ url_for('resource.action_log', user_id=current_user.id) }}">Action Log</a></li>

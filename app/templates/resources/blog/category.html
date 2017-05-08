@@ -90,9 +90,9 @@
                             <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="order-table">
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                            <li><a href="{{ url_for('resource.category', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                            <li><a href="{{ url_for('resource.category', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                            <li><a href="{{ url_for('resource.category', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
                         </ul>
                     </div>
                     <div class="export btn-group">
@@ -111,7 +111,7 @@
                     </div>
                 </div>
                 <div class="pull-right search">
-                    <form id="TableSearchForm" action="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size)}}" method="post">
+                    <form id="TableSearchForm" action="{{ url_for('resource.category', username=current_user.name, page=page, page_size=page_size)}}" method="post">
                         <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
                     </form>
                 </div>

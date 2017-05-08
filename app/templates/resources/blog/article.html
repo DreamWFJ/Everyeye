@@ -1,198 +1,152 @@
-{% from 'macro/__frame__.html' import frame_search, menu_paging %}
-{% import 'macro/__article__.html' as article %}
+{% from 'macro/__frame__.html' import frame_search, page_navigation %}
+{% import 'macro/__article__.html' as article_side %}
 {% extends "framework.html" %}
 {% block script %}
-<script type="text/javascript">
-    $(document).ready(function() {
-        // checkbox全选和取消
-        $("#check_all_box").on('ifChanged',
-                function(event){
-                    var checkbox = $("input[name='check_box[]']");
-                    if(this.checked){
-                        checkbox.iCheck('check');
-                        $("button#remove").attr('disabled', false);
-                    }else{
-                        checkbox.iCheck('uncheck');
-                        $("button#remove").attr('disabled', true);
-                    }
-                }
-        );
-        // 单选和取消 checkbox时，对相关按钮的禁用和启用
-        $("input[name='check_box[]']").on('ifChanged', function(e, d){
-            var checkbox = $(this);
-            if(this.checked){
-                checkbox.parents('tr').addClass('info');
-                $("button#remove").attr('disabled', false);
-            }else{
-                checkbox.parents('tr').removeClass('info');
-                $("button#remove").attr('disabled', true);
-            }
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/post.css') }}" crossorigin="anonymous">
+    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
         });
-        // 设置checkbox的初始化选项
-        $("input:checkbox").iCheck({
-            checkboxClass: 'icheckbox_minimal',
-            radioClass: 'iradio_minimal',
-            increaseArea: '20%', // optional
-            handle: 'checkbox'
-        });
-
-        // 点击事件，获取选中的数据，然后删除
-        $("button#add").click(function(){
-            window.location.href = $(this).attr('data-ajax-url');
-        });
-    });
-</script>
+    </script>
 {% endblock script %}
-{% block title %}Article{% endblock title %}
-{% block search %}
-{{frame_search('article')}}
-{% endblock search %}
-
+{% block title %}Blog{% endblock title %}
 {% block content %}
-<!-- 面板 -->
-<div class="panel panel-default">
-    <!-- Default panel contents -->
-    <div class="panel-heading">Panel heading</div>
-    <div class="panel-body">
-        <!-- 将所有按钮放在一行 -->
-        <div class="input-group-btn">
-            <div class="bs-bars pull-left">
-                <div id="toolbar">
-                    <button id="remove" data-ajax-url="{{url_for('resource.delete_article', username=current_user.name)}}" class="btn btn-danger" disabled="">
-                        <i class="glyphicon glyphicon-remove"></i> Delete
-                    </button>
-                </div>
-            </div>
-            <div class="columns columns-right btn-group pull-right">
-                <!-- 添加目录的对话框 -->
-                <button id="add" type="button" class="btn btn-default" data-ajax-url="{{url_for('resource.new_article', username=current_user.name)}}" data-toggle="tooltip" aria-label="Add" title="New Article">
-                    <i class="glyphicon glyphicon-plus"></i>
-                </button>
-
-
-                <button class="btn btn-default" type="button" name="refresh" aria-label="refresh" title="Refresh">
-                    <i class="glyphicon glyphicon-refresh icon-refresh"></i>
-                </button>
-                <div class="keep-open btn-group" title="Order">
-                    <button type="button" aria-label="columns" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu" name="order-table">
-                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
-                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
-                        <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
-                    </ul>
-                </div>
-                <div class="export btn-group">
-                    <button class="btn btn-default dropdown-toggle" aria-label="export type" title="Export data" data-toggle="dropdown" type="button">
-                        <i class="glyphicon glyphicon-export icon-share"></i>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
-                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
-                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
-                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
-                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
-                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="pull-right search">
-                <form id="TableSearchForm" action="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size)}}" method="post">
-                    <input class="form-control" placeholder="Search" id="inputTableSearch" name="content" type="text">
-                </form>
-            </div>
+    <!-- 面板 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
         </div>
-
-    </div>
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>
-                    <input type="checkbox" id="check_all_box" name='check_box[]'>
-                </th>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Source</th>
-                <th>Category</th>
-                <th>Keyword Count</th>
-                <th>View Count</th>
-                <th>Comment Count</th>
-                <th>Permit Comment</th>
-                <th>Status</th>
-                <th>Public Time</th>
-                <th>Last Change Time</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="panel-body">
             {% for article in article_list %}
-            <tr>
-                <td>
-                    <input type="checkbox" name="check_box[]" value="{{ article.id }}">
-                </td>
-                <td>{{ article.id }}</td>
-                <td><a href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}">{{ article.title }}</a></td>
-                <td><a href="{{ url_for('resource.source', username=current_user.name, source_id=article.source_id) }}">
-                    {% for source in article_sources %}
-                        {% if source.id|int == article.source_id|int %}
-                            {{ source.name }}
-                        {% endif %}
-                    {% endfor %}</a>
-                </td>
-                <td>
-                    <a href="{{ url_for('resource.category', username=current_user.name, category_id=article.category_id) }}">
-                    {% for category in article_categorys %}
-                        {% if category.id|int == article.category_id|int %}
-                            {{ category.name }}
-                        {% endif %}
-                    {% endfor %}</a>
-                </td>
-                <td><a href="{{ url_for('resource.keyword', username=current_user.name, article_id=article.id) }}">{{ article.keywords|count }}</a></td>
-                <!--这里点击后，可以查看具体统计数据，包括访问的用户，IP，时间-->
-                <td><a href="#">{{ article.views.count() }}</a></td>
-                <!--这里点击后，可以查看具体评论信息-->
-                <td><a href="#">{{ article.comments.count() }}</a></td>
-                {% if article.permit_comment %}
-                <td><span class="glyphicon glyphicon-ok-sign"></span></td>
-                {% else %}
-                <td><span class="glyphicon glyphicon-remove"></span></td>
-                {% endif %}
-                {% if article.status %}
-                <td><span class="fa fa-lock"></span></td>
-                {% else %}
-                <td><span class="fa fa-unlock"></span></td>
-                {% endif %}
-                <td>{{ article.public_time|string|truncate(19, True, end='') }}</td>
-                <td>{{ article.last_change_time|string|truncate(19, True, end='') }}</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a href="{{ url_for('resource.new_article', username=current_user.name, article_id=article.id) }}"><span class="fa fa-edit"></span></a>
-                        {% if article.permit_comment %}
-                        <a href="#"><span class="glyphicon glyphicon-remove-sign"></span></a>
-                        {% else %}
-                        <a href="#"><span class="glyphicon glyphicon-ok-sign"></span></a>
-                        {% endif %}
-                        {% if article.status %}
-                        <a href="#"><span class="fa fa-unlock"></span></a>
-                        {% else %}
-                        <a href="#"><span class="fa fa-lock"></span></a>
-                        {% endif %}
+                <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+                    {% if loop.index == 1 %}
+                        <div class="overlay-container">
+                            <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
+                        </div>
+                    {% endif %}
+                    <div class="blogpost-body">
+                        <div class="post-info">
+                            <span class="day">{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</span>
+                            <span class="month">{{article.public_time|string|truncate(7, True, end='')}}</span>
+                        </div>
+                        <div class="blogpost-content">
+                            <header>
+                                <h2 class="title">
+                                    <a href="{{ url_for('.one_article', username=current_user.name, article_id=1) }}">{{article.title}}</a>
+                                </h2>
+                                <ul class="links pull-right">
+                                    <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
+                                    <li>&nbsp;</li>
+                                    <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
+                                    <li>&nbsp;</li>
+                                </ul>
+                                <div class="submitted">
+                                    <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                                </div>
+                            </header>
+                            {% if loop.index > 1 and article.image_name %}
+                                <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" alt="">
+                            {% endif %}
+                            <p>
+                                {{article.title|string|truncate(30, True, end='')}}
+                            </p>
+                        </div>
                     </div>
-                </td>
-            </tr>
+                    <footer class="clearfix">
+                        <ul class="links pull-left">
+                            <li><i class="fa fa-comment-o pr-5"></i> <a href="#">{{ article.comments.count() }} comments</a> |</li>
+                            <li><i class="fa fa-tags pr-5"></i>
+                                {% for article_keyword in article.keywords %}
+                                    <a href="#">{{article_keyword.keyword.name }}</a>
+                                    {% if loop.index <= loop.length - 1 %},{% endif %}
+                                {% endfor %}
+                            </li>
+                        </ul>
+                        <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id=article.id) }}"><span>Read more</span></a>
+                    </footer>
+                </article>
             {% endfor %}
-            </tbody>
-        </table>
+
+        </div>
+        <!-- 评论使用 -->
+        <div class="panel-footer">
+        </div>
     </div>
-</div>
-{{ menu_paging(page_size, page, query_size, current_url) }}
+
 {% endblock content %}
 
 {% block sidebar %}
-{{ article.article_menu_navigation('Article') }}
-{% endblock sidebar %}
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <div class="panel-heading">Keyword Cloud</div>
+            <div class="panel-body">
+                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
+                </canvas>
 
+                <div id="ExtendCloudTag" style="display: none">
+                    <ul>
+                        {% for keyword in keywords_cloud %}
+                            <li><a href="{{ url_for('resource.article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="panel panel-default">
+            <div class="panel-heading">Aritcle Category</div>
+            <div class="panel-body">
+                <ul class="nav nav-pills nav-stacked">
+                    {% for category in category_side_nav %}
+                        <li role="presentation">
+                            <a href="{{ url_for('resource.article', username=current_user.name, category_id=category.id) }}">{{ category.name }}
+                                <span class="badge pull-right">{{ category.articles.count() }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <br>
+    </div>
+{% endblock sidebar %}

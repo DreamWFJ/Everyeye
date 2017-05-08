@@ -24,9 +24,9 @@ def user_index(username):
     # 用户主页，这里展示文章简介
     return render_template('resources/blog/index.html')
 
-@main.route('/<string:username>/article')
+@main.route('/<string:username>/manage-article')
 @login_required
-def article(username):
+def manage_article(username):
     # 文章列表
 
     page = int(request.args.get('page', 1))
@@ -60,9 +60,9 @@ def article(username):
     #
     # page_result = sql_db.session.execute(result_sql)
 
-    return render_template('resources/blog/article.html', article_list=page_result,
+    return render_template('resources/blog/manage_article.html', article_list=page_result,
                            page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
-                           current_url=url_for('resource.article', username=current_user.name), query_size=order_result.count(),
+                           current_url=url_for('resource.manage_article', username=current_user.name), query_size=order_result.count(),
                            article_categorys=get_user_article_categorys(),
                            article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources())
 

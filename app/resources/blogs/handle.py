@@ -10,10 +10,13 @@ from sqlalchemy import and_
 from app.core.db.sql.models import Article, ArticleComment, ArticleKeywords, User, Keyword, ArticleCategory
 
 
-def get_keywords_cloud(username):
+def get_keywords_cloud(username=None):
     # 注意，这里需要按照关键词的文章数来倒排，只获取前10左右的关键词
-    user = User.query.filter_by(name=username).first()
-    article_list = Article.query.filter_by(user=user).all()
+    if username:
+        user = User.query.filter_by(name=username).first()
+        article_list = Article.query.filter_by(user=user).all()
+    else:
+        article_list = Article.query.all()
     keywords_set = set()
     for article in article_list:
         keywords = Keyword.query.filter(Keyword.articles.any(ArticleKeywords.article==article)).all()
@@ -24,8 +27,11 @@ def get_keywords_cloud(username):
 
 def get_category_side_nav(username):
     # 这里也需要获取所有的目录，按文章数排序
-    user = User.query.filter_by(name=username).first()
-    article_list = Article.query.filter_by(user=user).all()
+    if username:
+        user = User.query.filter_by(name=username).first()
+        article_list = Article.query.filter_by(user=user).all()
+    else:
+        article_list = Article.query.all()
     categorys_set = set()
     for article in article_list:
         categorys = ArticleCategory.query.filter(ArticleCategory.articles.contains(article)).all()

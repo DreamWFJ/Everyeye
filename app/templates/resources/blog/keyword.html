@@ -89,9 +89,9 @@
                             <i class="glyphicon glyphicon-th icon-th"></i> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="order-table">
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
-                            <li><a href="{{ url_for('resource.article', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
+                            <li><a href="{{ url_for('resource.keyword', username=current_user.name, page=page, page_size=page_size, order_name='id', order_direction='asc') }}">ID</a></li>
+                            <li><a href="{{ url_for('resource.keyword', username=current_user.name, page=page, page_size=page_size, order_name='title', order_direction='asc') }}">Username</a></li>
+                            <li><a href="{{ url_for('resource.keyword', username=current_user.name, page=page, page_size=page_size, order_name='view_count', order_direction='asc') }}">Email</a></li>
                         </ul>
                     </div>
                     <div class="export btn-group">
@@ -146,7 +146,7 @@
                             <td><span class="fa fa-unlock"></span></td>
                         {% endif %}
                         <td><span class="label label-{{ keyword.color }}">{{ keyword.color }}</span></td>
-                        <td><a href="{{ url_for('resource.article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.articles|count }}</a> </td>
+                        <td><a href="{{ url_for('resource.manage_article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.articles|count }}</a> </td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="#"><span class="fa fa-remove"></span></a>
