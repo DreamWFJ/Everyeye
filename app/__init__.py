@@ -11,6 +11,8 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
+
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from config import load_config
@@ -21,6 +23,7 @@ moment = Moment()
 sql_db = SQLAlchemy()
 pagedown = PageDown()
 login_manager = LoginManager()
+socketio = SocketIO()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
@@ -33,6 +36,7 @@ def create_app(config_name):
     sql_db.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+    socketio.init_app(app)
 
     from .resources import resource_blueprint
     # app.register_blueprint(resource_blueprint, static_folder='static', template_folder='templates')

@@ -102,6 +102,30 @@ Used to manage users, roles, permissions, resource information, etc
     2. 评论展示，以文章标题，评论内容，时间，人等，并且可以删除，及时回复，引用，转载等等
     3. 用户个人信息提供pdf,word方式下载，当然需要进行权限控制，日志信息可以导出到excel文件中
     4. 可以支持博客文章归档
+
+### 站内消息实现
+    1. 数据结构
+        chat_room 房间
+            id, name(房间名称), participators(参与者), messages(消息), status(是否被暂停使用), create_at(创建时间)
+        participator 参与者
+            id, user_id, chat_rooms, messages, status(是否被禁言), create_at
+        message 消息
+            id, chat_room_id, participator_id, type(消息类型:single, group), content, create_at
+        notice 通知（存在于redis处）
+            sender_id, receiver_id, message_id, create_at
+    2. 表结构关系
+        参与者participator 与 房间chat_room 是多对多关系
+        参与者participator 与 消息message 是一对多关系
+        房间chat_room 与 消息message 是一对多关系
+
+    3. 逻辑实现
+        a. 默认创建 系统通知房间system_notice_room, 所有用户默认加入
+        b. 用户A给用户B发送消息, 自动创建房间A_B, 消息类型为single,发送的消息通过notice表标记是否已读
+        c. 聊天室消息, 用户A可以创建聊天室chat_room_xxx并发送消息, 消息的类型为gourp. 发送的瞬间将当前组的人员取出来按照notice表结构
+            存储需要为哪些人发送消息, 消息会自动过期,用户读取之后也会自动删除
+    4. 技术实现
+        使用flask-socketio, 详情参考http://flask-socketio.readthedocs.io/en/latest/
+
 ### 大型程序结构
 ```
 .

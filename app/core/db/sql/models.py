@@ -483,21 +483,87 @@ class ActionLog(db.Model):
     def __repr__(self):
         return '<AuditLog %r>' % self.__tablename__
 
+class UserChatRoom(db.Model):
+    """用户加入的聊天房间"""
+    __tablename__ = 'user_chat_rooms'
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    chat_room_id = db.Column(db.Integer, db.ForeignKey('chat_rooms.id'))
+    user = db.relationship('User', back_populates="chat_rooms")
+    chat_room = db.relationship('ChatRoom', back_populates="users")
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def delete_role_resource_by_ids(ids):
+        roles_resources = RolesResources.query.filter(RolesResources.id.in_(ids))
+        if roles_resources:
+            for role_resource in roles_resources:
+                db.session.delete(role_resource)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<ResourcesRoles %r>' % self.__tablename__
+
+class ChatRoom(db.Model):
+    """
+    聊天房间
+    """
+    __tablename__ = 'chat_rooms'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    messages = db.relationship('Message', backref = 'chat_rooms', lazy = 'dynamic')
+    users = db.relationship("UserChatRoom", back_populates="chat_room",
+                                primaryjoin="UserChatRoom.chat_room_id==ChatRoom.id")
+    # 房间是否禁言
+    status = db.Column(db.Boolean(), default=False)
+    default = db.Column(db.Boolean(), default=False)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+
+    @staticmethod
+    def insert_chat_room(name, status=False):
+        chat_room = ChatRoom(name=name, status=status)
+        db.session.add(chat_room)
+        db.session.commit()
+        return chat_room
+
+    @staticmethod
+    def send_message(room_name, message):
+        chat_room = ChatRoom.query.filter_by(name=room_name).first()
+        chat_room.messages.append(message)
+        db.session.add(chat_room)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        default_rooms = ["system_notice"]
+        for room in default_rooms:
+            chat_room = ChatRoom(name=room, default=True)
+            db.session.add(chat_room)
+        db.session.commit()
+
+
+    def __repr__(self):
+        return '<NoticeMessage %r >' % self.__tablename__
+
 class Message(db.Model):
     """用户的消息记录"""
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key = True)
-    message_subject = db.Column(db.String(64))
-    message_detail = db.Column(db.Text())
+    subject = db.Column(db.String(64))
+    content = db.Column(db.Text())
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    room_id = db.Column(db.Integer, db.ForeignKey('chat_rooms.id'))
+    status = db.Column(db.Boolean(), default=False)
+    # single and group
+    type = db.Column(db.String(64), default='single')
     create_at = db.Column(db.DateTime(), default=datetime.now)
-    from_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    # to_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_message(message_subject, message_detail):
+    def insert_message(subject, content):
         message = Message()
-        message.message_subject = message_subject
-        message.message_detail = message_detail
+        message.subject = subject
+        message.content = content
         db.session.add(message)
         db.session.commit()
         return message
@@ -543,7 +609,9 @@ class User(UserMixin, db.Model):
 
     # 消息信息
     messages = db.relationship('Message', backref = 'user', lazy = 'dynamic')
-
+    # 聊天房间
+    chat_rooms = db.relationship("UserChatRoom", back_populates="user",
+                                primaryjoin="UserChatRoom.user_id==User.id")
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
     # 用户的评论信息
@@ -554,6 +622,16 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.name
+
+    def add_default_room(self):
+        rooms = ChatRoom.query.filter_by(default=True).all()
+        if len(rooms) > 0:
+            for room in rooms:
+                user_chat_room = UserChatRoom(chat_room=room, user=self)
+                self.chat_rooms.append(user_chat_room)
+                db.session.add(self)
+            db.session.commit()
+
 
     def generate_confirmation_token(self, expiration=3600):
         """产生一个激活token"""
@@ -581,9 +659,7 @@ class User(UserMixin, db.Model):
     def insert_users(username, email, password, status=True, telephone=None, addresses=None, articles=None, action_logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
-        user = User()
-        user.name = username
-        user.email = email
+        user = User(name=username, email=email, password_hash=generate_password_hash(password))
         if telephone:
             user.telephone = telephone
         user.status = status
@@ -597,7 +673,6 @@ class User(UserMixin, db.Model):
             user.audit_logs = audit_logs
         if messages:
             user.messages = messages
-        user.password_hash = generate_password_hash(password)
         if confirmed:
             user.confirmed = confirmed
         if is_admin:
@@ -607,6 +682,7 @@ class User(UserMixin, db.Model):
         user.role_id = user_role.id
         db.session.add(user)
         db.session.commit()
+        user.add_default_room()
         return user
 
     @staticmethod
@@ -1379,13 +1455,14 @@ class Article(db.Model):
 class InitData(object):
     """初始化数据库"""
     def __init__(self):
+        self.init_dict()
         self.resources = self.create_resources()
         self.create_rights()
         self.create_role()
         self.user = self.create_user()
         self.create_a_test_user()
 
-        self.init_dict()
+
 
     def init_dict(self):
         # 初始化字典数据
@@ -1393,6 +1470,7 @@ class InitData(object):
         ArticleSource.init()
         ArticleCategory.init()
         Keyword.init()
+        ChatRoom.init()
 
 
     def create_article(self):
@@ -1402,7 +1480,9 @@ class InitData(object):
         return ActionLog.insert_logs(action, resource, status, detail)
 
     def create_message(self):
-        return  Message.insert_message('test', "this is a test message")
+        message =  Message.insert_message('test', "this is a test message")
+        ChatRoom.send_message('system_notice', message)
+        return message
 
     def create_address(self):
         name = 'my home'

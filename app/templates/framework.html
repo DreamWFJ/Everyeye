@@ -33,6 +33,8 @@
     <script src="{{ url_for('static', filename = 'js/bootbox.min.js') }}" crossorigin="anonymous"></script>
     <!-- jquery scrollUp js，用于滚轮 -->
     <script src="{{ url_for('static', filename = 'js/jquery.scrollUp.min.js') }}" crossorigin="anonymous"></script>
+    <!--站内消息-->
+    <script src="{{ url_for('static', filename = 'js/socket.io.min.js') }}" crossorigin="anonymous"></script>
 
     <!-- Latest font awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/font-awesome.min.css') }}" crossorigin="anonymous">
@@ -42,7 +44,12 @@
             right: -15px;
         }
     </style>
-    <script type="text/javascript">
+    <script type="text/javascript" charset="UTF-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function() {
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+
         $(document).ready(function() {
             // 修复bootstrap 添加 disabled class时依然能够点击的bug
             $(".disabled").click(function (event) {
@@ -133,36 +140,36 @@
                 <li><a href="{{url_for('resource.index')}}">Index <span class="sr-only">(current)</span></a></li>
                 <li><a href="{{url_for('resource.article', username=current_user.name)}}">Blog</a></li>
                 {% if current_user.is_authenticated %}
-                    {% if current_user.has_right('manage', 'show') %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            {% if current_user.has_right('user', 'show') %}
-                            <li><a href="{{ url_for('manage.user') }}">User</a></li>
-                            {% endif %}
-                            {% if current_user.has_right('role', 'show') %}
-                            <li><a href="{{ url_for('manage.role') }}">Role</a></li>
-                            {% endif %}
-                            {% if current_user.has_right('right', 'show') %}
-                            <li><a href="{{ url_for('manage.right') }}">Right</a></li>
-                            {% endif %}
-                            {% if current_user.has_right('resource', 'show') %}
-                            <li><a href="{{ url_for('manage.resource') }}">Resource</a></li>
-                            {% endif %}
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{ url_for('manage.article') }}">Article</a></li>
-                            <li><a href="{{ url_for('manage.comment') }}">Comment</a></li>
-                            <li><a href="{{ url_for('manage.keyword') }}">Keyword</a></li>
-                            <li><a href="{{ url_for('manage.category') }}">Category</a></li>
-                            <li><a href="{{ url_for('manage.sensitive_word') }}">Sensitive Word</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{ url_for('manage.action_log') }}">Action Log</a></li>
-                            <li><a href="{{ url_for('manage.audit_log') }}">Audit Log</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{{ url_for('manage.messaging') }}">Message</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
+                {% if current_user.has_right('manage', 'show') %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% if current_user.has_right('user', 'show') %}
+                        <li><a href="{{ url_for('manage.user') }}">User</a></li>
+                        {% endif %}
+                        {% if current_user.has_right('role', 'show') %}
+                        <li><a href="{{ url_for('manage.role') }}">Role</a></li>
+                        {% endif %}
+                        {% if current_user.has_right('right', 'show') %}
+                        <li><a href="{{ url_for('manage.right') }}">Right</a></li>
+                        {% endif %}
+                        {% if current_user.has_right('resource', 'show') %}
+                        <li><a href="{{ url_for('manage.resource') }}">Resource</a></li>
+                        {% endif %}
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ url_for('manage.article') }}">Article</a></li>
+                        <li><a href="{{ url_for('manage.comment') }}">Comment</a></li>
+                        <li><a href="{{ url_for('manage.keyword') }}">Keyword</a></li>
+                        <li><a href="{{ url_for('manage.category') }}">Category</a></li>
+                        <li><a href="{{ url_for('manage.sensitive_word') }}">Sensitive Word</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ url_for('manage.action_log') }}">Action Log</a></li>
+                        <li><a href="{{ url_for('manage.audit_log') }}">Audit Log</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{{ url_for('manage.messaging') }}">Message</a></li>
+                    </ul>
+                </li>
+                {% endif %}
                 {% endif %}
             </ul>
             {% block search %}{% endblock search %}
