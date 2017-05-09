@@ -1272,6 +1272,11 @@ class Article(db.Model):
     # 文章评论信息
     comments = db.relationship('ArticleComment', backref = 'article', lazy= 'dynamic')
 
+    @property
+    def author(self):
+        # 获取文章作者
+        user = User.query.filter_by(id=self.user_id).first()
+        return user.name
 
     @staticmethod
     def get_keyword_color():

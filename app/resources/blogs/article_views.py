@@ -11,7 +11,7 @@ CreateTime:     2017-05-03 19:41
 import os
 import markdown
 from config import upload_image_path
-from app.core.db.sql.models import Article, ArticleComment
+from app.core.db.sql.models import Article, ArticleComment, User
 from flask_login import login_required, current_user
 from flask import render_template, request,url_for, send_from_directory, current_app
 from .. import resource_blueprint as main
@@ -22,7 +22,8 @@ from .handle import get_keywords_cloud, get_category_side_nav, get_similar_artic
 @main.route('/<string:username>/article')
 @login_required
 def article(username):
-    article_list = Article.query.all()
+    user = User.query.filter_by(name=username).first()
+    article_list = Article.query.filter_by(user=user).all()
     # if article.content_type == "markdown":
     #     article.content = markdown.markdown(article.content)
     # 获取侧边关键词云数据

@@ -4,6 +4,19 @@
 {% block script %}
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/post.css') }}" crossorigin="anonymous">
     <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+    <style type="text/css">
+        /*控制文章部分显示*/
+        .blog-post-simple-content{
+            max-height: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+    </style>
+
     <script type="text/javascript">
         $(document).ready(function() {
             var pre_set_color = {
@@ -53,14 +66,14 @@
     <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
-        <div class="panel-heading">
+        <div class="panel-heading">Article List
         </div>
         <div class="panel-body">
             {% for article in article_list %}
                 <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
-                    {% if loop.index == 1 %}
+                    {% if loop.index == 1 and article.image_name %}
                         <div class="overlay-container">
-                            <img src="{{ url_for('static', filename = 'img/blog-1.jpg') }}" alt="">
+                            <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" alt="">
                         </div>
                     {% endif %}
                     <div class="blogpost-body">
@@ -73,27 +86,23 @@
                                 <h2 class="title">
                                     <a href="{{ url_for('.one_article', username=current_user.name, article_id=1) }}">{{article.title}}</a>
                                 </h2>
-                                <ul class="links pull-right">
-                                    <li><a href="#"><i class="fa fa-comments"></i>22</a></li>
-                                    <li>&nbsp;</li>
-                                    <li><a href="#"><i class="fa fa-heart"></i>3</a> </li>
-                                    <li>&nbsp;</li>
-                                </ul>
+
                                 <div class="submitted">
-                                    <i class="fa fa-user pr-5"></i> by <a href="#">John Doe</a>
+                                    <i class="fa fa-user pr-5"></i> by <a href="#">{{article.author}}</a>
                                 </div>
                             </header>
                             {% if loop.index > 1 and article.image_name %}
                                 <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" alt="">
                             {% endif %}
-                            <p>
-                                {{article.title|string|truncate(30, True, end='')}}
-                            </p>
+                            <div id="article_simple_content" class="blog-post-simple-content" >
+                                {{article.content | string | safe }}
+                            </div>
+
                         </div>
                     </div>
                     <footer class="clearfix">
                         <ul class="links pull-left">
-                            <li><i class="fa fa-comment-o pr-5"></i> <a href="#">{{ article.comments.count() }} comments</a> |</li>
+                            <li><i class="fa fa-comments pr-5"></i> <a href="#">{{ article.comments.count() }} comments</a> |</li>
                             <li><i class="fa fa-tags pr-5"></i>
                                 {% for article_keyword in article.keywords %}
                                     <a href="#">{{article_keyword.keyword.name }}</a>
@@ -101,7 +110,7 @@
                                 {% endfor %}
                             </li>
                         </ul>
-                        <a class="pull-right link" href="{{ url_for('.one_article', username=current_user.name, article_id=article.id) }}"><span>Read more</span></a>
+                        <a class="pull-right link" href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}"><span>Read more</span></a>
                     </footer>
                 </article>
             {% endfor %}

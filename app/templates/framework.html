@@ -131,7 +131,7 @@
         <nav class="collapse navbar-collapse" id="base-frame-navbar-collapse">
             <ul class="nav navbar-nav">
                 <li><a href="{{url_for('resource.index')}}">Index <span class="sr-only">(current)</span></a></li>
-                <li><a href="blog">Blog</a></li>
+                <li><a href="{{url_for('resource.article', username=current_user.name)}}">Blog</a></li>
                 {% if current_user.is_authenticated %}
                     {% if current_user.has_right('manage', 'show') %}
                     <li class="dropdown">
@@ -178,7 +178,6 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('resource.profile', username=current_user.name) }}">Profile</a></li>
                         <li><a href="{{ url_for('resource.new_article', username=current_user.name)}}">New Article</a></li>
-                        <li><a href="{{ url_for('resource.article', username=current_user.name)}}">Article</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="{{ url_for('resource.manage_article', username=current_user.name)}}">Manage Article</a></li>
                         <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
