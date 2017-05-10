@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% from 'macro/__frame__.html' import base_menu_navigation %}
+{% set message_navigation = [{'href':'message-received', 'caption':'Be Received'},
+{'href':'message-sent', 'caption':'Be Sent'},
+{'href':'send-message', 'caption':'Send Message'}] %}
 
-</body>
-</html>
+{% macro message_menu_navigation(current_active_item) %}
+{{base_menu_navigation('Message Manage', message_navigation, current_active_item)}}
+{% endmacro %}

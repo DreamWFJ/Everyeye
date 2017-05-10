@@ -33,9 +33,9 @@
     <script src="{{ url_for('static', filename = 'js/bootbox.min.js') }}" crossorigin="anonymous"></script>
     <!-- jquery scrollUp js，用于滚轮 -->
     <script src="{{ url_for('static', filename = 'js/jquery.scrollUp.min.js') }}" crossorigin="anonymous"></script>
-    <!--站内消息-->
-    <script src="{{ url_for('static', filename = 'js/socket.io.min.js') }}" crossorigin="anonymous"></script>
-
+    <!-- 消息弹出层 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap-popover-x.min.css') }}" crossorigin="anonymous">
+    <script src="{{ url_for('static', filename = 'js/bootstrap-popover-x.min.js') }}" crossorigin="anonymous"></script>
     <!-- Latest font awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/font-awesome.min.css') }}" crossorigin="anonymous">
     <style type="text/css">
@@ -45,10 +45,6 @@
         }
     </style>
     <script type="text/javascript" charset="UTF-8">
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        socket.on('connect', function() {
-            socket.emit('my event', {data: 'I\'m connected!'});
-        });
 
         $(document).ready(function() {
             // 修复bootstrap 添加 disabled class时依然能够点击的bug
@@ -110,6 +106,7 @@
                 shiftWindow();
             }
         }
+        $("[data-toggle='popover']").popover();
 
     </script>
     {% block css %}{% endblock css %}
@@ -177,7 +174,8 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
                 <!-- 为了增加图标大小相对于它们的容器, 使用 fa-lg (33% 递增), fa-2x, fa-3x, fa-4x, 或 fa-5x classes.  -->
-                <li><a href="{{ url_for('resource.messaging', username=current_user.name)}}"><i class="fa fa-envelope-o fa-lg"></i><span class="badge">42</span></a></li>
+                <li><a href="#" data-toggle="popover-x" data-target="#userMessagePopover" data-placement="bottom"><i class="fa fa-envelope-o fa-lg"></i>
+                    <span class="badge">{{ current_user.get_message_received()|count }}</span></a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         {{ current_user.name }}<span class="caret"></span>
@@ -187,7 +185,7 @@
                         <li><a href="{{ url_for('resource.new_article', username=current_user.name)}}">New Article</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="{{ url_for('resource.manage_article', username=current_user.name)}}">Manage Article</a></li>
-                        <li><a href="{{ url_for('resource.messaging', username=current_user.name) }}">Message</a></li>
+                        <li><a href="{{ url_for('resource.message_received', user_id=current_user.id) }}">Message</a></li>
                         <li><a href="{{ url_for('resource.setting', username=current_user.name) }}">Setting</a></li>
                         <li><a href="{{ url_for('resource.action_log', user_id=current_user.id) }}">Action Log</a></li>
                         <li role="separator" class="divider"></li>
@@ -226,5 +224,22 @@
 {% endblock body %}
 {#<a id="scroll-up-btn" href="#top" style="position: fixed; z-index: 2147483647; display: block;"><i class="fa fa-2x fa-arrow-circle-up"></i></a>#}
 
+<div id="userMessagePopover" class="popover popover-default">
+    <div class="arrow"></div>
+    <div class="popover-title"><span class="close" data-dismiss="popover-x">&times;</span>New Message</div>
+    <div class="popover-content">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <ul class="list-group" style="list-style: decimal">
+                    {% for msg in current_user.message_received %}
+                    <li>
+                        <a href="{{url_for('resource.message_received', message_id=msg.id, user_id=current_user.id, status=1)}}">{{msg.subject}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

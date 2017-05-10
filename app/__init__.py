@@ -23,7 +23,7 @@ moment = Moment()
 sql_db = SQLAlchemy()
 pagedown = PageDown()
 login_manager = LoginManager()
-socketio = SocketIO()
+socketio = SocketIO(async_mode=None)
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 

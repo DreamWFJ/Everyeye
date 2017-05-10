@@ -501,8 +501,17 @@ class UserChatRoom(db.Model):
                 db.session.delete(role_resource)
             db.session.commit()
 
+    @staticmethod
+    def insert_user_chat_room(user, room):
+        user_chat_room = UserChatRoom.query.filter(and_(UserChatRoom.chat_room==room, UserChatRoom.user==user)).first()
+        if not user_chat_room:
+            user_chat_room = UserChatRoom(user=user, chat_room=room)
+            db.session.add(user_chat_room)
+            db.session.commit()
+        return user_chat_room
+
     def __repr__(self):
-        return '<ResourcesRoles %r>' % self.__tablename__
+        return '<UserChatRoom %r>' % self.__tablename__
 
 class ChatRoom(db.Model):
     """
@@ -519,17 +528,30 @@ class ChatRoom(db.Model):
     default = db.Column(db.Boolean(), default=False)
     create_at = db.Column(db.DateTime, default = datetime.now)
 
+    # 获取接受信息的用户ID和name
+    def get_receivers(self, user_id):
+        ret = []
+        for user_chat_room in self.users:
+            if user_chat_room.user_id == user_id:
+                continue
+            u = User.query.filter_by(id=user_chat_room.user_id).first()
+            ret.append({'id':user_chat_room.user_id, 'name':u.name})
+        return ret
 
     @staticmethod
     def insert_chat_room(name, status=False):
-        chat_room = ChatRoom(name=name, status=status)
-        db.session.add(chat_room)
-        db.session.commit()
+        chat_room = ChatRoom.query.filter_by(name=name, status=status).first()
+        if not chat_room:
+            chat_room = ChatRoom(name=name, status=status)
+            db.session.add(chat_room)
+            db.session.commit()
         return chat_room
 
     @staticmethod
     def send_message(room_name, message):
         chat_room = ChatRoom.query.filter_by(name=room_name).first()
+        if not chat_room:
+            chat_room = ChatRoom.insert_chat_room(name=room_name)
         chat_room.messages.append(message)
         db.session.add(chat_room)
         db.session.commit()
@@ -559,11 +581,24 @@ class Message(db.Model):
     type = db.Column(db.String(64), default='single')
     create_at = db.Column(db.DateTime(), default=datetime.now)
 
+    @property
+    def sender(self):
+        return User.query.filter_by(id=self.sender_id).first().name
     @staticmethod
-    def insert_message(subject, content):
-        message = Message()
-        message.subject = subject
-        message.content = content
+    def get_message_sent(user_id):
+        return Message.query.filter(and_(Message.type == 'single', Message.sender_id==user_id)).all()
+
+    @property
+    def receivers(self):
+        chat_room = ChatRoom.query.filter_by(id=self.room_id).first()
+        if chat_room:
+            return chat_room.get_receivers(self.sender_id)
+
+    @staticmethod
+    def insert_message(subject, content, message_type=None):
+        message = Message(subject=subject, content=content)
+        if message_type:
+            message.type = message_type
         db.session.add(message)
         db.session.commit()
         return message
@@ -623,6 +658,18 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+    @property
+    def message_received(self):
+        messages = self.get_message_received(status=False)
+        print "popoer message: ", messages
+        return messages
+
+    def add_message_sent(self, message):
+        """添加已经发送的消息"""
+        self.messages.append(message)
+        db.session.add(self)
+        db.session.commit()
+
     def add_default_room(self):
         rooms = ChatRoom.query.filter_by(default=True).all()
         if len(rooms) > 0:
@@ -632,6 +679,54 @@ class User(UserMixin, db.Model):
                 db.session.add(self)
             db.session.commit()
 
+    def add_to_chat_room(self, room_name):
+        room = ChatRoom.insert_chat_room(room_name)
+        user_chat_room = UserChatRoom.insert_user_chat_room(self, room)
+        if user_chat_room not in self.chat_rooms:
+            self.chat_rooms.append(user_chat_room)
+            db.session.add(self)
+        db.session.commit()
+
+    def send_message(self, send_to, subject, content):
+        # 发送消息
+        user = User.query.filter_by(id=send_to).first()
+        if user:
+            room_name = "%s_%s"%(self.name, user.name)
+            self.add_to_chat_room(room_name)
+            user.add_to_chat_room(room_name)
+            message = Message.insert_message(subject, content)
+            self.add_message_sent(message)
+            ChatRoom.send_message(room_name, message)
+
+    def get_message_sent(self):
+        return Message.get_message_sent(self.id)
+
+    def get_message_received(self, status=None, message_id=None):
+        """
+            接收发送给自己的消息
+            流程：1、检查和自己有关的房间
+                 2、找到房间中的消息
+
+        """
+        ret = []
+        if message_id:
+            msgs = Message.query.filter_by(id=message_id).all()
+            print "query by message id: ", message_id, msgs
+            return msgs
+
+        user_rooms = UserChatRoom.query.filter_by(user_id=self.id).all()
+        for user_room in user_rooms:
+            if status is None:
+                messages = Message.query.filter(and_(Message.type == 'single',
+                                                     Message.sender_id!=self.id,
+                                                     Message.room_id==user_room.chat_room_id)).all()
+            else:
+                messages = Message.query.filter(and_(Message.type == 'single',
+                                                     Message.sender_id!=self.id,
+                                                     Message.status == status,
+                                                     Message.room_id==user_room.chat_room_id)).order_by(Message.status.asc()).all()
+            ret.extend(messages)
+        return ret
 
     def generate_confirmation_token(self, expiration=3600):
         """产生一个激活token"""
@@ -1480,8 +1575,12 @@ class InitData(object):
         return ActionLog.insert_logs(action, resource, status, detail)
 
     def create_message(self):
-        message =  Message.insert_message('test', "this is a test message")
+        message =  Message.insert_message('test', "this is a test message", 'group')
         ChatRoom.send_message('system_notice', message)
+        return message
+    def create_message_to_wfj(self):
+        message =  Message.insert_message('test1', "this is a test message to wfj")
+        ChatRoom.send_message('admin_wfj', message)
         return message
 
     def create_address(self):
@@ -1515,21 +1614,22 @@ class InitData(object):
                               status = False,
                               detail = 'create role<id=1, name="haha"> to role<id=1, name="lala">, result: successful operation')
         message = self.create_message()
+        message1 = self.create_message_to_wfj()
         audit_log = self.create_audit_log()
         return User.insert_users(username, email, password, telephone=telephone,
-                                 addresses=[address], action_logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
+                                 addresses=[address], action_logs=[log,log1], messages=[message, message1], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
-        User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)
+        wfj = User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
+        wfj.add_to_chat_room('admin_wfj')
+        haha = User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)
+        haha.add_to_chat_room('admin_haha')
         User.insert_users('jj', 'jj@163.com', 'test', status=True, confirmed=True)
         User.insert_users('da', 'da@163.com', 'test', status=False, confirmed=True)
         User.insert_users('fafa', 'fafa@163.com', 'test', status=True, confirmed=True)
-        User.insert_users('ww', 'ww@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('efa', 'efa@163.com', 'test', status=True, confirmed=True)
-        User.insert_users('aaa', 'aaa@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('ccc', 'ccc@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('bbb', 'bbb@163.com', 'test', status=True, confirmed=True)
-        return User.insert_users('test', 'test@163.com', 'test')
+        test = User.insert_users('test', 'test@163.com', 'test')
+        test.add_to_chat_room('admin_test')
+        return test
+
 
     def create_rights(self):
         rights = {

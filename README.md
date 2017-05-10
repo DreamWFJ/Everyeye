@@ -123,6 +123,8 @@ Used to manage users, roles, permissions, resource information, etc
         b. 用户A给用户B发送消息, 自动创建房间A_B, 消息类型为single,发送的消息通过notice表标记是否已读
         c. 聊天室消息, 用户A可以创建聊天室chat_room_xxx并发送消息, 消息的类型为gourp. 发送的瞬间将当前组的人员取出来按照notice表结构
             存储需要为哪些人发送消息, 消息会自动过期,用户读取之后也会自动删除
+        d. 第一期只实现系统群发和用户一对一发送,后面再支持用户群发
+
     4. 技术实现
         使用flask-socketio, 详情参考http://flask-socketio.readthedocs.io/en/latest/
 
