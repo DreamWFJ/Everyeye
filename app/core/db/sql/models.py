@@ -658,6 +658,17 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User %r>' % self.name
 
+    def to_json(self):
+        json_use = {
+            'url': url_for('v1.user_api', id = self.id, _external = True),
+            'id': self.id,
+            'username': self.name,
+            'email': self.email,
+            'member_since': self.create_at.strftime('%c'),
+            'articles': self.articles.count()
+        }
+        return json_use
+
     @property
     def message_received(self):
         messages = self.get_message_received(status=False)
