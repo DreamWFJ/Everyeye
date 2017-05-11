@@ -44,12 +44,10 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li role="menuitem" data-type="json"><a href="javascript:void(0)">JSON</a></li>
-                        <li role="menuitem" data-type="xml"><a href="javascript:void(0)">XML</a></li>
-                        <li role="menuitem" data-type="csv"><a href="javascript:void(0)">CSV</a></li>
-                        <li role="menuitem" data-type="txt"><a href="javascript:void(0)">TXT</a></li>
-                        <li role="menuitem" data-type="sql"><a href="javascript:void(0)">SQL</a></li>
-                        <li role="menuitem" data-type="excel"><a href="javascript:void(0)">MS-Excel</a></li>
+                        <li role="menuitem" data-type="json"><a href="{{url_for('resource.download_action_log', user_id=current_user.id, type='json')}}">JSON</a></li>
+                        <li role="menuitem" data-type="csv"><a href="{{url_for('resource.download_action_log', user_id=current_user.id, type='csv')}}">CSV</a></li>
+                        <li role="menuitem" data-type="txt"><a href="{{url_for('resource.download_action_log', user_id=current_user.id, type='txt')}}">TXT</a></li>
+                        <li role="menuitem" data-type="excel"><a href="{{url_for('resource.download_action_log', user_id=current_user.id, type='excel')}}">MS-Excel</a></li>
                     </ul>
                 </div>
             </div>

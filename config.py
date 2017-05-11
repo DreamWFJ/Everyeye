@@ -10,6 +10,7 @@ import os
 import logging
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 upload_image_path = os.path.join(BASE_DIR, 'app/static/img/blogs').replace('\\', '/')
+download_doc_path = os.path.join(BASE_DIR, 'app/static/doc/blogs').replace('\\', '/')
 
 DEBUG = True
 if not DEBUG:
