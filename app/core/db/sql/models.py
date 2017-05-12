@@ -11,10 +11,12 @@ from app.utils import generate_uuid, get_current_0_24_time
 from flask import request, url_for
 from datetime import datetime
 from app import sql_db as db
+from app import redis_store
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.core.common.cache import get_role_resource_right_weight, has_role_resource_right
 from sqlalchemy import and_
 
 class DatabaseError(Exception):
@@ -30,6 +32,24 @@ def weight2int(v):
             return int(v)
         except:
             return 0
+
+# redis 缓存权限信息
+def cache_all_role_resource_right():
+    cached = {}
+    for role in Role.query.all():
+        cached[role.id] = {}
+        for role_resource in role.resources:
+            cached[role.id][role_resource.resource.name] = role_resource.right_weight
+    for role_id, role_resource_right in cached:
+        redis_store.hset('role_resource_right', role_id, role_resource_right)
+
+def cache_role_resource_right(role_id):
+    role = Role.query.filter_by(id=role_id).first()
+    cached = {}
+    for role_resource in role.resources:
+        cached[role_resource.resource.name] = role_resource.right_weight
+    redis_store.hset('role_resource_right', role_id, cached)
+
 
 # 建立资源与角色的多对多关系
 class RolesResources(db.Model):
@@ -672,7 +692,6 @@ class User(UserMixin, db.Model):
     @property
     def message_received(self):
         messages = self.get_message_received(status=False)
-        print "popoer message: ", messages
         return messages
 
     def add_message_sent(self, message):
@@ -932,16 +951,23 @@ class User(UserMixin, db.Model):
     def has_right(self, res, action):
         """验证是否具有资源的某项权限，首先检查角色是否拥有该资源，其次再检查该角色绑定的资源是否拥有指定的操作"""
         right_weight = getattr(RightWeight, action.upper())
-        # 首先获取资源ID
-        resource_result = Resource.query.filter_by(name=res).first()
-        if resource_result is None:
-            return False
-        # 根据角色ID和资源ID组合查询角色下是否拥有该资源
-        role_res = RolesResources.query.filter_by(role_id=self.role_id, resource_id=resource_result.id).first()
-        if role_res is None:
-            return False
+        # 首先从缓存中读取该用户的权限，若没有再从数据库中读取
+        if has_role_resource_right(self.role_id):
+            print "has right from redis"
+            role_resource_right_weight = get_role_resource_right_weight(self.role_id, res)
+        else:
+            # 首先获取资源ID
+            print "has right from database"
+            resource_result = Resource.query.filter_by(name=res).first()
+            if resource_result is None:
+                return False
+            # 根据角色ID和资源ID组合查询角色下是否拥有该资源
+            role_res = RolesResources.query.filter_by(role_id=self.role_id, resource_id=resource_result.id).first()
+            if role_res is None:
+                return False
+            role_resource_right_weight = role_res.right_weight
         # 对比权重
-        if role_res.right_weight & right_weight == 0:
+        if role_resource_right_weight & right_weight == 0:
             return False
         return True
 

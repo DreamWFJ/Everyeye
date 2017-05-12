@@ -17,6 +17,7 @@ from .forms import LoginForm, RegistrationForm, ChangeEmailForm, ChangePasswordF
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from . import auth
+from handle import cache_user_right
 
 @auth.errorhandler(404)
 def page_not_found(e):
@@ -101,6 +102,9 @@ def before_request():
     """
     if current_user.is_authenticated:
         current_user.refresh_last_request_time()
+        # 加载用户权限
+
+        cache_user_right(current_user.role_id)
         if not current_user.confirmed and request.endpoint[:5] != 'auth.' \
                 and request.endpoint != 'static':
             return redirect(url_for('auth.unconfirmed'))

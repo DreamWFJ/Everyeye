@@ -9,6 +9,8 @@
 import functools
 from flask_login import current_user
 from flask_socketio import disconnect
+from app.core.common.cache import has_role_resource_right
+from ..db.sql.models import cache_role_resource_right
 
 # 长连接必须登录才可以使用
 def authenticated_only(f):
@@ -19,6 +21,15 @@ def authenticated_only(f):
         else:
             return f(*args, **kwargs)
     return wrapped
+
+
+def cache_user_right(role_id):
+    """
+    数据结构{role_id:{resource_name:right_weight,resource_name:right_weight}}
+    """
+    if not has_role_resource_right(role_id):
+        cache_role_resource_right(role_id)
+
 
 # 下面是一个例子
 # @socketio.on('my event')

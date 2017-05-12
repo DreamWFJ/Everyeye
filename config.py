@@ -27,6 +27,7 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'admin@no-replay.com'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'data.sqlite').replace('\\', '/')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    REDIS_URL = "redis://:@localhost:6379/1"
     URL_PREFIX = 'api'
     API_VERSION = '1.0'
 

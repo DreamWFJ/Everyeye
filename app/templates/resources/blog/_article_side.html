@@ -7,11 +7,13 @@
             </canvas>
 
             <div id="ExtendCloudTag" style="display: none">
+                {% if keywords_cloud|count > 0 %}
                 <ul>
                     {% for keyword in keywords_cloud %}
                     <li><a href="{{ url_for('resource.article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.name }}</a></li>
                     {% endfor %}
                 </ul>
+                {% endif %}
             </div>
         </div>
     </div>
