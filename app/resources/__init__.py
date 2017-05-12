@@ -14,4 +14,4 @@ from . import views
 from .logs import views
 from .persons import views
 from .messages import views
-from .blogs import views
+from .blogs import views, article_views, category_views, comment_views, keyword_views, source_views

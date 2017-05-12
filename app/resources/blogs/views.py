@@ -7,49 +7,142 @@ Version:        0.1.0
 FileName:       views.py
 CreateTime:     2017-04-15 16:17
 """
-
-from flask_login import login_required
-from flask import render_template, request
+import os
+from uuid import uuid4
+from sqlalchemy import or_
+import random
+from config import upload_image_path
+from app.core.db.sql.models import Article, ArticleKeywords
+from flask_login import login_required, current_user
+from flask import render_template, request, redirect, url_for, current_app
 from .. import resource_blueprint as main
-
-
-@main.route('/<string:username>/article/<uuid:article_id>')
-@login_required
-def one_article(username, article_id):
-    print "request article id: <%s>"%id
-    return render_template('resources/blog/one_article.html')
+from ..common import get_user_article_categorys, get_user_article_keywords, get_user_article_sources
 
 @main.route('/<string:username>')
 @login_required
 def user_index(username):
-    print "show_user: ", username
+    # 用户主页，这里展示文章简介
     return render_template('resources/blog/index.html')
 
-@main.route('/<string:username>/article')
+@main.route('/<string:username>/manage-article')
 @login_required
-def article(username):
-    return render_template('resources/blog/article.html')
+def manage_article(username):
+    # 文章列表
 
-@main.route('/manage_article')
-@login_required
-def manage_article():
-    return render_template('resources/blog/manage_article.html')
+    page = int(request.args.get('page', 1))
+    page_size = request.args.get('page_size', 10)
+    order_name = request.args.get('order_name', 'id')
+    order_direction = request.args.get('order_direction', 'asc')
+    if page_size == 'all':
+        offset_size = page_size = None
+    else:
+        page_size = int(page_size)
+        offset_size = (page - 1) * page_size
+    source_id = request.args.get('source_id')
+    category_id = request.args.get('category_id')
+    keyword_id = request.args.get('keyword_id')
+    # article_list = Article.query.order_by(Article.id).all()
+    # 注意这里，多表关联查询
+    if source_id or category_id or keyword_id:
+        filter_result = Article.query.filter(or_(Article.source_id==source_id,
+                                                 Article.category_id==category_id,
+                                                 Article.keywords.any(ArticleKeywords.keyword_id==keyword_id)))
 
-@main.route('/<string:username>/write_article', methods=['POST','GET'])
+    else:
+        filter_result = Article.query
+    order_result = filter_result.order_by(eval("Article.%s.%s()"%(order_name, order_direction)))
+    page_result = order_result.limit(page_size).offset(offset_size)
+
+    # result_sql = "select articles.*, (select count(*) from article_keyword, article_keywords where " \
+    #              "article_keyword.id = article_keywords.keyword_id and articles.id = article_keywords.article_id ) as keywords, " \
+    #              "(select count(*) from article_view_records where article_view_records.article_id = articles.id) as view_count, " \
+    #              "(select count(*) from article_comments where article_comments.article_id = articles.id) as comment_count from articles"
+    #
+    # page_result = sql_db.session.execute(result_sql)
+
+    return render_template('resources/blog/manage_article.html', article_list=page_result,
+                           page_size=request.args.get('page_size', 10), page=request.args.get('page', 1),
+                           current_url=url_for('resource.manage_article', username=current_user.name), query_size=order_result.count(),
+                           article_categorys=get_user_article_categorys(),
+                           article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources())
+
+
+
+@main.route('/<string:username>/new-article', methods=['POST','GET'])
 @login_required
-def write_article(username):
+def new_article(username):
+    # 写文章
     if request.method == 'GET':
-        return render_template('resources/blog/write_article.html')
+        article_id = request.args.get('article_id')
+        if article_id:
+            article = Article.query.filter_by(id=article_id).first()
+            keywords = ','.join([article_keyword.keyword.name for article_keyword in article.keywords])
+            reference_links_string_list = [reference_link.name for reference_link in article.reference_links.all()]
+            setattr(article, 'keywords_string', keywords)
+            setattr(article, 'reference_links_string_list', reference_links_string_list)
+
+            # print article.reference_links_string
+        else:
+            article = None
+            keywords = None
+        return render_template('resources/blog/new_article.html', article_categorys=get_user_article_categorys(),
+                               article_keywords=get_user_article_keywords(), article_sources=get_user_article_sources(),
+                               article=article)
     elif request.method == 'POST':
-        print request.form
-        return render_template('resources/blog/write_article.html')
+        current_app.logger.debug(request.form)
+        title = request.form.get('title')
+        category_id = request.form.get('category_id')
+        source_id = request.form.get('source_id')
+        keywords = request.form.get('keywords')
+        status = bool(request.form.get('status'))
+        permit_comment = bool(request.form.get('permit_comment'))
+        content = request.form.get('summernote_content')
+        content_type = "summernote"
+        if len(content) == 0:
+            content = request.form.get('markdown_content')
+            content_type = "markdown"
+        reference_links = request.form.getlist('reference_links_box[]')
 
-@main.route('/<string:username>/category')
-@login_required
-def category(username):
-    return render_template('resources/blog/category.html')
+        article_id = request.args.get('article_id')
+        # 允许上传的图片
+        def allowed_file(filename):
+            return '.' in filename and \
+                   filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
+        # 转换图片名为uuid
+        def secure_filename(filename):
+            image_format = filename.rsplit('.', 1)[1]
+            return "%s.%s"%(str(uuid4()), image_format)
+        file = request.files.get('image')
+        image_name = None
+        # 图片保存
+        if file and allowed_file(file.filename):
+            image_name = secure_filename(file.filename)
+            user_upload_image_path = os.path.join(upload_image_path, username)
+            if not os.path.isdir(user_upload_image_path):
+                os.makedirs(user_upload_image_path)
+            file.save(os.path.join(user_upload_image_path, image_name).replace('\\', '/'))
 
-@main.route('/<string:username>/keyword')
+
+
+        if article_id:
+            Article.update_article(article_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            current_user.add_action_log('update', 'article', True,
+                                    'create article title: "%s", status: "%s". insert data success'%(title, status))
+
+        else:
+            Article.insert_article(current_user.id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links)
+            current_user.add_action_log('create', 'article', True,
+                                    'create article title: "%s", status: "%s". insert data success'%(title, status))
+
+        return redirect(url_for('resource.article', username=current_user.name))
+
+
+@main.route('/<string:username>/delete-article', methods=['POST'])
 @login_required
-def keyword(username):
-    return render_template('resources/blog/keyword.html')
+def delete_article(username):
+    # 文章目录管理
+    ids = request.form.get('ids')
+    Article.delete_article_by_ids(ids.split(','))
+    current_user.add_action_log('delete', 'article', True, 'delete article ids: "%s". remove data success'%ids)
+    print "user: %s delete article id: %s"%(username, ids)
+    return "Delete ids '%s' success"%ids

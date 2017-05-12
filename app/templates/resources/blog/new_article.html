@@ -1,5 +1,5 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
-{% import 'macro/__article__.html' as article %}
+{% import 'macro/__article__.html' as article_side %}
 {% extends "framework.html" %}
 {% block script %}
 <!-- bootstrap summernote edit tool css -->
@@ -24,21 +24,33 @@
 <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrapValidator.min.css') }}" crossorigin="anonymous">
 <!-- bootstrap validator js -->
 <script src="{{ url_for('static', filename = 'js/bootstrapValidator.min.js') }}" crossorigin="anonymous"></script>
+<!-- bootstrap validator css -->
+<link rel="stylesheet" href="{{ url_for('static', filename = 'css/fileinput.min.css') }}" crossorigin="anonymous">
+<!-- bootstrap validator js -->
+<script src="{{ url_for('static', filename = 'js/fileinput.min.js') }}" crossorigin="anonymous"></script>
 <!--<script src="{{ url_for('static', filename = 'js/formValidation.js') }}" crossorigin="anonymous"></script>-->
 <script type="text/javascript">
+    // 移除tab中的校验信息
     function remove_pane_hint(tabId){
         $('a[href="#' + tabId + '"][data-toggle="tab"]')
                 .parent()
                 .find('i')
                 .removeClass('fa-check fa-times');
     }
-
     $(document).ready(function() {
+        // 初始化下拉框，比如文章目录
         $('.selectpicker').selectpicker({
             style: 'btn-info',
             liveSearch: true,
-            size: 4
+            size: 6
         });
+        // 上传文件限制
+        $("#inputArticleImage").fileinput({
+            allowedFileExtensions: ['jpg', 'jpeg', 'png', 'gif'],
+            maxFileSize: 1000,
+            maxFilesNum: 1
+        });
+
 
         var MAX_OPTIONS = 5;
         var form = $('#blogArticleForm');
@@ -57,6 +69,20 @@
                             validators: {
                                 notEmpty: {
                                     message: 'The article title required and cannot be empty'
+                                }
+                            }
+                        },
+                        source_id: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'The article source required and cannot be empty'
+                                }
+                            }
+                        },
+                        category_id: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'The article category required and cannot be empty'
                                 }
                             }
                         },
@@ -135,7 +161,7 @@
                         }
                     }
                 })
-
+                // 点击加号，添加引用链接，点击减号，删除引用链接
                 .on('click', 'a.addReferenceLinks', function() {
                     var index = $(this).data('index');
                     if (!index) {
@@ -159,12 +185,15 @@
                         $row.remove();
                     });
                 })
+
+                // 处理关键词标签的校验
                 .find('[name="keywords"]')
                 // Revalidate the cities field when it is changed
                 .change(function (e) {
                     form.bootstrapValidator('revalidateField', 'keywords');
                 })
                 .end()
+                // 对富文本编辑器的初始化和校验
                 .find('#summernote_edit_tool')
                 .summernote({
                     height: 280,                 // set editor height
@@ -176,6 +205,7 @@
                     $('#blogArticleForm').bootstrapValidator('revalidateField', 'summernote_content');
                 })
                 .end()
+                // 切换富文本编辑器和markdown编辑器
                 .find('div.tabs-x .nav-tabs [data-toggle="tab"]')
                 .on('tabsX.click', function (event) {
                     var editor_tool = this.getAttribute('href');
@@ -184,6 +214,8 @@
                     switch (editor_tool) {
                         case '#summernote':
                             remove_pane_hint('markdown');
+                            $("#markdown").addClass("disabled");
+                            $("#summernote").removeClass("disabled");
                             form.bootstrapValidator('removeField', 'markdown_content');
                             markdown_pane.addClass('hide');
                             summernote_pane.removeClass('hide');
@@ -202,6 +234,8 @@
                             break;
                         case '#markdown':
                             remove_pane_hint('summernote');
+                            $("#summernote").addClass("disabled");
+                            $("#markdown").removeClass("disabled");
                             form.bootstrapValidator('removeField', 'summernote_content');
                             summernote_pane.addClass('hide');
                             markdown_pane.removeClass('hide');
@@ -219,9 +253,24 @@
                             });
                             break;
                     }
-                }).end();
-
-
+                })
+                .end()
+                // 文章来源icheck初始化和校验
+                .find('input:radio[name="source_id"]')
+                // Init icheck elements
+                .iCheck({
+                    // The tap option is only available in v2.0
+                    tap: true,
+                    radioClass: 'iradio_square-green',
+                    increaseArea: '20%'
+                })
+                // Called when the radios/checkboxes are changed
+                .on('ifChanged', function(e) {
+                    // Get the field name
+                    var field = $(this).attr('name');
+                    form.bootstrapValidator('revalidateField', field);
+                })
+                .end();
 
     });
     //    向关键词输入框中添加历史关键词
@@ -237,63 +286,66 @@
 <div class="panel panel-default">
     <!-- Default panel contents -->
     <div class="panel-heading">
-            <h4>&nbsp;Write Article</h4>
+        <h4>&nbsp;Write Article</h4>
     </div>
 
     <div class="panel-body">
-        <form class="form-horizontal" id="blogArticleForm" method="post" action="write_article">
+        <form class="form-horizontal" id="blogArticleForm" method="post" enctype="multipart/form-data"
+              action="{% if article %}{{ url_for('resource.new_article', username=current_user.name, article_id=article.id) }}{% else %}{{ url_for('resource.new_article', username=current_user.name) }}{% endif %}">
             <div class="form-group">
                 <label for="inputArticleTitle" class="col-sm-2 control-label">Title</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="inputArticleTitle" name="title" placeholder="Article Title">
+                    <input type="text" class="form-control" id="inputArticleTitle" name="title" value="{{ article.title }}" placeholder="Article Title">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="inputArticleSource" class="col-sm-2 control-label">Source</label>
                 <div class="col-sm-10">
-                    <div class="btn-group" data-toggle="buttons" id="inputArticleSource">
-                        <label class="btn btn-primary active">
-                            <input type="radio" name="source" id="source_original" value="original" autocomplete="off" checked> Original
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="source" id="source_quote" value="quote" autocomplete="off"> Quote
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" name="source" id="source_other" value="other" autocomplete="off"> Other
-                        </label>
-                    </div>
+                    <ul id="inputArticleSource" style="margin: 0; padding: 0; list-style: none">
+                        {% for source in article_sources %}
+                        <li>
+                            <input type="radio" {% if article.source_id|string == source.id|string %}checked{% endif %} id="{{ source.id }}" value="{{ source.id }}" name="source_id">&nbsp;
+                            <label for="{{ source.id }}">{{ source.name }}</label>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="selectCategory" class="col-sm-2 control-label">Category</label>
                 <div class="col-sm-10">
-                    <select class="selectpicker" id="selectCategory" name="category">
-                        <option value="Mustard">Mustard</option>
-                        <option value="Ketchup">Ketchup</option>
-                        <option value="Relish">Relish</option>
+                    <select class="selectpicker" id="selectCategory" name="category_id">
+                        {% for category in article_categorys %}
+                        <option value="{{ category.id }}" {% if article.category_id|string == category.id|string %}class="active" selected {% endif %}>{{ category.name }}</option>
+                        {% endfor %}
                     </select>
                     &nbsp;
-                    <a class="link" href="category"><span class="fa fa-plus"></span></a>
+                    <a class="link" href="{{ url_for('resource.category', username=current_user.name) }}"><span class="fa fa-plus"></span></a>
                 </div>
             </div>
-
             <div class="form-group">
-                <label for="inputArticleSource" class="col-sm-2 control-label">Content</label>
+                <label for="inputArticleImage" class="col-sm-2 control-label">Article Image</label>
+                <div class="col-sm-10">
+                    <input type="file" class="form-control file" id="inputArticleImage" data-show-upload="false" name="image">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputArticleContent" class="col-sm-2 control-label">Content</label>
                 <div class="col-sm-10">
                     <!-- tabs -->
-                    <div class="tabs-x align-center tabs-above tab-bordered">
+                    <div class="tabs-x align-center tabs-above tab-bordered" id="inputArticleContent">
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#summernote" data-toggle="tab">Normal</a></li>
                             <li><a href="#markdown" data-toggle="tab">Markdown</a></li>
                         </ul>
                         <div class="tab-content" id="article_edit_pane">
                             <div class="tab-pane active" id="summernote">
-                                <textarea id="summernote_edit_tool" name="summernote_content"></textarea>
+                                <textarea id="summernote_edit_tool" name="summernote_content">{% if article.content_type == "summernote" %}{{ article.content }}{% endif %}</textarea>
                             </div>
                             <div class="tab-pane" id="markdown">
-                                <textarea name="markdown_content" data-provide="markdown" style="resize: none; display: block;" rows="14" id="bootstrap_markdown_edit_tool"></textarea>
+                                <textarea name="markdown_content" data-provide="markdown" style="resize: none; display: block;" rows="14" id="bootstrap_markdown_edit_tool">{% if article.content_type == "markdown" %}{{ article.content }}{% endif %}</textarea>
                             </div>
                         </div>
                     </div>
@@ -304,50 +356,71 @@
                 <label for="inputKeywords" class="col-sm-2 control-label">Keywords</label>
                 <div class="col-sm-10">
                     <div class="input-group">
-                        <input type="text" name="keywords" id="inputKeywords" class="form-control" data-role="tagsinput" />
+                        <input type="text" name="keywords" id="inputKeywords" value="{{ article.keywords_string }}" class="form-control" data-role="tagsinput" />
                     </div><!-- /input-group -->
                 </div>
                 <div class="col-sm-2">
                 </div>
                 <div class="col-sm-10">
                     <div class="alert alert-warning">
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Default')">
-                            <span class="label label-default">Default</span>
+                        {% for keyword in article_keywords %}
+                        <a href="javascript:void(0);" onclick="add_history_keyword('{{ keyword.name }}')">
+                            <span class="label label-{{ keyword.color }}">{{ keyword.name }}</span>
                         </a>
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Primary')">
-                            <span class="label label-primary">Primary</span>
-                        </a>
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Success')">
-                            <span class="label label-success">Success</span>
-                        </a>
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Info')">
-                            <span class="label label-info">Info</span>
-                        </a>
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Warning')">
-                            <span class="label label-warning">Warning</span>
-                        </a>
-                        <a href="javascript:void(0);" onclick="add_history_keyword('Danger')">
-                            <span class="label label-danger">Danger</span>
-                        </a>
+                        {% endfor %}
                     </div>
 
                 </div>
             </div>
 
+            {% for reference_link in article.reference_links %}
+            {% if loop.index == 1 %}
             <div class="form-group">
-                <label for="inputReferenceLinks" class="col-sm-2 control-label">Reference links</label>
+                <label class="col-sm-2 control-label">Reference links</label>
                 <div class="col-sm-10">
                     <div class="input-group">
-                        <span class="input-group-addon">
-                            <a href="javascript:void(0);" class="addReferenceLinks"><i class="glyphicon glyphicon-plus"></i></a>
-                        </span>
-                        <span class="input-group-addon">
-                            <i class="glyphicon glyphicon-link"></i>
-                        </span>
+                                    <span class="input-group-addon">
+                                        <a href="javascript:void(0);" class="addReferenceLinks"><i class="glyphicon glyphicon-plus"></i></a>
+                                    </span>
+                                    <span class="input-group-addon">
+                                        <i class="glyphicon glyphicon-link"></i>
+                                    </span>
+                        <input type="text" class="form-control" value="{{reference_link.name}}" name="reference_links_box[]">
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="form-group">
+                <label class="col-sm-2 control-label">
+                </label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <a href="javascript:void(0);" class="removeReferenceLinks"><i class="glyphicon glyphicon-plus"></i></a>
+                                        </span>
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-link"></i></span>
+                        <input type="text" class="form-control" value="{{reference_link.name}}" name="reference_links_box[]">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="form-group">
+                <label for="inputReferenceLinks" class="col-sm-2 control-label">Reference links</label>
+
+                <div class="col-sm-10">
+                    <div class="input-group">
+                            <span class="input-group-addon">
+                                <a href="javascript:void(0);" class="addReferenceLinks"><i class="glyphicon glyphicon-plus"></i></a>
+                            </span>
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-link"></i>
+                            </span>
                         <input type="text" class="form-control" id="inputReferenceLinks" name="reference_links_box[]" placeholder="URL #1">
                     </div>
                 </div>
             </div>
+            {% endfor %}
 
             <div class="form-group hide" id="url_reference_link_template">
                 <label class="col-sm-2 control-label">
@@ -366,7 +439,16 @@
                 <div class="col-sm-offset-2 col-sm-10">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" checked name="enable_comment"> Enable Comment
+                            <input type="checkbox" {% if article.status %}checked{% endif %} value="1" name="status"> Display Status
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" {% if article.permit_comment %}checked{% endif %} value="1" name="permit_comment"> Permit Comment
                         </label>
                     </div>
                 </div>
@@ -382,12 +464,11 @@
     </div>
     <!-- 评论使用 -->
     <div class="panel-footer">
-
     </div>
 </div>
 
 {% endblock content %}
 
 {% block sidebar %}
-    {{ article.article_menu_navigation('Write Article') }}
+{{ article_side.article_menu_navigation('New Article') }}
 {% endblock sidebar %}

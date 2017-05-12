@@ -1,0 +1,53 @@
+<div class="comments">
+    {% if article_comments %}
+    <h2 class="title">There are {{ article_comments_total }} comments</h2>
+        {% for comment in article_comments %}
+        <!-- comment start -->
+        <div class="comment clearfix">
+            {% if comment.comment_type == 'reply' %}
+            <!-- reply start -->
+            <div class="comment clearfix">
+                <div class="comment-avatar">
+                    <img src="{{comment.user_avatar}}" alt="avatar">
+                </div>
+                <div class="comment-content clearfix">
+                    <h5>Reply-To:{{comment.followed_name }}</h5>
+                    <div class="comment-meta">By <a href="#">{{comment.user_name }}</a> | {{comment.create_at }}</div>
+                    <div class="comment-body">
+                        <p>{{comment.content }}</p>
+                        <a href="javascript:;" onclick="comment_reply('{{ current_user.id }}', '{{ comment.id }}', '{{comment.user_name }}');" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
+                    </div>
+                </div>
+            </div>
+            <!-- reply end -->
+            {% else %}
+            <!-- comment start -->
+            <div class="comment-avatar">
+                <img src="{{comment.user_avatar}}" alt="avatar">
+            </div>
+            <div class="comment-content">
+                <div class="comment-meta">By <a href="#">{{comment.user_name }}</a> | {{comment.create_at }}</div>
+                <div class="comment-body clearfix">
+                    <p>{{comment.content }}</p>
+                    <a href="javascript:;" onclick="comment_reply('{{ current_user.id }}', '{{ comment.id }}', '{{comment.user_name }}');" class="btn btn-gray more pull-right"><i class="fa fa-reply"></i> Reply</a>
+                </div>
+            </div>
+            <!-- comment end -->
+            {% endif %}
+        </div>
+        <!-- comment end -->
+        {% endfor %}
+    {% else %}
+        <h2 class="title">No Comments</h2>
+    {% endif %}
+</div>
+<script type="text/javascript">
+    function comment_reply(user_id, reply_to_comment_id, reply_to_user_name){
+        var reply_input = $('#inputCommentReplyToCommentID');
+        $('#inputCommentReplyToUserName').val(reply_to_user_name);
+        reply_input.attr('disabled', false);
+        reply_input.val(reply_to_comment_id);
+        reply_input.parent('div').removeClass('hide');
+        $('#inputCommentReplyContent').focus();
+    }
+</script>

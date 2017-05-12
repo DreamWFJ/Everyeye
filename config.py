@@ -7,7 +7,19 @@
 # ===================================
 
 import os
+import logging
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+upload_image_path = os.path.join(BASE_DIR, 'app/static/img/blogs').replace('\\', '/')
+download_doc_path = os.path.join(BASE_DIR, 'app/static/doc/blogs').replace('\\', '/')
+
+DEBUG = True
+if not DEBUG:
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=os.path.join(BASE_DIR, 'debug.log'),
+                    filemode='w')
+
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
@@ -15,6 +27,7 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'admin@no-replay.com'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'data.sqlite').replace('\\', '/')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    REDIS_URL = "redis://:@localhost:6379/1"
     URL_PREFIX = 'api'
     API_VERSION = '1.0'
 
@@ -23,7 +36,7 @@ class Config:
         pass
 
 class Default(Config):
-    DEBUG = True
+    DEBUG = DEBUG
     MAIL_SERVER = 'smtp.qq.com'
     MAIL_PORT = 25
     MAIL_USE_TLS = True

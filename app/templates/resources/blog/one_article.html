@@ -1,290 +1,313 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
 {% extends "framework.html" %}
+{% block css %}
+<style type="text/css">
+    .page-title {
+        font-size: 38px;
+        font-weight: 700;
+        color: #343434;
+        line-height: 1.2;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        position:relative;
+        text-align:center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #d3d3d3;
+    }
+    .blog-post {
+        background-color: #fafafa;
+        border: 1px solid #f3f3f3;
+        margin: 0 0 70px;
+        position: relative;
+    }
+    .blog-post .blog-post-body {
+        padding: 20px 20px 0 20px;
+        min-height: 140px;
+    }
+    .blog-post.full {
+        background-color: transparent;
+        border: none;
+    }
+    .blog-post .blog-post-content {
+        padding: 0 0 10px;
+    }
+    .blog-post footer {
+        background-color: #f1f1f1;
+        padding: 12px 20px;
+        border-top: 1px solid #e8e8e8;
+        font-size: 14px;
+        line-height: 2;
+        clear: both;
+    }
+    .post-date{
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    h1,h2,h3,h4,h5,h6{
+        margin-top: 0px;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .post-left-info{
+        text-align: right;
+    }
+    .post-left-info p{
+        margin: 5px 0;
+        font-size: 12px;
+    }
+    .post-left-info p i{
+        margin-right: 5px;
+        color:#777;
+
+    }
+    .blog-post ul.links {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .blog-post ul.links li {
+        display: inline-block;
+    }
+    .blog-post ul.links li a {
+        color: #666666;
+        display: inline-block;
+    }
+    .blog-post ul.links li a:hover {
+        color: #e84c3d;
+    }
+
+
+    /* Comments
+---------------------------------- */
+    .comments {
+        margin-top: 60px;
+    }
+    .comments h2.title {
+        margin-bottom: 40px;
+        border-bottom: 1px solid #d2d2d2;
+        padding-bottom: 10px;
+    }
+    .comment {
+        font-size: 14px;
+    }
+    .comment .comment {
+        margin-left: 75px;
+    }
+    .comment-avatar {
+        margin-top: 5px;
+        width: 55px;
+        float: left;
+    }
+    .comment-content {
+        margin-left: 75px;
+        border-bottom: 1px solid #d2d2d2;
+        margin-bottom: 40px;
+    }
+    .comment h3 {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    .comment-meta {
+        margin-bottom: 15px;
+        color: #999999;
+        font-size: 12px;
+    }
+    .comment-meta a {
+        color: #666666;
+    }
+    .comment-meta a:hover {
+        text-decoration: underline;
+    }
+    .comment .btn {
+        font-size: 12px;
+        padding: 7px;
+        min-width: 100px;
+        margin-top: 5px;
+        margin-bottom: -1px;
+    }
+    .comment .btn i {
+        padding-right: 5px;
+    }
+
+    /*-- 引用 --*/
+    .reference-link {
+        margin: 2em auto;
+        padding: 1.5em;
+    }
+    .reference-link h3 {
+        border-bottom: 1px solid gray;
+        font-size: 1.92em;
+        font-weight: bold;
+        color: #556677;
+    }
+    .blog-post-reference-link {
+        padding: 12px 20px;
+        font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+        font-size: small;
+        margin-left: 16px;
+    }
+    .blog-post-reference-link ul {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+{% endblock css %}
 {% block script %}
-    <script type="text/javascript">
+<script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
         $(document).ready(function() {
+            // img自动适应预定宽度
+            $("img").addClass("img-responsive");
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
         });
-    </script>
+    });
+</script>
 {% endblock script %}
 {% block title %}Category{% endblock title %}
 {% block search %}
-    {{frame_search('article')}}
+{{frame_search('article')}}
 {% endblock search %}
-{% block content %}
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">
-            <div class="page-header">
-                <h1 id="artibodyTitle" cid="187315" docid="fyeifqx5858211">《求是》刊文阐述习近平总体国家安全观意义</h1>
-            </div>
-        </div>
-        <div class="panel-body">
-            <div class="wrap-inner">
-
-
-
-
-
-
-
-                <!-- 修改 吸顶开始 2015.11.19-->
-                <!-- 顶部 固定 分享按钮 -->
-                <script type="text/javascript" charset="utf-8" src="http://static.bshare.cn/b/buttonLite.js#style=-1&amp;uuid=cc6dc2b3-f467-40cb-afae-c7c6154a5f54&amp;pophcol=2&amp;lang=zh"></script>
-                <script type="text/javascript" charset="utf-8" src="http://static.bshare.cn/b/bshareC0.js"></script>
-                <script src="http://news.sina.com.cn/268/2014/0919/bshare_update.js" charset="utf-8"></script>
-
-                <div class="page-info" id="page-info">
-                    <div class="page-tools" id="page-tools">
-                        <div class="bshare-custom topShareBox" bshareupdate="1" data-mburl="http://doc.sina.cn/?id=comos:fyeifqx5858211" h5qr="http://comet.blog.sina.com.cn/qr?http://doc.sina.cn/?id=comos:fyeifqx5858211&amp;fromsinaweb="><div class="bsPromo bsPromo2"></div>
-                            <a onclick="javascript:bShare.share(event,'sinaminiblog'); _S_uaTrack('index_news_content', 'weibo_click'); return false;" title="分享到新浪微博" class="sinaminiblog"></a>
-
-                            <a href="javascript:;" title="分享到微信" class="bshare-weixin" onclick="_S_uaTrack('index_news_content', 'weixin_click');"></a>
-                            <a onclick="javascript:bShare.share(event,'qzone',0); _S_uaTrack('index_news_content', 'QQ_click'); return false;" class="qzone" title="分享到QQ空间"></a>
-                        </div>
-                  <span class="page-tool-i page-tool-s" title="分享">
-                    <a href="javascript:;" id="shareArticleButton" onclick="_S_uaTrack('index_news_content', 'other_click');">分享</a>
-                  </span>
-                        <script type="text/javascript">
-
-
-                            var shareHref=location.href.split("?")[0];
-                            bShare.addEntry({
-                                title: '',
-                                summary: document.getElementById('artibodyTitle').innerHTML.replace(/<[^<>]*?font[^<>]*?>/gi,"") ,
-                                url: shareHref,
-                                pic:[]
-                            });
-                            $('#shareArticleButton').on('click', function(e){
-                                bShare.more();
-                                e.preventDefault();
-                            });
-                            bShareUpdate();
-
-                        </script>
-                  <span class="page-tool-i page-tool-c page-tool-share" title="评论">
-                    <span id="commentCount1">427<i style="padding-left:5px" class="pinglun">评论</i></span>
-                    <a href="javascript:;" suda-uatrack="key=index_news_content&amp;value=comment_click"></a>
-                  </span>
-                    </div>
-                    <span class="time-source" id="navtimeSource">2017年04月15日05:55		<span>
-                    <span data-sudaclick="media_name"><a href="http://news.xinhuanet.com/politics/2017-04/14/c_1120810439.htm" target="_blank" rel="nofollow">新华网</a></span></span>
-                    </span>
-                </div>
-                <style type="text/css">
-                    #navtimeSource{font-size: 18px;}
-                    #navtimeSource>span{padding-left:15px;}
-                    .real-time-window{bottom:0 !important;}
-                    /* 固定分享按钮样式 */
-                    .page-info{height:36px; position:relative;}
-                    .page-tools .page-tool-i{padding:0 14px 0 0; margin:0; border:none 0; height:36px;}
-                    .page-tools #commentCount1{ height:36px; line-height: 36px; padding-left:15px; margin:0 18px 0 0; color:#ff8500; font-size: 36px; font-family: "Arial black"; }
-                    .page-tools #commentCount1 i{color:#555555; height:36px; font-style: normal;  font-size: 14px; font-family: "Microsoft YaHei","\u5FAE\u8F6F\u96C5\u9ED1","Arial","SimSun","\u5B8B\u4F53";}
-
-                    .page-tools{position:absolute; top:0; *top:50%; left:0; float:inherit;}
-                    .page-tools .topShareBox{float:left; height:36px; margin-right:-2px;}
-                    .page-tools .topShareBox a{display: block; float:left; padding:0; margin:0 10px 0 0;  height:36px;}
-                    .page-tools .topShareBox a.sinaminiblog{width:78px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat 0 0;  }
-                    .page-tools .topShareBox a.bshare-weixin{width:78px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat -88px 0; }
-                    .page-tools .topShareBox a.qzone{ width:100px; background:url(http://n.sinaimg.cn/news/090e8200/20151217/shareIcon2.jpg) no-repeat -176px 0;}
-
-                    .page-tools #shareArticleButton{margin:0; padding:0; width:40px; background:url(http://n.sinaimg.cn/news/090e8200/20151116/shareIcon.jpg) no-repeat -150px 0;}
-                    .page-tools #shareArticleButton:hover{opacity: .8;filter:alpha(opacity:80);}
-                    .page-tools span.page-tool-share a{height:36px; width:40px; background:url(http://n.sinaimg.cn/news/090e8200/20151116/shareIcon.jpg) no-repeat -200px 0; margin-top:0;}
-
-                    .page-tools span.page-tool-c{ border-left:1px solid #ccc;}
-
-                    /* time */
-                    .time-source{position:absolute; right:0; top:0; line-height:36px; height: 36px;}
-                </style>
-                <!-- /顶部 固定 分享按钮 -->
-
-                <!-- 吸顶 分享按钮 -->
-
-
-                <div class="page-content clearfix" id="articleContent">
-                    <div class="left">
-                        <!-- 窄通 begin -->
-                        <ins class="sinaads" data-ad-pdps="PDPS000000056819" style="margin-top:10px;"></ins>
-                        <script>(sinaads = window.sinaads || []).push({});</script>
-                        <!-- 窄通 end -->
-
-                        <div class="article article_16" id="artibody">
-
-                            <p>　　原标题：以习近平总书记总体国家安全观为指引 谱写国家安全新篇章</p>
-                            <p>　　新华社北京4月14日电 4月15日出版的《求是》杂志第8期发表署名钟国安的文章《以习近平总书记总体国家安全观为指引 谱写国家安全新篇章》。</p>
-                            <p>　　文章共分四个部分，深刻阐述了习近平总书记总体国家安全观具有重大的时代意义、理论意义、实践意义和世界意义。第一部分，总体国家安全观承载为实现中华民族伟大复兴提供坚强保障的历史使命，具有鲜明的时代特色。文章指出，总体国家安全观是时代的产物，同时又为时代注入了新的内涵。第二部分，总体国家安全观是我们党关于国家安全理论的重大创新，丰富和发展了中国特色社会主义理论体系。文章指出，总体国家安全观揭示了国家安全的本质和内涵，科学回答了中国这样一个发展中的社会主义大国如何维护和塑造国家安全的基本问题，标志着我们党对国家安全基本规律的认识达到了新高度。第三部分，总体国家安全观是维护和塑造中国特色大国安全的行动指南，具有重大的实践意义。文章强调，总体国家安全观蕴含着中国特色国家安全价值理念、工作思路和机制路径，是指导国家安全工作的科学理论。第四部分，总体国家安全观倡导构建人类命运共同体，具有广泛的包容性，产生了深远的国际影响。文章指出，总体国家安全观所倡导的安全理念，摒弃了零和博弈、绝对安全、结盟理论等旧观念，在国际上树立起一种普遍包容的国家安全理念，体现了中国风格，展示了中国胸怀，彰显了中国智慧。</p>
-                            <p>　　这篇重要文章的发表，对于深入学习贯彻习近平总书记总体国家安全观，奋力开拓国家安全工作新局面，具有重要指导作用。</p>
-
-                            <p class="article-editor">责任编辑：刘光博 </p>
-
-
-                        </div>
-
-                        <!-- 吸顶导航结束定位标记 -->
-                        <div id="navStopHere" style="position:relative;"></div>
-                        <!-- 吸顶导航结束定位标记 -->
-
-
-                        <div class="article-info clearfix">
-                            <!-- 文章关键字 begin -->
-                            <div class="article-keywords" data-sudaclick="art_keywords">
-                                <span>文章关键词：</span>
-                                <a href="http://tags.news.sina.com.cn/习近平" target="_blank">习近平</a> <a href="http://tags.news.sina.com.cn/安全观" target="_blank">安全观</a> <a href="http://tags.news.sina.com.cn/总书记" target="_blank">总书记</a>
-                            </div>
-                            <!-- 文章关键字 end -->
-
-                            <!-- reedit -->
-
-                            <div class="article-feedback">
-                                <a href="http://comment5.news.sina.com.cn/comment/skin/feedback_1.html?channel=ly&amp;newsid=3" target="_blank">我要反馈</a>
-                                <a href="http://roll.news.sina.com.cn/savepage/save.php?url=http%3A%2F%2Fnews.sina.com.cn%2Fc%2F2017-04-15%2Fdoc-ifyeifqx5858211.shtml&amp;ie=utf8" target="_blank">保存网页</a>
-                            </div>
-
-                            <div class="news_weixin_ercode clearfix"> <div class="img_wrapper"><img class="news_con_qrcode" alt="新浪新闻" src="http://n.sinaimg.cn/news/content2014/news_con_qrcode.jpg"></div></div>
-
-
-                        </div>
-
-
-
-
-                        <!-- 评论上方悬停广告 begin -->
-                        <div id="sinaads_box" class="adNone">
-                            <div id="sinaads_fixed" style="position: relative;" class=" sinaads_fixed">
-                                <ins class="sinaads" data-ad-pdps="PDPS000000055164"></ins>
-                                <div id="sinaads-float-close" style="width:40px;height:18px;position:absolute;right:0;top:0;z-index:9999;cursor:pointer;background:url(http://d9.sina.com.cn/litong/zhitou/test/images/close-h.jpg) 100% 50% no-repeat rgb(235, 235, 235);"></div>
-                                <script>(sinaads = window.sinaads || []).push({});</script>
-                                <script>
-                                    var sinaadsClose=document.getElementById("sinaads-float-close");
-                                    var sinaadsBox=document.getElementById("sinaads_fixed");
-                                    sinaadsBox.style.position="relative";
-                                    sinaadsClose.onclick=function(){
-                                        sinaadsBox.style.display="none";
-                                    };
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-            <!-- Previous or next blog -->
-            <nav aria-label="...">
-                <ul class="pager">
-                    <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
-                    <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
-                </ul>
-            </nav>
-        </div>
-
-        <!-- 评论使用 -->
-        <div class="panel-footer">
-            Comment
+{% block page_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
             <div class="panel-body">
-                <ul class="media-list">
-                    <li class="media">
-                        <div class="media-left">
-                            <a href="#">
-                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-                            </a>
-                        </div>
-                        <div class="media-body">
-                            <h4 class="media-heading">Media heading</h4>
-                            <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.</p>
-                            <div class="media">
-                                <div class="media-left">
+                <article class="blog-post full">
+                    <div class="col-sm-2">
+                    </div>
+                    <div class="col-sm-10">
+                        <h1 class="page-title" id="article_title" >{{article.title}}</h1>
+                    </div>
+                    <div class="blog-post-body">
+                        <div class="col-sm-2 pull-left">
+                            <div class="post-date text-right">
+                                <h2>{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</h2>
+                                <span>{{article.public_time|string|truncate(7, True, end='')}}</span>
+                            </div>
+                            <div class="post-left-info">
+                                <p><i class="fa fa-user"></i> <a href="#">Author</a></p>
+                                <p><i class="fa fa-folder-open"></i>
                                     <a href="#">
-                                        <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2MwMTQ4NiB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYzAxNDg2Ij48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
+                                        {% for category in article_categorys %}
+                                        {% if category.id|int == article.category_id|int %}
+                                        {{ category.name }}
+                                        {% endif %}
+                                        {% endfor %}
                                     </a>
-                                </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">Nested media heading</h4>
-                                    Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
-                                    <!-- Nested media object -->
-                                    <div class="media">
-                                        <div class="media-left">
-                                            <a href="#">
-                                                <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 64px; height: 64px;" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PCEtLQpTb3VyY2UgVVJMOiBob2xkZXIuanMvNjR4NjQKQ3JlYXRlZCB3aXRoIEhvbGRlci5qcyAyLjYuMC4KTGVhcm4gbW9yZSBhdCBodHRwOi8vaG9sZGVyanMuY29tCihjKSAyMDEyLTIwMTUgSXZhbiBNYWxvcGluc2t5IC0gaHR0cDovL2ltc2t5LmNvCi0tPjxkZWZzPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+PCFbQ0RBVEFbI2hvbGRlcl8xNWI0M2JmYjQyMyB0ZXh0IHsgZmlsbDojQUFBQUFBO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1mYW1pbHk6QXJpYWwsIEhlbHZldGljYSwgT3BlbiBTYW5zLCBzYW5zLXNlcmlmLCBtb25vc3BhY2U7Zm9udC1zaXplOjEwcHQgfSBdXT48L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YjQzYmZiNDIzIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSIxMi41IiB5PSIzNi44Ij42NHg2NDwvdGV4dD48L2c+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-                                            </a>
-                                        </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">Nested media heading</h4>
-                                            Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.
-                                        </div>
-                                    </div>
-                                </div>
+                                </p>
+                                <p><i class="glyphicon glyphicon-paperclip"></i>
+                                    <a href="#" title="Article's Source">
+                                        {% for source in article_sources %}
+                                        {% if source.id|int == article.source_id|int %}
+                                        {{ source.name }}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </a>
+                                </p>
                             </div>
                         </div>
-                    </li>
-                </ul>
-                {{ page_navigation(10, 1, 'http://test.com/page') }}
+                        <div class="col-sm-10">
+                            {% if article.image_name %}
+                            <div class="blog-post-info">
+                                <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" class="img-responsive" alt>
+                            </div>
+                            {% endif %}
+                            <div id="article_content" class="blog-post-content" >
+                                {{article.content | string | safe }}
+                            </div>
+
+                            {% if article.reference_links.count() > 0 %}
+                            <div class="row reference-link">
+                                <h3>Reference Link</h3>
+                                <div class="blog-post-reference-link" id="article_reference_links" >
+                                    <ul>
+
+                                        {% for reference_link in article.reference_links %}
+                                        <li>{{reference_link.name}}</li>
+                                        {% endfor %}
+
+                                    </ul>
+
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <footer class="clearfix">
+                        <ul class="links pull-left">
+                            <li><i class="fa fa-comments pr-5"></i>
+                                <a href="#">
+                                    {{ article_comments_total }} Comments
+                                </a> |
+                            </li>
+                            <li><i class="fa fa-tags pr-5"></i>
+                                {% for article_keyword in article.keywords %}
+                                <a href="#">{{article_keyword.keyword.name }}</a>
+                                {% if loop.index <= loop.length - 1 %},{% endif %}
+                                {% endfor %}
+                            </li>
+                        </ul>
+                    </footer>
+                </article>
+
+                <!-- Previous or next blog -->
+                <nav aria-label="...">
+                    <ul class="pager">
+                        <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span>Previous</a></li>
+                        <li class="next"><a href="#">Next <span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </nav>
+                {% include "resources/blog/_article_comments.html" %}
+                <div class="pagination">
+                </div>
+                {% include "resources/blog/_submit_comment.html" %}
             </div>
         </div>
+        <div class="col-md-3">
+            {% include "resources/blog/_article_side.html" %}
+        </div>
+
     </div>
-{% endblock content %}
-
-{% block sidebar %}
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default">
-            <ul class="nav nav-tabs">
-                <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                <li role="presentation" class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        Dropdown <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                        <li role="presentation"><a href="#life" aria-controls="messages" role="tab" data-toggle="tab">Life</a></li>
-                        <li role="presentation"><a href="#happly" aria-controls="messages" role="tab" data-toggle="tab">Happly</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="home">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">Home<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">Profile<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">Messages<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="profile">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">user<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">role<span class="badge pull-right">45</span></a></li>
-                        <li role="presentation"><a href="#">other<span class="badge pull-right">23</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="messages">
-                    <ul class="nav nav-pills nav-stacked">
-                        <li role="presentation"><a href="#">friend<span class="badge pull-right">42</span></a></li>
-                        <li role="presentation"><a href="#">unknow<span class="badge pull-right">45</span></a></li>
-                    </ul>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="life">...</div>
-                <div role="tabpanel" class="tab-pane" id="happly">...</div>
-            </div>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">Keyword Cloud</div>
-            <div class="panel-body">
-                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
-                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
-                </canvas>
-
-                <div id="ExtendCloudTag" style="display: none">
-                    <ul>
-                        <li><a href="http://www.google.com" target="_blank">Google</a></li>
-                        <li><a href="/fish">Fish</a></li>
-                        <li><a href="/chips">Chips</a></li>
-                        <li><a href="/salt">Salt</a></li>
-                        <li><a href="/vinegar">Vinegar</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock sidebar %}
+</div>
+{% block footer %}{% endblock footer %}
+{% endblock page_content %}

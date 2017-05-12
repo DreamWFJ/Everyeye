@@ -1,0 +1,51 @@
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <div class="panel panel-default">
+        <div class="panel-heading">Keyword Cloud</div>
+        <div class="panel-body">
+            <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                <p>Anything in here will be replaced on browsers that support the canvas element</p>
+            </canvas>
+
+            <div id="ExtendCloudTag" style="display: none">
+                {% if keywords_cloud|count > 0 %}
+                <ul>
+                    {% for keyword in keywords_cloud %}
+                    <li><a href="{{ url_for('resource.article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="panel panel-default">
+        <div class="panel-heading">Aritcle Category</div>
+        <div class="panel-body">
+            <ul class="nav nav-pills nav-stacked">
+                {% for category in category_side_nav %}
+                <li role="presentation">
+                    <a href="{{ url_for('resource.article', username=current_user.name, category_id=category.id) }}">{{ category.name }}
+                        <span class="badge pull-right">{{ category.articles.count() }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <br>
+    <div class="panel panel-default">
+        <div class="panel-heading">Similar Article</div>
+        <div class="panel-body">
+            <ul class="nav nav-pills nav-stacked">
+                {% for article in similar_article %}
+                <li role="presentation">
+                    <a href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}">{{article.title}}</a>
+                </li>
+                {% else %}
+                <li role="presentation">None</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>

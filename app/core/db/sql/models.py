@@ -6,20 +6,50 @@
 # CreateTime : 2017-03-27 15:44
 # ===================================
 import hashlib
+import random
 from app.utils import generate_uuid, get_current_0_24_time
 from flask import request, url_for
 from datetime import datetime
 from app import sql_db as db
+from app import redis_store
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer
 from app.core.common.user_mixin import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.core.common.cache import get_role_resource_right_weight, has_role_resource_right
 from sqlalchemy import and_
 
 class DatabaseError(Exception):
     pass
 class NotFoundData(Exception):
     pass
+
+def weight2int(v):
+    if not isinstance(v, int) and isinstance(v, basestring):
+        return int(v, 16)
+    else:
+        try:
+            return int(v)
+        except:
+            return 0
+
+# redis 缓存权限信息
+def cache_all_role_resource_right():
+    cached = {}
+    for role in Role.query.all():
+        cached[role.id] = {}
+        for role_resource in role.resources:
+            cached[role.id][role_resource.resource.name] = role_resource.right_weight
+    for role_id, role_resource_right in cached:
+        redis_store.hset('role_resource_right', role_id, role_resource_right)
+
+def cache_role_resource_right(role_id):
+    role = Role.query.filter_by(id=role_id).first()
+    cached = {}
+    for role_resource in role.resources:
+        cached[role_resource.resource.name] = role_resource.right_weight
+    redis_store.hset('role_resource_right', role_id, cached)
+
 
 # 建立资源与角色的多对多关系
 class RolesResources(db.Model):
@@ -141,7 +171,7 @@ class Role(db.Model):
         resource = Resource.query.filter_by(name=resourcename).first()
         if resource is None:
             raise NotFoundData('resource name <%s> not existed.'%resourcename)
-        role_resource = RolesResources(right_weight=weight)
+        role_resource = RolesResources(right_weight=weight2int(weight))
         role_resource.resource = resource
         role.resources.append(role_resource)
         db.session.add(resource)
@@ -168,11 +198,11 @@ class Role(db.Model):
         resource = Resource.query.filter_by(id=resource_id).first()
         if role and resource:
             # 这里需要判断资源的权重是否大于等于关联关系中添加的权重
-            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight,
+            role_resource = RolesResources.query.filter(and_(RolesResources.right_weight==weight2int(weight),
                                                              RolesResources.resource_id==resource_id,
                                                              RolesResources.role_id==role.id)).first()
             if not role_resource:
-                role_resource = RolesResources(right_weight=weight)
+                role_resource = RolesResources(right_weight=weight2int(weight))
                 role_resource.resource = resource
                 role.resources.append(role_resource)
                 db.session.add_all([role_resource, role])
@@ -201,8 +231,8 @@ class Resource(db.Model):
     weight = db.Column(db.Integer)
     # 资源是否启用的状态，默认为启用True
     status = db.Column(db.Boolean, default=True, index=True)
-    extra = db.Column(db.PickleType)
-    description = db.Column(db.Text())
+    # extra = db.Column(db.PickleType)
+    # description = db.Column(db.Text())
     create_at = db.Column(db.DateTime, default = datetime.now)
     # rights = db.relationship('Right',
     #                            secondary=resources_rights,
@@ -211,12 +241,12 @@ class Resource(db.Model):
                             primaryjoin="RolesResources.resource_id==Resource.id")
 
     rights = db.relationship("ResourcesRights", back_populates="resource",
-                                primaryjoin="ResourcesRights.resource_id==Resource.id")
+                             primaryjoin="ResourcesRights.resource_id==Resource.id")
 
     @staticmethod
     def insert_resources(name, weight, status=True):
         resource = Resource(name=name)
-        resource.weight = weight
+        resource.weight = weight2int(weight)
         resource.status = status
         db.session.add(resource)
         db.session.commit()
@@ -279,7 +309,7 @@ class Resource(db.Model):
                     RolesResources.resource_id == resource.id
                 )).first()
                 if not role_resource:
-                    role_resource = RolesResources(resource=resource, right_weight=weight)
+                    role_resource = RolesResources(resource=resource, right_weight=weight2int(weight))
                     role_resource.role = role
                     db.session.add(role_resource)
             db.session.commit()
@@ -307,7 +337,7 @@ class Right(db.Model):
         right = Right.query.filter_by(name = name).first()
         if right is None:
             right = Right(name = name)
-        right.weight = weight
+        right.weight = weight2int(weight)
         right.status = status
         db.session.add(right)
         db.session.commit()
@@ -419,19 +449,17 @@ class AuditLog(db.Model):
     """用户的登录登出审计日志"""
     __tablename__ = 'audit_logs'
     id = db.Column(db.Integer, primary_key = True)
-    login_city = db.Column(db.String(16))
-    login_address = db.Column(db.Text())
+    province = db.Column(db.String(16))
+    city = db.Column(db.String(16))
+    detail_address = db.Column(db.Text())
     ip = db.Column(db.String(16))
     login_time = db.Column(db.DateTime(), default = datetime.now)
     last_request_time = db.Column(db.DateTime(), default = datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_audit_logs(login_city, login_address, ip, login_time = None, last_request_time=None):
-        audit_logs = AuditLog()
-        audit_logs.login_city = login_city
-        audit_logs.login_address = login_address
-        audit_logs.ip = ip
+    def insert_audit_logs(province, city, detail_address, ip, login_time = None, last_request_time=None):
+        audit_logs = AuditLog(province = province, city = city, ip = ip, detail_address = detail_address)
         if login_time:
             audit_logs.login_time = login_time
         if last_request_time:
@@ -449,46 +477,148 @@ class AuditLog(db.Model):
         db.session.add(audit_log)
         db.session.commit()
 
-
     def __repr__(self):
-        return '<AuditLog %r>' % self.name
+        return '<AuditLog %r>' % self.__tablename__
 
-class Log(db.Model):
+class ActionLog(db.Model):
     """用户的操作日志"""
-    __tablename__ = 'logs'
+    __tablename__ = 'action_logs'
     id = db.Column(db.Integer, primary_key = True)
     action = db.Column(db.String(64))
-    log_detail = db.Column(db.Text())
+    resource = db.Column(db.String(64))
+    # 操作是否成功
+    status = db.Column(db.Boolean, default = True, index = True)
+    # 操作详情
+    detail = db.Column(db.Text())
     create_at = db.Column(db.DateTime(), default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     @staticmethod
-    def insert_logs(action, log_detail):
-        log = Log()
-        log.action = action
-        log.log_detail = log_detail
+    def insert_logs(action, resource, status, detail):
+        log = ActionLog(action = action, resource = resource, status = status, detail = detail)
         db.session.add(log)
         db.session.commit()
         return log
 
     def __repr__(self):
-        return '<AuditLog %r>' % self.name
+        return '<AuditLog %r>' % self.__tablename__
+
+class UserChatRoom(db.Model):
+    """用户加入的聊天房间"""
+    __tablename__ = 'user_chat_rooms'
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    chat_room_id = db.Column(db.Integer, db.ForeignKey('chat_rooms.id'))
+    user = db.relationship('User', back_populates="chat_rooms")
+    chat_room = db.relationship('ChatRoom', back_populates="users")
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def delete_role_resource_by_ids(ids):
+        roles_resources = RolesResources.query.filter(RolesResources.id.in_(ids))
+        if roles_resources:
+            for role_resource in roles_resources:
+                db.session.delete(role_resource)
+            db.session.commit()
+
+    @staticmethod
+    def insert_user_chat_room(user, room):
+        user_chat_room = UserChatRoom.query.filter(and_(UserChatRoom.chat_room==room, UserChatRoom.user==user)).first()
+        if not user_chat_room:
+            user_chat_room = UserChatRoom(user=user, chat_room=room)
+            db.session.add(user_chat_room)
+            db.session.commit()
+        return user_chat_room
+
+    def __repr__(self):
+        return '<UserChatRoom %r>' % self.__tablename__
+
+class ChatRoom(db.Model):
+    """
+    聊天房间
+    """
+    __tablename__ = 'chat_rooms'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique = True)
+    messages = db.relationship('Message', backref = 'chat_rooms', lazy = 'dynamic')
+    users = db.relationship("UserChatRoom", back_populates="chat_room",
+                                primaryjoin="UserChatRoom.chat_room_id==ChatRoom.id")
+    # 房间是否禁言
+    status = db.Column(db.Boolean(), default=False)
+    default = db.Column(db.Boolean(), default=False)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    # 获取接受信息的用户ID和name
+    def get_receivers(self, user_id):
+        ret = []
+        for user_chat_room in self.users:
+            if user_chat_room.user_id == user_id:
+                continue
+            u = User.query.filter_by(id=user_chat_room.user_id).first()
+            ret.append({'id':user_chat_room.user_id, 'name':u.name})
+        return ret
+
+    @staticmethod
+    def insert_chat_room(name, status=False):
+        chat_room = ChatRoom.query.filter_by(name=name, status=status).first()
+        if not chat_room:
+            chat_room = ChatRoom(name=name, status=status)
+            db.session.add(chat_room)
+            db.session.commit()
+        return chat_room
+
+    @staticmethod
+    def send_message(room_name, message):
+        chat_room = ChatRoom.query.filter_by(name=room_name).first()
+        if not chat_room:
+            chat_room = ChatRoom.insert_chat_room(name=room_name)
+        chat_room.messages.append(message)
+        db.session.add(chat_room)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        default_rooms = ["system_notice"]
+        for room in default_rooms:
+            chat_room = ChatRoom(name=room, default=True)
+            db.session.add(chat_room)
+        db.session.commit()
+
+
+    def __repr__(self):
+        return '<NoticeMessage %r >' % self.__tablename__
 
 class Message(db.Model):
     """用户的消息记录"""
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key = True)
-    message_subject = db.Column(db.String(64))
-    message_detail = db.Column(db.Text())
+    subject = db.Column(db.String(64))
+    content = db.Column(db.Text())
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    room_id = db.Column(db.Integer, db.ForeignKey('chat_rooms.id'))
+    status = db.Column(db.Boolean(), default=False)
+    # single and group
+    type = db.Column(db.String(64), default='single')
     create_at = db.Column(db.DateTime(), default=datetime.now)
-    from_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    # to_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    @property
+    def sender(self):
+        return User.query.filter_by(id=self.sender_id).first().name
+    @staticmethod
+    def get_message_sent(user_id):
+        return Message.query.filter(and_(Message.type == 'single', Message.sender_id==user_id)).all()
+
+    @property
+    def receivers(self):
+        chat_room = ChatRoom.query.filter_by(id=self.room_id).first()
+        if chat_room:
+            return chat_room.get_receivers(self.sender_id)
 
     @staticmethod
-    def insert_message(message_subject, message_detail):
-        message = Message()
-        message.message_subject = message_subject
-        message.message_detail = message_detail
+    def insert_message(subject, content, message_type=None):
+        message = Message(subject=subject, content=content)
+        if message_type:
+            message.type = message_type
         db.session.add(message)
         db.session.commit()
         return message
@@ -523,24 +653,110 @@ class User(UserMixin, db.Model):
     identity_card_number = db.Column(db.String(32))
     # 其他信息
     extra = db.Column(db.PickleType())
+    # 用户文章
+    articles = db.relationship('Article', backref = 'user', lazy= 'dynamic')
     # 用户创建时间
     create_at = db.Column(db.DateTime(), default = datetime.now)
     # 用户地址信息
     addresses = db.relationship('Address', backref = 'user', lazy = 'dynamic')
     # 操作日志信息
-    logs = db.relationship('Log', backref = 'user', lazy = 'dynamic')
+    action_logs = db.relationship('ActionLog', backref = 'user', lazy = 'dynamic')
 
     # 消息信息
     messages = db.relationship('Message', backref = 'user', lazy = 'dynamic')
-
+    # 聊天房间
+    chat_rooms = db.relationship("UserChatRoom", back_populates="user",
+                                primaryjoin="UserChatRoom.user_id==User.id")
     # 登陆登出的审计日志信息
     audit_logs = db.relationship('AuditLog', backref = 'user', lazy = 'dynamic')
+    # 用户的评论信息
+    comments = db.relationship('ArticleComment', backref = 'user', lazy = 'dynamic')
     # 关于我
     about_me = db.Column(db.Text())
 
 
     def __repr__(self):
         return '<User %r>' % self.name
+
+    def to_json(self):
+        json_use = {
+            'url': url_for('v1.user_api', id = self.id, _external = True),
+            'id': self.id,
+            'username': self.name,
+            'email': self.email,
+            'member_since': self.create_at.strftime('%c'),
+            'articles': self.articles.count()
+        }
+        return json_use
+
+    @property
+    def message_received(self):
+        messages = self.get_message_received(status=False)
+        return messages
+
+    def add_message_sent(self, message):
+        """添加已经发送的消息"""
+        self.messages.append(message)
+        db.session.add(self)
+        db.session.commit()
+
+    def add_default_room(self):
+        rooms = ChatRoom.query.filter_by(default=True).all()
+        if len(rooms) > 0:
+            for room in rooms:
+                user_chat_room = UserChatRoom(chat_room=room, user=self)
+                self.chat_rooms.append(user_chat_room)
+                db.session.add(self)
+            db.session.commit()
+
+    def add_to_chat_room(self, room_name):
+        room = ChatRoom.insert_chat_room(room_name)
+        user_chat_room = UserChatRoom.insert_user_chat_room(self, room)
+        if user_chat_room not in self.chat_rooms:
+            self.chat_rooms.append(user_chat_room)
+            db.session.add(self)
+        db.session.commit()
+
+    def send_message(self, send_to, subject, content):
+        # 发送消息
+        user = User.query.filter_by(id=send_to).first()
+        if user:
+            room_name = "%s_%s"%(self.name, user.name)
+            self.add_to_chat_room(room_name)
+            user.add_to_chat_room(room_name)
+            message = Message.insert_message(subject, content)
+            self.add_message_sent(message)
+            ChatRoom.send_message(room_name, message)
+
+    def get_message_sent(self):
+        return Message.get_message_sent(self.id)
+
+    def get_message_received(self, status=None, message_id=None):
+        """
+            接收发送给自己的消息
+            流程：1、检查和自己有关的房间
+                 2、找到房间中的消息
+
+        """
+        ret = []
+        if message_id:
+            msgs = Message.query.filter_by(id=message_id).all()
+            print "query by message id: ", message_id, msgs
+            return msgs
+
+        user_rooms = UserChatRoom.query.filter_by(user_id=self.id).all()
+        for user_room in user_rooms:
+            if status is None:
+                messages = Message.query.filter(and_(Message.type == 'single',
+                                                     Message.sender_id!=self.id,
+                                                     Message.room_id==user_room.chat_room_id)).all()
+            else:
+                messages = Message.query.filter(and_(Message.type == 'single',
+                                                     Message.sender_id!=self.id,
+                                                     Message.status == status,
+                                                     Message.room_id==user_room.chat_room_id)).order_by(Message.status.asc()).all()
+            ret.extend(messages)
+        return ret
 
     def generate_confirmation_token(self, expiration=3600):
         """产生一个激活token"""
@@ -565,24 +781,23 @@ class User(UserMixin, db.Model):
         return True
 
     @staticmethod
-    def insert_users(username, email, password, status=True, telephone=None, addresses=None, logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
+    def insert_users(username, email, password, status=True, telephone=None, addresses=None, articles=None, action_logs=None, messages=None, audit_logs=None, is_admin=False, confirmed=False):
         """说明：该方法需要改进的地方是，通过传入用户名，邮箱，密码之后，需要为其关联普通用户角色，
         角色所能够操作的资源是预分配的"""
-        user = User()
-        user.name = username
-        user.email = email
+        user = User(name=username, email=email, password_hash=generate_password_hash(password))
         if telephone:
             user.telephone = telephone
         user.status = status
         if addresses:
             user.addresses = addresses
-        if logs:
-            user.logs = logs
+        if articles:
+            user.articles = articles
+        if action_logs:
+            user.action_logs = action_logs
         if audit_logs:
             user.audit_logs = audit_logs
         if messages:
             user.messages = messages
-        user.password_hash = generate_password_hash(password)
         if confirmed:
             user.confirmed = confirmed
         if is_admin:
@@ -592,6 +807,7 @@ class User(UserMixin, db.Model):
         user.role_id = user_role.id
         db.session.add(user)
         db.session.commit()
+        user.add_default_room()
         return user
 
     @staticmethod
@@ -639,6 +855,13 @@ class User(UserMixin, db.Model):
             db.session.add(user)
             db.session.commit()
 
+    @staticmethod
+    def add_action_log(username, action_log):
+        user = User.query.filter_by(name=username).first()
+        if user:
+            user.action_logs.append(action_log)
+            db.session.add(user)
+            db.session.commit()
 
     @staticmethod
     def update_user(name, real_name=None, email=None, role_id=None, status=None, confirmed=None, about_me=None, identity_card_number=None, telephone=None):
@@ -728,16 +951,23 @@ class User(UserMixin, db.Model):
     def has_right(self, res, action):
         """验证是否具有资源的某项权限，首先检查角色是否拥有该资源，其次再检查该角色绑定的资源是否拥有指定的操作"""
         right_weight = getattr(RightWeight, action.upper())
-        # 首先获取资源ID
-        resource_result = Resource.query.filter_by(name=res).first()
-        if resource_result is None:
-            return False
-        # 根据角色ID和资源ID组合查询角色下是否拥有该资源
-        role_res = RolesResources.query.filter_by(role_id=self.role_id, resource_id=resource_result.id).first()
-        if role_res is None:
-            return False
+        # 首先从缓存中读取该用户的权限，若没有再从数据库中读取
+        if has_role_resource_right(self.role_id):
+            print "has right from redis"
+            role_resource_right_weight = get_role_resource_right_weight(self.role_id, res)
+        else:
+            # 首先获取资源ID
+            print "has right from database"
+            resource_result = Resource.query.filter_by(name=res).first()
+            if resource_result is None:
+                return False
+            # 根据角色ID和资源ID组合查询角色下是否拥有该资源
+            role_res = RolesResources.query.filter_by(role_id=self.role_id, resource_id=resource_result.id).first()
+            if role_res is None:
+                return False
+            role_resource_right_weight = role_res.right_weight
         # 对比权重
-        if role_res.right_weight & right_weight == 0:
+        if role_resource_right_weight & right_weight == 0:
             return False
         return True
 
@@ -758,13 +988,20 @@ class User(UserMixin, db.Model):
     def new_audit_log(self, ip):
         """产生审计日志"""
         print "user: %s, ip: %s login."%(self.name, ip)
+        login_province = 'beijin'
         login_city = 'beijin'
         login_address = 'haidianqu'
         s, e = get_current_0_24_time()
         log = AuditLog.query.filter(and_(AuditLog.user_id==self.id, AuditLog.last_request_time >= s, AuditLog.last_request_time <= e)).first()
         if log is None:
-            log = AuditLog.insert_audit_logs(login_city, login_address, ip)
+            log = AuditLog.insert_audit_logs(login_province, login_city, login_address, ip)
         self.audit_logs.append(log)
+        db.session.add(self)
+        db.session.commit()
+
+    def add_action_log(self, action, resource, status, detail):
+        action_log = ActionLog.insert_logs(action, resource, status, detail)
+        self.action_logs.append(action_log)
         db.session.add(self)
         db.session.commit()
 
@@ -819,10 +1056,538 @@ class AnonymousUser(AnonymousUserMixin):
     def has_right(self, res, action):
         return False
 
+class ArticleCommentFollow(db.Model):
+    __tablename__ = 'article_comment_follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('article_comments.id'),
+                            primary_key=True)
+    create_at = db.Column(db.DateTime, default = datetime.now)
 
+    def __repr__(self):
+        return '<ArticleCommentFollow follower_id: %r, followed_id: %r >' % (self.follower_id, self.followed_id)
+
+class ArticleComment(db.Model):
+    """文章评论信息"""
+    __tablename__ = 'article_comments'
+    id = db.Column(db.Integer, primary_key = True)
+    # 写评论的用户
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    # 评论状态，是否锁定
+    status = db.Column(db.Boolean(), default=False)
+    # 评论内容
+    content = db.Column(db.Text())
+    comment_type = db.Column(db.String(64), default='comment')
+    # 评论时间
+    create_at = db.Column(db.DateTime, default = datetime.now)
+    # 表示我评论谁
+    followed = db.relationship('ArticleCommentFollow',
+                               foreign_keys=[ArticleCommentFollow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    # 表示谁评论我(这里的我表示写评论的用户)
+    followers = db.relationship('ArticleCommentFollow',
+                                foreign_keys=[ArticleCommentFollow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
+    @property
+    def is_reply(self):
+        return False if self.followed.count() == 0 else True
+
+    @property
+    def followed_name(self):
+        if self.is_reply:
+            user_id = self.followed.first().followed.user_id
+            return User.query.filter_by(id=user_id).first().name
+
+    @property
+    def user_name(self):
+        return User.query.filter_by(id=self.user_id).first().name
+
+    @property
+    def user_avatar(self):
+        return User.query.filter_by(id=self.user_id).first().gravatar(size=256)
+
+    @staticmethod
+    def get_article_comments(article_id):
+        all_comments = []
+        article_comments = ArticleComment.query \
+            .filter(and_(ArticleComment.comment_type=="comment",
+                         ArticleComment.article_id==article_id)) \
+            .order_by(ArticleComment.create_at.asc()).all()
+
+        for comment in article_comments:
+            all_comments.append(comment)
+            follower_ids = [one.follower_id for one in comment.followers.all()]
+            if len(follower_ids) > 0:
+                article_reply_comments = ArticleComment.query \
+                    .filter(and_(ArticleComment.comment_type=="reply",
+                                 ArticleComment.id.in_(follower_ids))) \
+                    .order_by(ArticleComment.create_at.asc()).all()
+
+                for article_reply_comment in article_reply_comments:
+                    all_comments.append(article_reply_comment)
+                    follower_ids = [one.follower_id for one in article_reply_comment.followers.all()]
+                    if len(follower_ids) > 0:
+                        article_reply_to_reply_comments = ArticleComment \
+                            .query.filter(and_(ArticleComment.comment_type=="reply",
+                                               ArticleComment.id.in_(follower_ids))) \
+                            .order_by(ArticleComment.create_at.asc()).all()
+                        all_comments.extend(article_reply_to_reply_comments)
+
+        return all_comments
+        # return ArticleComment.query.filter_by(article_id=article_id).order_by(ArticleComment.comment_type.asc(), ArticleComment.create_at.asc()).all()
+
+    @staticmethod
+    def add_comment(user_id, article_id, content):
+        article = Article.query.filter_by(id=article_id).first()
+        user = User.query.filter_by(id=user_id).first()
+        if article and user:
+            comment = ArticleComment(user=user, article=article, content=content)
+            db.session.add(comment)
+            db.session.commit()
+
+    @staticmethod
+    def add_reply(user_id, reply_to_comment_id, article_id, content):
+        # user_id 是指谁在写评论，reply_to_user_id 是评论谁
+        article = Article.query.filter_by(id=article_id).first()
+        user = User.query.filter_by(id=user_id).first()
+        if article and user:
+            followed = ArticleComment.query.filter_by(id=reply_to_comment_id).first()
+            if followed:
+                comment = ArticleComment(user=user, article=article, content=content, comment_type="reply")
+                article_comment_follow = ArticleCommentFollow(follower=comment, followed=followed)
+                db.session.add(article_comment_follow)
+                db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleComment user_id: %r, article_id: %r >' % (self.user_id, self.article_id)
+
+class ArticleSource(db.Model):
+    """文章来源信息"""
+    __tablename__ = 'article_sources'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
+    articles = db.relationship('Article', backref = 'article_sources', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_source(name, status=False):
+        article_source = ArticleSource.query.filter_by(name = name).first()
+        if article_source is None:
+            article_source = ArticleSource(name = name, status = status)
+            db.session.add(article_source)
+            db.session.commit()
+
+    @staticmethod
+    def init():
+        sources = ["original", "quote", "other"]
+        for source in sources:
+            ArticleSource.insert_source(source)
+
+    def __repr__(self):
+        return '<ArticleSource %r>' % self.name
+
+class ArticleCategory(db.Model):
+    """文章来源信息"""
+    __tablename__ = 'article_categorys'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
+    articles = db.relationship('Article', backref = 'article_categorys', lazy = 'dynamic')
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_categorys(categorys):
+        for category in categorys:
+            article_category = ArticleCategory.query.filter_by(name = category).first()
+            if article_category is None:
+                article_source = ArticleCategory(name = category)
+                db.session.add(article_source)
+        db.session.commit()
+
+    @staticmethod
+    def insert_category(name, status):
+        article_category = ArticleCategory.query.filter_by(name = name).first()
+        if article_category is None:
+            article_source = ArticleCategory(name = name, status = status)
+            db.session.add(article_source)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        article_categorys = ["work", "learning", "life", "other"]
+        ArticleCategory.insert_categorys(article_categorys)
+
+    def __repr__(self):
+        return '<ArticleCategory %r>' % self.name
+
+# 建立文章与关键词的多对多关系
+# article_keywords = db.Table('article_keywords',
+#                             db.Column('keyword_id', db.String(36), db.ForeignKey('article_keyword.id')),
+#                             db.Column('article_id', db.String(36), db.ForeignKey('articles.id')))
+
+class ArticleKeywords(db.Model):
+    __tablename__ = 'article_keywords'
+    id = db.Column(db.Integer, primary_key = True)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    keyword_id = db.Column(db.Integer, db.ForeignKey('keywords.id'))
+    article = db.relationship('Article', back_populates="keywords")
+    keyword = db.relationship('Keyword', back_populates="articles")
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def delete_article_keyword_by_ids(ids):
+        resources_rights = ResourcesRights.query.filter(ResourcesRights.id.in_(ids))
+        if resources_rights:
+            for resource_right in resources_rights:
+                db.session.delete(resource_right)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleKeywords %r>' % self.__tablename__
+
+class Keyword(db.Model):
+    """文章关键词"""
+    __tablename__ = 'keywords'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
+    color = db.Column(db.String(64))
+    create_at = db.Column(db.DateTime, default = datetime.now)
+    articles = db.relationship("ArticleKeywords", back_populates="keyword",
+                               primaryjoin="ArticleKeywords.keyword_id==Keyword.id")
+    @staticmethod
+    def insert_keywords(keywords):
+        for keyword in keywords:
+            article_keyword = Keyword.query.filter_by(name = keyword["name"]).first()
+            if article_keyword is None:
+                article_keyword = Keyword(name = keyword["name"])
+                article_keyword.color = keyword["color"]
+                db.session.add(article_keyword)
+        db.session.commit()
+
+    @staticmethod
+    def insert_keyword(name, color, status=True):
+        article_keyword = Keyword.query.filter_by(name = name).first()
+        if article_keyword is None:
+            article_keyword = Keyword(name = name, color = color, status = status)
+            db.session.add(article_keyword)
+        db.session.commit()
+        return article_keyword
+
+    @staticmethod
+    def delete_keyword(name):
+        keyword = Keyword.query.filter_by(name = name).first()
+        if keyword:
+            db.session.delete(keyword)
+            db.session.commit()
+
+    @staticmethod
+    def delete_keyword_by_ids(ids):
+        keywords = Keyword.query.filter(Keyword.id.in_(ids))
+        if keywords:
+            for keyword in keywords:
+                db.session.delete(keyword)
+            db.session.commit()
+
+    @staticmethod
+    def init():
+        article_keywords = [
+            {
+                "id":1, "name":"Aritcle", "color":"default"
+            },
+            {
+                "id":2, "name":"nothing", "color":"primary"
+            },
+            {
+                "id":3, "name":"learning", "color":"success"
+            },
+            {
+                "id":4, "name":"CDN", "color":"info"
+            },
+            {
+                "id":5, "name":"K8S", "color":"warning"
+            },
+            {
+                "id":6, "name":"Cloud", "color":"danger"
+            },
+            {
+                "id":7, "name":"mouse", "color":"default"
+            },
+            {
+                "id":8, "name":"apple", "color":"primary"
+            }
+        ]
+        Keyword.insert_keywords(article_keywords)
+
+    def __repr__(self):
+        return '<ArticleKeyword %r>' % self.name
+
+
+class ArticleContentType(db.Model):
+    """文章内容类型"""
+    __tablename__ = 'article_content_types'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), unique=True)
+    status = db.Column(db.Boolean(), default=False)
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_content_types(content_types):
+        for content_type in content_types:
+            article_content_type = ArticleContentType.query.filter_by(name = content_type).first()
+            if article_content_type is None:
+                article_content_type = ArticleContentType(name = content_type)
+                db.session.add(article_content_type)
+        db.session.commit()
+
+    @staticmethod
+    def init():
+        content_types = ["summernote", "markdown"]
+        ArticleContentType.insert_content_types(content_types)
+
+    def __repr__(self):
+        return '<ArticleContentType %r>' % self.name
+
+class ArticleReferenceLink(db.Model):
+    """文章参考链接"""
+    __tablename__ = 'article_reference_links'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64))
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    create_at = db.Column(db.DateTime, default = datetime.now)
+    status = db.Column(db.Boolean(), default=False)
+
+    @staticmethod
+    def insert_reference_links(reference_links):
+        # 插入多个链接，json格式
+        for reference_link in reference_links:
+            article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+            if article_reference_link is None:
+                article_reference_link = ArticleReferenceLink(name = reference_link)
+                db.session.add(article_reference_link)
+        db.session.commit()
+
+    @staticmethod
+    def insert_reference_link(reference_link):
+        # 插入单个参考链接
+        article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+        if article_reference_link is None:
+            article_reference_link = ArticleReferenceLink(name = reference_link)
+            db.session.add(article_reference_link)
+        db.session.commit()
+        return article_reference_link
+
+    @staticmethod
+    def update_reference_link(article_id, reference_links):
+        # 更新文章的参考链接
+        return_reference_link = []
+        ArticleReferenceLink.remove_reference_link_by_article_id(article_id)
+        if reference_links:
+            for reference_link in reference_links:
+                if len(reference_link) == 0:
+                    continue
+                article_reference_link = ArticleReferenceLink.query.filter_by(article_id=article_id, name = reference_link).first()
+                if article_reference_link is None:
+                    article_reference_link = ArticleReferenceLink(article_id=article_id, name = reference_link)
+                    db.session.add(article_reference_link)
+                return_reference_link.append(article_reference_link)
+        db.session.commit()
+        return return_reference_link
+    @staticmethod
+    def remove_reference_link_by_ids(ids):
+        # 通过ID删除参考链接
+        article_reference_links = ArticleReferenceLink.query.filter(ArticleReferenceLink.id.in_(ids))
+        if article_reference_links:
+            for article_reference_link in article_reference_links:
+                db.session.delete(article_reference_link)
+            db.session.commit()
+
+    @staticmethod
+    def remove_reference_link_by_article_id(article_id):
+        article_reference_links = ArticleReferenceLink.query.filter_by(article_id=article_id).all()
+        if article_reference_links:
+            for article_reference_link in article_reference_links:
+                db.session.delete(article_reference_link)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleReferenceLink %r>' % self.name
+
+class ArticleViewRecord(db.Model):
+    """文章访问记录"""
+    __tablename__ = 'article_view_records'
+    id = db.Column(db.Integer, primary_key = True)
+    ip = db.Column(db.String(64))
+    user_id = db.Column(db.Integer)
+    status = db.Column(db.Boolean(), default=False)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    create_at = db.Column(db.DateTime, default = datetime.now)
+
+    @staticmethod
+    def insert_content_types(view_records):
+        for view_record in view_records:
+            article_view_record = ArticleViewRecord.query.filter_by(name = view_record).first()
+            if article_view_record is None:
+                article_view_record = ArticleViewRecord(name = view_record)
+                db.session.add(article_view_record)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<ArticleViewRecord %r>' % self.name
+
+class Article(db.Model):
+    """文章信息"""
+    __tablename__ = 'articles'
+    id = db.Column(db.Integer, primary_key = True)
+    # 文章作者
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # 文章标题
+    title = db.Column(db.String(64), unique=True)
+    # 文章关键词
+    keywords = db.relationship('ArticleKeywords',
+                               back_populates="article",
+                               primaryjoin="ArticleKeywords.article_id==Article.id")
+
+    # 文章来源
+    source_id = db.Column(db.Integer, db.ForeignKey('article_sources.id'))
+    # 文章目录
+    category_id = db.Column(db.Integer, db.ForeignKey('article_categorys.id'))
+    # 文章状态，是否被锁定
+    status = db.Column(db.Boolean(), default=False)
+    # 文章是否允许被评论
+    permit_comment = db.Column(db.Boolean(), default=False)
+    # 文章图像名称
+    image_name = db.Column(db.String(64), default=None)
+    # 文章内容
+    content = db.Column(db.Text())
+    # 文章内容类型，目前支持富文本和markdown
+    # content_type_id = db.Column(db.Integer, db.ForeignKey('article_content_types.id'))
+    content_type = db.Column(db.String(64))
+    # 文章中参考的链接
+    reference_links = db.relationship('ArticleReferenceLink', backref = 'articles', lazy = 'dynamic')
+    # 发表时间
+    public_time = db.Column(db.DateTime, default = datetime.now)
+    # 文章修改时间
+    change_time = db.Column(db.DateTime)
+    # 文章访问信息
+    views = db.relationship('ArticleViewRecord', backref = 'article', lazy = 'dynamic')
+    # 文章评论信息
+    comments = db.relationship('ArticleComment', backref = 'article', lazy= 'dynamic')
+
+    @property
+    def author(self):
+        # 获取文章作者
+        user = User.query.filter_by(id=self.user_id).first()
+        return user.name
+
+    @staticmethod
+    def get_keyword_color():
+        keyword_color_dict = {
+            "1":"default",
+            "2":"primary",
+            "3":"success",
+            "4":"info",
+            "5":"warning",
+            "6":"danger"
+        }
+        return random.choice(keyword_color_dict.values())
+
+    @staticmethod
+    def insert_article(user_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
+        article = Article(user_id = user_id,
+                          title = title,
+                          source_id = source_id,
+                          category_id = category_id,
+                          permit_comment = permit_comment,
+                          image_name = image_name,
+                          status = status,
+                          content = content,
+                          content_type = content_type)
+        keyword_list = keywords.split(',')
+        if len(keyword_list) > 0:
+            for keyword in keyword_list:
+                keyword = Keyword.insert_keyword(keyword, Article.get_keyword_color())
+                article_keyword = ArticleKeywords.query.filter(and_(ArticleKeywords.article_id==article.id, ArticleKeywords.keyword_id==keyword.id)).first()
+                if not article_keyword:
+                    article_keyword = ArticleKeywords(article=article, keyword=keyword)
+                article.keywords.append(article_keyword)
+                db.session.add(article_keyword)
+
+        if len(reference_links) > 0:
+            for reference_link in reference_links:
+                if len(reference_link) == 0:
+                    continue
+                article_reference_link = ArticleReferenceLink.query.filter_by(name = reference_link).first()
+                if article_reference_link is None:
+                    article_reference_link = ArticleReferenceLink(name = reference_link)
+                    db.session.add(article_reference_link)
+                article.reference_links.append(article_reference_link)
+        else:
+            article.reference_links = None
+        db.session.add(article)
+        db.session.commit()
+
+    @staticmethod
+    def update_article(article_id, title, keywords, source_id, category_id, status, permit_comment, image_name, content, content_type, reference_links):
+        article = Article.query.filter_by(id=article_id).first()
+        if article:
+            article.title = title
+            article.source_id = source_id
+            article.category_id = category_id
+            article.status = status
+            article.permit_comment = permit_comment
+            article.image_name = image_name
+            article.content = content
+            article.content_type = content_type
+
+            keyword_list = keywords.split(',')
+            if len(keyword_list) > 0:
+                for keyword in keyword_list:
+                    keyword = Keyword.insert_keyword(keyword, Article.get_keyword_color())
+                    article_keyword = ArticleKeywords.query.filter(and_(ArticleKeywords.article_id==article.id, ArticleKeywords.keyword_id==keyword.id)).first()
+                    if not article_keyword:
+                        article_keyword = ArticleKeywords(article=article, keyword=keyword)
+                    article.keywords.append(article_keyword)
+                    db.session.add(article_keyword)
+
+            if len(reference_links) > 0:
+                article_reference_links = ArticleReferenceLink.update_reference_link(article_id, reference_links)
+                article.reference_links = article_reference_links
+            else:
+                ArticleReferenceLink.remove_reference_link_by_article_id(article_id)
+                article.reference_links = None
+            db.session.add(article)
+            db.session.commit()
+
+    @staticmethod
+    def delete_article(name):
+        article = Article.query.filter_by(name = name).first()
+        if article:
+            db.session.delete(article)
+            db.session.commit()
+
+    @staticmethod
+    def delete_article_by_ids(ids):
+        articles = Article.query.filter(Article.id.in_(ids))
+        if articles:
+            for article in articles:
+                db.session.delete(article)
+            db.session.commit()
+
+    def __repr__(self):
+        return '<Article title %r>' % self.title
+
+# 初始化测试数据
 class InitData(object):
     """初始化数据库"""
     def __init__(self):
+        self.init_dict()
         self.resources = self.create_resources()
         self.create_rights()
         self.create_role()
@@ -831,13 +1596,29 @@ class InitData(object):
 
 
 
-    def create_log(self):
-        action = 'update user name'
-        log_detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation'
-        return Log.insert_logs(action, log_detail)
+    def init_dict(self):
+        # 初始化字典数据
+        ArticleContentType.init()
+        ArticleSource.init()
+        ArticleCategory.init()
+        Keyword.init()
+        ChatRoom.init()
+
+
+    def create_article(self):
+        pass
+
+    def create_log(self, action, resource, detail, status=True):
+        return ActionLog.insert_logs(action, resource, status, detail)
 
     def create_message(self):
-        return  Message.insert_message('test', "this is a test message")
+        message =  Message.insert_message('test', "this is a test message", 'group')
+        ChatRoom.send_message('system_notice', message)
+        return message
+    def create_message_to_wfj(self):
+        message =  Message.insert_message('test1', "this is a test message to wfj")
+        ChatRoom.send_message('admin_wfj', message)
+        return message
 
     def create_address(self):
         name = 'my home'
@@ -847,12 +1628,13 @@ class InitData(object):
         return Address.insert_address(name, country, city, address_detail, True)
 
     def create_audit_log(self):
+        login_province = 'Beijin'
         login_city = 'Beijin'
         login_address = 'Beijin of China, chao yang country'
         ip = '192.168.1.123'
         login_time = datetime.now()
         logout_time = datetime.now()
-        return AuditLog.insert_audit_logs(login_city, login_address, ip, login_time, logout_time)
+        return AuditLog.insert_audit_logs(login_province, login_city, login_address, ip, login_time, logout_time)
 
     def create_user(self):
         username = 'Administrator'
@@ -860,24 +1642,31 @@ class InitData(object):
         password = 'this_is_a_test_account'
         telephone = '13641361488'
         address = self.create_address()
-        log = self.create_log()
-        log1 = self.create_log()
+        log = self.create_log(action = 'update',
+                              resource = 'user',
+                              status = True,
+                              detail = 'update user<id=1, name="haha"> to user<id=1, name="lala">, result: successful operation')
+        log1 = self.create_log(action = 'create',
+                              resource = 'role',
+                              status = False,
+                              detail = 'create role<id=1, name="haha"> to role<id=1, name="lala">, result: successful operation')
         message = self.create_message()
+        message1 = self.create_message_to_wfj()
         audit_log = self.create_audit_log()
         return User.insert_users(username, email, password, telephone=telephone,
-                                 addresses=[address], logs=[log,log1], messages=[message], audit_logs=[audit_log], is_admin=True, confirmed=True)
+                                 addresses=[address], action_logs=[log,log1], messages=[message, message1], audit_logs=[audit_log], is_admin=True, confirmed=True)
     def create_a_test_user(self):
-        User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)
+        wfj = User.insert_users('wfj', 'wfj@163.com', 'test', status=False, confirmed=True)
+        wfj.add_to_chat_room('admin_wfj')
+        haha = User.insert_users('haha', 'haha@163.com', 'test', status=True, confirmed=True)
+        haha.add_to_chat_room('admin_haha')
         User.insert_users('jj', 'jj@163.com', 'test', status=True, confirmed=True)
         User.insert_users('da', 'da@163.com', 'test', status=False, confirmed=True)
         User.insert_users('fafa', 'fafa@163.com', 'test', status=True, confirmed=True)
-        User.insert_users('ww', 'ww@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('efa', 'efa@163.com', 'test', status=True, confirmed=True)
-        User.insert_users('aaa', 'aaa@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('ccc', 'ccc@163.com', 'test', status=False, confirmed=True)
-        User.insert_users('bbb', 'bbb@163.com', 'test', status=True, confirmed=True)
-        return User.insert_users('test', 'test@163.com', 'test')
+        test = User.insert_users('test', 'test@163.com', 'test')
+        test.add_to_chat_room('admin_test')
+        return test
+
 
     def create_rights(self):
         rights = {

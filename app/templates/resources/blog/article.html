@@ -1,277 +1,161 @@
 {% from 'macro/__frame__.html' import frame_search, page_navigation %}
-{% import 'macro/__article__.html' as article %}
+{% import 'macro/__article__.html' as article_side %}
 {% extends "framework.html" %}
 {% block script %}
-<script type="text/javascript">
-    $(document).ready(function() {
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/post.css') }}" crossorigin="anonymous">
+    <script src="{{ url_for('static', filename = 'js/jquery.tagcanvas.min.js') }}" crossorigin="anonymous"></script>
+    <style type="text/css">
+        /*控制文章部分显示*/
+        .blog-post-simple-content{
+            max-height: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+    </style>
 
-    });
-</script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var pre_set_color = {
+                0:   'red',
+                0.5: 'orange',
+                1:   'rgba(0,0,0,0.1)'
+            };
+            var counter = 0;
+            var tag_option = {
+                interval: 20,
+                textFont: 'Arial, Helvetica, sans-serif',
+                textColour: '#337ab7',
+                textHeight: 25,
+                outlineMethod: 'colour',
+                outlineColour: 'red',
+                outlineThickness: 1,
+                maxSpeed: 0.04,
+                minSpeed: 0.01,
+                minBrightness: 0.1,
+                depth: 0.92,
+                outlineOffset: 0,
+                shadowOffset: [1,1],
+                stretchX: 0.7,
+                pulsateTo: 0.2,
+                pulsateTime: 0.75,
+                initial: [0.1,-0.1],
+                decel: 0.98,
+                reverse: true,
+                wheelZoom: false,
+                hideTags: false,
+                shuffleTags: true,
+                shadow: '#ccf',
+                shadowBlur: 3,
+                weight: true,
+                weightFrom: 'data-weight',
+                weightGradient: pre_set_color,
+                clickToFront: 600,
+                weightMode:'both',
+                fadeIn: 800
+            };
+            $("#CloudTag-3D-Canvas").tagcanvas(tag_option, 'ExtendCloudTag');
+        });
+    </script>
 {% endblock script %}
-{% block title %}Article{% endblock title %}
-{% block search %}
-    {{frame_search('article')}}
-{% endblock search %}
-
+{% block title %}Blog{% endblock title %}
 {% block content %}
     <!-- 面板 -->
     <div class="panel panel-default">
         <!-- Default panel contents -->
-        <div class="panel-heading">Panel heading</div>
+        <div class="panel-heading">Article List
+        </div>
         <div class="panel-body">
-            <form class="form">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1"><span class="fa fa-user"></span></span>
-                            <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+            {% for article in article_list %}
+                <article class="clearfix blogpost object-non-visible animated object-visible fadeInUpSmall" data-animation-effect="fadeInUpSmall" data-effect-delay="200">
+                    {% if loop.index == 1 and article.image_name %}
+                        <div class="overlay-container">
+                            <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" alt="">
                         </div>
+                    {% endif %}
+                    <div class="blogpost-body">
+                        <div class="post-info">
+                            <span class="day">{{article.public_time|string|truncate(10, True, end='')|reverse|truncate(2, True, end='')|reverse}}</span>
+                            <span class="month">{{article.public_time|string|truncate(7, True, end='')}}</span>
+                        </div>
+                        <div class="blogpost-content">
+                            <header>
+                                <h2 class="title">
+                                    <a href="{{ url_for('.one_article', username=current_user.name, article_id=1) }}">{{article.title}}</a>
+                                </h2>
 
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                                <span class="input-group-addon">
-                                    <span class="fa fa-envelope-o"></span>
-                                </span>
-                            <input type="text" class="form-control" placeholder="Email">
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                </div>
-                <br>
-
-                <div class="row">
-
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                                <span class="input-group-addon">
-                                    Order
-                                </span>
-                            <select class="form-control">
-                                <option>Article Title</option>
-                                <!-- (点击链接可以查看访问者的IP，地域分布，IP请求次数等等) -->
-                                <option>View Count</option>
-                                <option>Comment Count</option>
-                                <option>Permit Comment</option>
-                                <option>Public Time</option>
-                                <option>Last Change Time</option>
-                                <option>Last View Time</option>
-                            </select>
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <div class="form-control">
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineActived" value="option1"> Actived
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" id="inlineInactived" value="option2"> Inactived
-                                </label>
+                                <div class="submitted">
+                                    <i class="fa fa-user pr-5"></i> by <a href="#">{{article.author}}</a>
+                                </div>
+                            </header>
+                            {% if loop.index > 1 and article.image_name %}
+                                <img src="{{ url_for('resource.uploaded_file', username=current_user.name, filename=article.image_name) }}" alt="">
+                            {% endif %}
+                            <div id="article_simple_content" class="blog-post-simple-content" >
+                                {{article.content | string | safe }}
                             </div>
 
-
-                        </div><!-- /input-group -->
-                    </div><!-- /.col-lg-6 -->
-                </div><!-- /.row -->
-                <br>
-
-
-                <div class="row">
-                    <div class="col-lg-6">
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="pull-right">
-                            <button type="submit" class="btn btn-default">Search</button>
                         </div>
                     </div>
+                    <footer class="clearfix">
+                        <ul class="links pull-left">
+                            <li><i class="fa fa-comments pr-5"></i> <a href="#">{{ article.comments.count() }} comments</a> |</li>
+                            <li><i class="fa fa-tags pr-5"></i>
+                                {% for article_keyword in article.keywords %}
+                                    <a href="#">{{article_keyword.keyword.name }}</a>
+                                    {% if loop.index <= loop.length - 1 %},{% endif %}
+                                {% endfor %}
+                            </li>
+                        </ul>
+                        <a class="pull-right link" href="{{ url_for('resource.one_article', username=current_user.name, article_id=article.id) }}"><span>Read more</span></a>
+                    </footer>
+                </article>
+            {% endfor %}
 
-                </div>
-            </form>
         </div>
-        <!-- Table -->
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" value="option1" >
-                    </th>
-                    <th>ID</th>
-                    <th>Article Title</th>
-                    <th>View Count</th>
-                    <th>Comment Count</th>
-                    <th>Permit Comment</th>
-                    <th>Public Time</th>
-                    <th>Last Change Time</th>
-                    <th>Last View Time</th>
-                    <th>Last Comment Time</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="blankCheckbox_1" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">1</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <!--这里添加链接，可以查看最后评论用户的信息，用户个人信息等等-->
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_2" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">2</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_3" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">3</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_4" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">4</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_5" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">5</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_6" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">6</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td scope="row">
-                        <input type="checkbox" id="blankCheckbox_7" value="option1" aria-label="...">
-                    </td>
-                    <td scope="row">7</td>
-                    <td>Mark Life</td>
-                    <td><a href="#">12</a></td>
-                    <td><a href="#">12</a></td>
-                    <td><span class="glyphicon glyphicon-ok-sign"></span> </td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td>2014-11-24 13:16:44</td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td><a href="#">2014-11-24 13:16:44</a></td>
-                    <td>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <a href="#"><span class="fa fa-refresh"></span></a>
-                            <a href="#"><span class="fa fa-lock"></span></a>
-                            <a href="#"><span class="fa fa-unlock"></span></a>
-
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <!-- 评论使用 -->
+        <div class="panel-footer">
         </div>
     </div>
-    {{ page_navigation(10, 1, 'http://test.com/page') }}
+
 {% endblock content %}
 
 {% block sidebar %}
-    {{ article.article_menu_navigation('Article') }}
-{% endblock sidebar %}
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <div class="panel-heading">Keyword Cloud</div>
+            <div class="panel-body">
+                <canvas width="240em" height="240em" id="CloudTag-3D-Canvas">
+                    <p>Anything in here will be replaced on browsers that support the canvas element</p>
+                </canvas>
 
+                <div id="ExtendCloudTag" style="display: none">
+                    <ul>
+                        {% for keyword in keywords_cloud %}
+                            <li><a href="{{ url_for('resource.article', username=current_user.name, keyword_id=keyword.id) }}">{{ keyword.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="panel panel-default">
+            <div class="panel-heading">Aritcle Category</div>
+            <div class="panel-body">
+                <ul class="nav nav-pills nav-stacked">
+                    {% for category in category_side_nav %}
+                        <li role="presentation">
+                            <a href="{{ url_for('resource.article', username=current_user.name, category_id=category.id) }}">{{ category.name }}
+                                <span class="badge pull-right">{{ category.articles.count() }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <br>
+    </div>
+{% endblock sidebar %}

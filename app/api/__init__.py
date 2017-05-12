@@ -10,3 +10,4 @@
 from flask import Blueprint
 
 api_v1_blueprint = Blueprint('v1', __name__)
+from v1.user import UserAPI
