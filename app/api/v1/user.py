@@ -28,7 +28,7 @@ class UserAPI(MethodView):
             users = User.query.all()
             for user in users:
                 user_list.append(user.to_json())
-            return jsonify(user_list)
+            return jsonify({'status':True, 'result':user_list})
         else:
             # 处理单个用户
             user = User.query.get_or_404(user_id)
