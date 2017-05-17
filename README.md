@@ -1,6 +1,11 @@
 # Everyeye
 Used to manage users, roles, permissions, resource information, etc
 
+## 测试地址
+    - 目前还处于开发阶段，观看已部署的环境http://120.24.90.236/
+    - 管理员账号 admin@163.com  admin
+    - 测试账号 wfj@163.com  wfj
+    - 关于账号注册中的邮件激活，由于未设置管理员邮箱，顾不能使用
 ## Intrduction REST API
 ### 功能：实现用户，角色，用户组，权限，资源的管理
 ### 需求：
@@ -17,6 +22,20 @@ Used to manage users, roles, permissions, resource information, etc
         - 支持bug列表，用户可以提交系统bug与改进建议
         - 支持系统package下载，一键安装
         - 权限控制，通过后台禁用某项权限，前台页面以及url访问返回404
+        - 优化部分：
+            1. 博客，评论，访问量等排名统计，支持后台算法并使用redis有序集合实时展现
+            2. 站内消息，订阅发布采用redis的消息订阅和socketio进行实时推送
+        - 文章博客排名
+            根据最新发布时间和文章评分进行排名，同一个用户不能进行多次投票，文章发布一周之后不能进行投票，投票只增加不减少
+                使用redis进行处理这部分信息
+                a. 散列值存储文章信息
+                    hash name ->  article:<article_id>  注意：这里的冒号用于分隔符，构建命名空间
+                                    key   value
+                                  title   <title>
+                                  link    <link>
+                                  poster  <user:<user_id>>
+                                  time    <time utc>
+                                  votes   <votes number>
 
 ### URL地址规范
     0. http://www.domain.com/article  展示总的文章

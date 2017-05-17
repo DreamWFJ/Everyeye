@@ -1637,9 +1637,9 @@ class InitData(object):
         return AuditLog.insert_audit_logs(login_province, login_city, login_address, ip, login_time, logout_time)
 
     def create_user(self):
-        username = 'Administrator'
+        username = 'admin'
         email = 'admin@163.com'
-        password = 'this_is_a_test_account'
+        password = 'admin'
         telephone = '13641361488'
         address = self.create_address()
         log = self.create_log(action = 'update',
