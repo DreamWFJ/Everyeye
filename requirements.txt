@@ -20,3 +20,4 @@ flask-wtf>=0.14.2
 flask-socketio>=2.8.6
 flask-markdown>=0.3
 flask-redis>=0.3.0
+xlwt>=1.2.0

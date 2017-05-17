@@ -1,6 +1,11 @@
 # Everyeye
 Used to manage users, roles, permissions, resource information, etc
 
+## 测试地址
+    - 目前还处于开发阶段，观看已部署的环境http://120.24.90.236/
+    - 管理员账号 admin@163.com  admin
+    - 测试账号 wfj@163.com  wfj
+    - 关于账号注册中的邮件激活，由于未设置管理员邮箱，顾不能使用
 ## Intrduction REST API
 ### 功能：实现用户，角色，用户组，权限，资源的管理
 ### 需求：
